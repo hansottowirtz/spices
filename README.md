@@ -29,6 +29,8 @@ To build it, print the `spacer-*.stl` and `holder.stl` files you can find in `ra
 
 You need 2 1.5mm rods per layer (I used steel rods), which you will need to cut to size and press fit into the spacers. Per spacer, you will also need 1 M3 bolt of 10mm length and 1 M3 nuts of less than 2.5mm depth. For each holder, you will need two screws.
 
+You can find the project on Thingiverse [here](https://www.thingiverse.com/thing:5518704).
+
 ## Construction pictures
 
 <img src="samples/IMG_2569.jpg" width="300"/>
