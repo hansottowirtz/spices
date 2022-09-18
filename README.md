@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="samples/collage.png" width="800"/>
+</p>
+
 # Spices
 
 This repo contains information I used to build a spice rack.
