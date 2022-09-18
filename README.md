@@ -22,6 +22,20 @@ The images are cut out using Adobe Photoshop and the layout of the labels is don
 
 The rack was designed in Autodesk's Fusion 360, and fits IKEA's Rajtan jars.
 
+<img src="samples/rack frontside.png" width="300"/>
+<img src="samples/rack backside.png" width="300"/>
+
+To build it, print the `spacer-*.stl` and `holder.stl` files you can find in `rack`.
+
+You need 2 1.5mm rods per layer (I used steel rods), which you will need to cut to size and press fit into the spacers. Per spacer, you will also need 1 M3 bolt of 10mm length and 1 M3 nuts of less than 2.5mm depth. For each holder, you will need two screws.
+
+## Construction pictures
+
+<img src="samples/IMG_2569.jpg" width="300"/>
+<img src="samples/IMG_2570.jpg" width="300"/>
+<img src="samples/IMG_2616.jpg" width="300"/>
+<img src="samples/IMG_2954.jpg" width="300"/>
+
 ## Sources
 
 Some of these books were easily found on archive.org, but some were really hard to find. I did my best to use only images that are in the public domain, if you have any concerns about it open an issue or send me an email.
