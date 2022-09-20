@@ -52,6 +52,8 @@ by Hermann Adolph Köhler
 
 Published in 4 "Bands" (volumes)
 
+[Biodiversity Heritage Library](https://www.biodiversitylibrary.org/bibliography/623)
+
 DJVU files found via LibGen:
 
 [Volume 1](https://libgen.li/edition.php?id=136892691)
