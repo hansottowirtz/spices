@@ -206,12 +206,12 @@ The structure of the project is as follows. Keep in mind that the files aren't v
 
 I tried to use appropriate fonts for every used language. These are as follows:
 
-- Main text: Renslaer
-- Arabic: BM Hanna Pro
-- Chemical name: Courier
-- Chinese: Fontquan-XinYiJiXiangSong
-- E-code: Menlo
-- Devanagari: Khmer MN
-- Hindi/Urdu: Laila
-- Latin: League Script
-- Syrian: Noto Sans Syriac
+- Main text: [Renslaer](https://www.fontspring.com/fonts/ingrimayne-type/renslaer) - not free
+- Arabic: [Noto Sans Arabic](https://fonts.google.com/noto/specimen/Noto+Sans+Arabic) - fully free (OFL)
+- Chemical name: Courier - included on macOS
+- Chinese: [XinYiJiXiangSong/欣意吉祥宋](https://www.zfont.cn/cn/font_272.html) - free for commercial use
+- E-code: [Meslo](https://github.com/andreberg/Meslo-Font/raw/master/dist/v1.2/Meslo%20LG%20v1.2.zip) - fully (Apache License 2.0)
+- Devanagari: [Laila (Light)](https://fonts.google.com/specimen/Laila) - fully free (OFL)
+- Hindi/Urdu: Khmer MN - included on macOS
+- Latin: [Petit Formal Script](https://fonts.google.com/specimen/Petit+Formal+Script) - fully free (OFL)
+- Syrian: [Noto Sans Syriac](https://fonts.google.com/noto/specimen/Noto+Sans+Syriac) - fully free (OFL)
