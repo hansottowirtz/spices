@@ -1,13 +1,11 @@
 "use client";
 
-import { useCallback } from "react";
-import { Svg } from "@svgdotjs/svg.js";
+import { Fragment, useId } from "react";
 import { Spice } from "@/lib/spices";
 
 const SIZE = 600;
 
-function drawCircleSector(
-  draw: Svg,
+function calculateCircleSectionPath(
   radius: number,
   startAngle: number,
   endAngle: number,
@@ -27,7 +25,7 @@ function drawCircleSector(
 
   const rx = radius;
   const ry = radius;
-  // return draw.path(`M ${midpointX - dx1} ${midpointY - dy1} L ${midpointX} ${midpointY}`)
+
   const xAxisRotation = 0;
   const largeArcFlag =
     (startAngle > endAngle ? 1 : 0) ^
@@ -36,170 +34,280 @@ function drawCircleSector(
 
   // A rx ry x-axis-rotation large-arc-flag sweep-flag x y
   if (invert) {
-    return draw.path(
-      `M ${endx} ${endy} A ${rx} ${ry} ${xAxisRotation} ${largeArcFlag} ${sweepFlag} ${startx} ${starty}`
-    );
+    return `M ${endx} ${endy} A ${rx} ${ry} ${xAxisRotation} ${largeArcFlag} ${sweepFlag} ${startx} ${starty}`;
   }
-  {
-    return draw.path(
-      `M ${startx} ${starty} A ${rx} ${ry} ${xAxisRotation} ${largeArcFlag} ${sweepFlag} ${endx} ${endy}`
-    );
-  }
+  return `M ${startx} ${starty} A ${rx} ${ry} ${xAxisRotation} ${largeArcFlag} ${sweepFlag} ${endx} ${endy}`;
 }
 
-function createTextPath(
-  draw: Svg,
-  radius: number,
-  parentRadius: number,
-  startAngle: number = 0,
-  endAngle: number = Math.PI,
-  invert: boolean
-) {
-  const randomId = Math.random().toString(36).substring(7);
-  const id = `arc-${randomId}`;
-  const path = drawCircleSector(
-    draw,
-    radius,
-    startAngle,
-    endAngle,
-    invert,
-    parentRadius,
-    parentRadius
-  )
-    // .stroke("#f00")
-    .fill("transparent")
-    .attr("id", id);
-  const textPath = draw
-    .element("text")
-    .element("textPath")
-    .attr("href", `#${id}`)
-    .attr("startOffset", "50%")
-    .attr("text-anchor", "middle");
-  return textPath;
-}
-
-function addStroke(el: SVGElement) {
-  el.setAttribute("paint-order", "stroke");
-  el.style.stroke = "#ffffffbb";
-  el.style.strokeWidth = "8px";
+function CircularTextPath({
+  radius,
+  startAngle,
+  endAngle,
+  invert,
+  children,
+  strokeStyles,
+}: {
+  radius: number;
+  startAngle: number;
+  endAngle: number;
+  invert?: boolean;
+  children: React.ReactNode;
+  strokeStyles?: React.CSSProperties[];
+}) {
+  const id = useId();
+  return (
+    <>
+      <defs>
+        <path
+          id={`circle-${id}`}
+          d={calculateCircleSectionPath(
+            radius,
+            startAngle,
+            endAngle,
+            !!invert,
+            SIZE / 2,
+            SIZE / 2
+          )}
+        />
+      </defs>
+      <text>
+        {strokeStyles?.map((strokeStyle, i) => (
+          <textPath
+            key={i}
+            href={`#circle-${id}`}
+            startOffset="50%"
+            textAnchor="middle"
+            style={strokeStyle}
+          >
+            {children}
+          </textPath>
+        ))}
+        <textPath
+          key={"main"}
+          href={`#circle-${id}`}
+          startOffset="50%"
+          textAnchor="middle"
+        >
+          {children}
+        </textPath>
+      </text>
+    </>
+  );
 }
 
 export function LabelRenderer({ spice }: { spice: Spice }) {
-  const textLayerRef = useCallback((node: SVGSVGElement) => {
-    if (!node) return;
-
-    const draw = new Svg(node);
-    draw.clear();
-    draw.width(SIZE).height(SIZE);
-
-    const findName = (
-      names: Array<{ lang: string; value: string }>,
-      language: string
-    ) => names.find((x) => x.lang === language);
-
-    // Main title (English)
-    const englishName = findName(spice.names, "English")?.value;
-    if (englishName) {
-      const title = createTextPath(
-        draw,
-        SIZE * 0.35,
-        SIZE / 2,
-        Math.PI * (-1 / 8),
-        Math.PI * (9 / 8),
-        false
-      );
-      const tspan = title.element("tspan").words(englishName);
-      addStroke(title.node);
-      tspan.node.style.fontFamily = "Glegoo";
-      tspan.node.style.fontSize = "60px";
-      tspan.node.style.fontWeight = "bold";
-      tspan.node.style.letterSpacing = "-4px";
-    }
-
-    // Binomial name
-    const binomialName = findName(spice.names, "Binomial")?.value;
-    if (binomialName) {
-      const binomial = createTextPath(
-        draw,
-        SIZE * 0.35,
-        SIZE / 2,
-        Math.PI * (9 / 8),
-        Math.PI * (-1 / 8),
-        true
-      );
-      const tspan = binomial.element("tspan").words(binomialName);
-      addStroke(binomial.node);
-      tspan.node.style.fontFamily = "Petit Formal Script";
-      tspan.node.style.fontSize = "20px";
-    }
-
-    // Chinese name
-    const localName =
-      (spice.etymologicalOrigin
-        ? findName(spice.names, spice.etymologicalOrigin)
-        : null) ?? findName(spice.names, "Chinese Simplified");
-    const chemicalName = spice.eCode;
-    const arr = [
-      {
-        type: "local",
-        value: localName?.value!,
-        lang: localName?.lang,
-      },
-      {
-        type: "chemical",
-        value: chemicalName!,
-      },
-    ].filter((x) => !!x.value);
-    const local = createTextPath(
-      draw,
-      SIZE * 0.45,
-      SIZE / 2,
-      Math.PI * (9 / 8),
-      Math.PI * (-1 / 8),
-      true
-    );
-    for (let i = 0; i < arr.length; i++) {
-      const name = arr[i];
-      const tspan = local.element("tspan").words(name.value);
-      addStroke(local.node);
-      tspan.node.style.fontFamily =
-        name.type === "local"
-          ? name.lang === "Chinese Simplified"
-            ? "serif"
-            : "sans-serif"
-          : "Courier Prime";
-      tspan.node.style.fontSize = "40px";
-      if (i > 0) {
-        tspan.attr("dx", "5");
-      }
-      if (i < arr.length - 1) {
-        const sep = local.element("tspan").words("  /  ");
-        sep.node.style.fontSize = "35px";
-        sep.node.style.padding = "0 10px";
-        sep.attr("dx", "5");
-      }
-    }
-  }, []);
-
-  const backgroundLayerRef = useCallback((node: SVGSVGElement) => {
-    if (!node) return;
-
-    const draw = new Svg(node);
-    draw.clear();
-    draw.width(SIZE).height(SIZE);
-
-    draw.circle(SIZE).fill("#fff");
-  }, []);
-
   const imageId = spice.imageId ?? spice.id;
 
   return (
     <div className="relative" style={{ width: SIZE, height: SIZE }}>
-      <svg ref={backgroundLayerRef} className="absolute top-0 left-0"></svg>
+      <BackgroundLayerSvg className="absolute top-0 left-0" />
       <div className="absolute top-0 left-0 w-full h-full">
         <img src={`/spices/${imageId}.png`} className="w-full h-full" />
       </div>
-      <svg ref={textLayerRef} className="absolute top-0 left-0"></svg>
+      <TextLayerSvg className="absolute top-0 left-0" spice={spice} />
     </div>
   );
 }
+
+function BackgroundLayerSvg({ className }: { className: string }) {
+  return (
+    <svg
+      className={className}
+      width={SIZE}
+      height={SIZE}
+      viewBox={`0 0 ${SIZE} ${SIZE}`}
+    >
+      <circle cx={SIZE / 2} cy={SIZE / 2} r={SIZE / 2} fill="#fff" />
+    </svg>
+  );
+}
+
+const strokeStyles: React.CSSProperties[] = [
+  {
+    // opacity: 0.85,
+    paintOrder: "stroke",
+    stroke: "#ffffff",
+    strokeWidth: "8px",
+  },
+  {
+    // opacity: 0.85,
+    paintOrder: "stroke",
+    stroke: "#ffffff",
+    strokeWidth: "6px",
+  },
+  {
+    // opacity: 0.85,
+    paintOrder: "stroke",
+    stroke: "#ffffff",
+    strokeWidth: "4px",
+  },
+];
+
+const findName = (
+  names: Array<{ lang: string; value: string }>,
+  language: string
+) => names.find((x) => x.lang === language);
+
+const preferredSecondaryLanguage = "Chinese Simplified";
+
+function TextLayerSvg({
+  className,
+  spice,
+}: {
+  className: string;
+  spice: Spice;
+}) {
+  const title = findName(spice.names, "English")?.value;
+  const binomial = findName(spice.names, "Binomial")?.value;
+
+  const etymologicalOriginName = spice.etymologicalOrigin
+    ? findName(spice.names, spice.etymologicalOrigin!)
+    : undefined;
+  const mainCuisine = spice.cuisines?.[0];
+  const cuisineName = mainCuisine
+    ? findName(spice.names, mainCuisine)
+    : undefined;
+  const chemicalName = spice.eCode;
+  const secondaryName = preferredSecondaryLanguage
+    ? findName(spice.names, preferredSecondaryLanguage)
+    : undefined;
+
+  const bottom = [
+    ...(etymologicalOriginName
+      ? [
+          {
+            type: "local" as const,
+            lang: etymologicalOriginName.lang,
+            value: etymologicalOriginName.value,
+          },
+        ]
+      : []),
+    ...(cuisineName && cuisineName.lang !== etymologicalOriginName?.lang
+      ? [
+          {
+            type: "local" as const,
+            lang: cuisineName.lang,
+            value: cuisineName.value,
+          },
+        ]
+      : []),
+    ...(secondaryName &&
+    secondaryName.lang !== etymologicalOriginName?.lang &&
+    secondaryName.lang !== cuisineName?.lang
+      ? [
+          {
+            type: "local" as const,
+            lang: secondaryName.lang,
+            value: secondaryName.value,
+          },
+        ]
+      : []),
+    ...(chemicalName
+      ? [
+          {
+            type: "chemical" as const,
+            value: chemicalName!,
+          },
+        ]
+      : []),
+  ];
+
+  return (
+    <svg
+      className={className}
+      width={SIZE}
+      height={SIZE}
+      viewBox={`0 0 ${SIZE} ${SIZE}`}
+    >
+      <CircularTextPath
+        radius={SIZE * 0.35}
+        startAngle={Math.PI * (-1 / 8)}
+        endAngle={Math.PI * (9 / 8)}
+        strokeStyles={strokeStyles}
+      >
+        <tspan
+          style={{
+            fontFamily: "Glegoo",
+            fontSize: "60px",
+            fontWeight: "bold",
+            letterSpacing: "-4px",
+          }}
+        >
+          {title}
+        </tspan>
+      </CircularTextPath>
+      <CircularTextPath
+        radius={SIZE * 0.35}
+        startAngle={Math.PI * (9 / 8)}
+        endAngle={Math.PI * (-1 / 8)}
+        invert
+        strokeStyles={strokeStyles}
+      >
+        <tspan
+          style={{
+            fontFamily: "Petit Formal Script",
+            fontSize: "20px",
+          }}
+        >
+          {binomial}
+        </tspan>
+      </CircularTextPath>
+      <CircularTextPath
+        radius={SIZE * 0.43}
+        startAngle={Math.PI * (9 / 8)}
+        endAngle={Math.PI * (-1 / 8)}
+        invert
+        strokeStyles={strokeStyles}
+      >
+        {bottom.map((x, i) => {
+          return (
+            <Fragment key={i}>
+              <tspan
+                style={{
+                  fontSize: "40px",
+                  ...(x.type === "chemical"
+                    ? {
+                        fontFamily: "Courier Prime",
+                      }
+                    : bottomLanguageFontStyles[x.lang]),
+                }}
+                dx={i > 0 ? 10 : 0}
+              >
+                {x.value}
+              </tspan>
+              {i < bottom.length - 1 && (
+                <tspan
+                  style={{ fontSize: "35px", padding: "0 10px" }}
+                  dx={10}
+                >
+                  {"/"}
+                </tspan>
+              )}
+            </Fragment>
+          );
+        })}
+      </CircularTextPath>
+    </svg>
+  );
+};
+
+const bottomLanguageFontStyles: Record<string, React.CSSProperties> = {
+  "Chinese Simplified": {
+    fontFamily: "serif",
+  },
+  "Chinese Traditional": {
+    fontFamily: "serif",
+  },
+  Korean: {
+    fontFamily: "sans-serif",
+  },
+  Japanese: {
+    fontFamily: "serif",
+  },
+  Persian: {
+    fontFamily: "Noto Sans Arabic",
+  },
+  Arabic: {
+    fontFamily: "Noto Sans Arabic",
+  },
+};
