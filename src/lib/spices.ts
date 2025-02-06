@@ -621,7 +621,7 @@ export const spices: Spice[] = [
       },
       {
         lang: "Binomial",
-        value: "Zanthoxylum simulans"
+        value: "Zanthoxylum armatum"
       }
     ]
   },
@@ -958,6 +958,31 @@ export const spices: Spice[] = [
         romanised: "raʾs al-ḥānūt",
       }
     ],
+  },
+  {
+    id: "red sichuan pepper",
+    type: "natural",
+    cuisines: ["Chinese"],
+    names: [
+      {
+        lang: "English",
+        value: "Red Sichuan pepper"
+      },
+      {
+        lang: "Chinese Simplified",
+        value: "红花椒",
+        romanised: "hóng huājiāo"
+      },
+      {
+        lang: "Chinese Traditional",
+        value: "紅花椒",
+        romanised: "hóng huājiāo"
+      },
+      {
+        lang: "Binomial",
+        value: "Zanthoxylum bungeaneum"
+      }
+    ]
   },
   {
     id: "rose pepper",
