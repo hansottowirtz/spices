@@ -46,6 +46,7 @@ function CircularTextPath({
   invert,
   children,
   strokeStyles,
+  wireframe,
 }: {
   radius: number;
   startAngle: number;
@@ -53,23 +54,23 @@ function CircularTextPath({
   invert?: boolean;
   children: React.ReactNode;
   strokeStyles?: React.CSSProperties[];
+  wireframe?: boolean;
 }) {
   const id = useId();
   return (
     <>
-      <defs>
-        <path
-          id={`circle-${id}`}
-          d={calculateCircleSectionPath(
-            radius,
-            startAngle,
-            endAngle,
-            !!invert,
-            SIZE / 2,
-            SIZE / 2
-          )}
-        />
-      </defs>
+      <path
+        id={`circle-${id}`}
+        d={calculateCircleSectionPath(
+          radius,
+          startAngle,
+          endAngle,
+          !!invert,
+          SIZE / 2,
+          SIZE / 2
+        )}
+        className={`fill-none ${wireframe ? 'stroke-pink-500' : 'stroke-none'}`}
+      />
       <text>
         {strokeStyles?.map((strokeStyle, i) => (
           <textPath
@@ -95,7 +96,9 @@ function CircularTextPath({
   );
 }
 
-export function LabelRenderer({ spice, outline, ref }: { spice: Spice, outline?: boolean, ref?: Ref<HTMLDivElement> }) {
+export function LabelRenderer({ spice, outline, ref, settings }: { spice: Spice, outline?: boolean, settings: {
+  textSettings: TextSettings
+}, ref?: Ref<HTMLDivElement> }) {
   const imageId = spice.imageId ?? spice.id;
 
   return (
@@ -104,10 +107,22 @@ export function LabelRenderer({ spice, outline, ref }: { spice: Spice, outline?:
       <div className="absolute top-0 left-0 w-full h-full">
         <img src={`/spices/${imageId}.png`} className={`w-full h-full ${outline ? "outline rounded-full outline-2 outline-black dark:outline-0" : ""}`} />
       </div>
-      <TextLayerSvg className="absolute top-0 left-0" spice={spice} />
+      <TextLayerSvg className="absolute top-0 left-0" spice={spice} settings={settings.textSettings} />
     </div>
   );
 }
+
+type TextSettings = {
+  title: {
+    margin: number;
+  },
+  binomial: {
+    margin: number;
+  },
+  bottom: {
+    margin: number;
+  },
+};
 
 function BackgroundLayerSvg({ className }: { className: string }) {
   return (
@@ -153,9 +168,11 @@ const preferredSecondaryLanguage = "Chinese Simplified";
 function TextLayerSvg({
   className,
   spice,
+  settings,
 }: {
   className: string;
   spice: Spice;
+  settings: TextSettings;
 }) {
   const title = findName(spice.names, "English")?.value;
   const binomial = findName(spice.names, "Binomial")?.value;
@@ -220,9 +237,9 @@ function TextLayerSvg({
       viewBox={`0 0 ${SIZE} ${SIZE}`}
     >
       <CircularTextPath
-        radius={SIZE * 0.35}
-        startAngle={Math.PI * (-1 / 8)}
-        endAngle={Math.PI * (9 / 8)}
+        radius={(SIZE / 2) * settings.title.margin}
+        startAngle={Math.PI * (-3 / 8)}
+        endAngle={Math.PI * (11 / 8)}
         strokeStyles={strokeStyles}
       >
         <tspan
@@ -230,16 +247,17 @@ function TextLayerSvg({
             fontFamily: "Glegoo",
             fontSize: "60px",
             fontWeight: "bold",
-            letterSpacing: "-4px",
+            letterSpacing: "-1px",
           }}
+          alignmentBaseline="middle"
         >
           {title}
         </tspan>
       </CircularTextPath>
       <CircularTextPath
-        radius={SIZE * 0.35}
-        startAngle={Math.PI * (9 / 8)}
-        endAngle={Math.PI * (-1 / 8)}
+        radius={(SIZE / 2) * settings.binomial.margin}
+        startAngle={Math.PI * (5 / 8)}
+        endAngle={Math.PI * (3 / 8)}
         invert
         strokeStyles={strokeStyles}
       >
@@ -248,14 +266,15 @@ function TextLayerSvg({
             fontFamily: "Petit Formal Script",
             fontSize: "20px",
           }}
+          alignmentBaseline="middle"
         >
           {binomial}
         </tspan>
       </CircularTextPath>
       <CircularTextPath
-        radius={SIZE * 0.43}
-        startAngle={Math.PI * (9 / 8)}
-        endAngle={Math.PI * (-1 / 8)}
+        radius={(SIZE / 2) * settings.bottom.margin}
+        startAngle={Math.PI * (5 / 8)}
+        endAngle={Math.PI * (3 / 8)}
         invert
         strokeStyles={strokeStyles}
       >
@@ -272,6 +291,7 @@ function TextLayerSvg({
                     : bottomLanguageFontStyles[x.lang]),
                 }}
                 dx={i > 0 ? 10 : 0}
+                alignmentBaseline="middle"
               >
                 {x.value}
               </tspan>
@@ -279,6 +299,7 @@ function TextLayerSvg({
                 <tspan
                   style={{ fontSize: "35px", padding: "0 10px" }}
                   dx={10}
+                  alignmentBaseline="middle"
                 >
                   {"/"}
                 </tspan>

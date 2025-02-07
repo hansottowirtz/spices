@@ -1,5 +1,6 @@
 import { LabelRenderer } from "@/app/LabelRenderer";
 import { ExportLabelButton } from "@/components/export-label-button";
+import { LabelPage } from "@/components/label-page";
 import { Button } from "@/components/ui/button";
 import { spices } from "@/lib/spices";
 import { notFound } from "next/navigation";
@@ -16,11 +17,10 @@ export default async function Page({
     notFound();
   }
   const title = spice.names.find((name) => name.lang === "English")?.value ?? spice.id;
+
   return (
     <div className="p-4 flex flex-row flex-wrap gap-2">
-      <div className="p-4 min-w-[600px]">
-        <LabelRenderer spice={spice} outline />
-      </div>
+      <LabelPage spice={spice} />
       <div>
         <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">
           {title}
