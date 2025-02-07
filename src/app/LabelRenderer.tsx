@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useId } from "react";
+import { Fragment, Ref, useId } from "react";
 import { Spice } from "@/lib/spices";
 
 const SIZE = 600;
@@ -95,14 +95,14 @@ function CircularTextPath({
   );
 }
 
-export function LabelRenderer({ spice }: { spice: Spice }) {
+export function LabelRenderer({ spice, outline, ref }: { spice: Spice, outline?: boolean, ref?: Ref<HTMLDivElement> }) {
   const imageId = spice.imageId ?? spice.id;
 
   return (
-    <div className="relative" style={{ width: SIZE, height: SIZE }}>
+    <div className="relative" style={{ width: SIZE, height: SIZE }} ref={ref}>
       <BackgroundLayerSvg className="absolute top-0 left-0" />
       <div className="absolute top-0 left-0 w-full h-full">
-        <img src={`/spices/${imageId}.png`} className="w-full h-full" />
+        <img src={`/spices/${imageId}.png`} className={`w-full h-full ${outline ? "outline rounded-full outline-2 outline-black dark:outline-0" : ""}`} />
       </div>
       <TextLayerSvg className="absolute top-0 left-0" spice={spice} />
     </div>

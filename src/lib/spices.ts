@@ -74,7 +74,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "anardana powder",
+    id: "anardana-powder",
     type: "natural",
     cuisines: ["Indian"],
     names: [
@@ -118,7 +118,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "baking soda",
+    id: "baking-soda",
     type: "chemical",
     cuisines: [],
     chemicalFormula: "NaHCO3",
@@ -135,7 +135,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "bay leaf",
+    id: "bay-leaf",
     type: "natural",
     cuisines: [],
     names: [
@@ -154,7 +154,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "black cardamom",
+    id: "black-cardamom",
     type: "natural",
     cuisines: ["Indian"],
     names: [
@@ -173,7 +173,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "black mustard seeds",
+    id: "black-mustard-seeds",
     type: "natural",
     cuisines: ["Indian"],
     names: [
@@ -188,7 +188,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "black sesame seeds",
+    id: "black-sesame-seeds",
     type: "natural",
     cuisines: [],
     names: [
@@ -203,7 +203,7 @@ export const spices: Spice[] = [
     ] 
   },
   {
-    id: "brown mustard seeds",
+    id: "brown-mustard-seeds",
     type: "natural",
     names: [
       {
@@ -217,7 +217,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "cassia cinnamon",
+    id: "cassia-cinnamon",
     type: "natural",
     names: [
       {
@@ -231,7 +231,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "cayenne pepper",
+    id: "cayenne-pepper",
     type: "natural",
     names: [
       {
@@ -245,7 +245,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "ceylon cinnamon",
+    id: "ceylon-cinnamon",
     type: "natural",
     names: [
       {
@@ -259,7 +259,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "chinese five spice",
+    id: "chinese-five-spice",
     type: "natural",
     cuisines: ["Chinese"],
     names: [
@@ -298,7 +298,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "citric acid",
+    id: "citric-acid",
     type: "chemical",
     cuisines: [],
     chemicalFormula: "C6H8O7",
@@ -333,7 +333,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "coriander leaves",
+    id: "coriander-leaves",
     type: "natural",
     cuisines: ["Indian"],
     names: [
@@ -353,7 +353,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "coriander seeds",
+    id: "coriander-seeds",
     type: "natural",
     cuisines: ["Indian"],
     names: [
@@ -373,7 +373,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "cumin seeds",
+    id: "cumin-seeds",
     type: "natural",
     cuisines: ["Indian"],
     names: [
@@ -407,7 +407,7 @@ export const spices: Spice[] = [
     ]
   },
   // {
-  //   id: "curry leaves",
+  //   id: "curry-leaves",
   //   type: "natural",
   //   cuisines: ["Indian"],
   //   names: [
@@ -427,7 +427,7 @@ export const spices: Spice[] = [
   //   ]
   // },
   {
-    id: "dill seeds",
+    id: "dill-seeds",
     type: "natural",
     cuisines: [],
     names: [
@@ -442,7 +442,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "fennel seeds",
+    id: "fennel-seeds",
     type: "natural",
     cuisines: ["Indian"],
     names: [
@@ -462,7 +462,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "fenugreek leaves",
+    id: "fenugreek-leaves",
     type: "natural",
     cuisines: ["Indian"],
     names: [
@@ -482,7 +482,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "fenugreek seeds",
+    id: "fenugreek-seeds",
     type: "natural",
     cuisines: ["Indian"],
     names: [
@@ -502,7 +502,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "galangal powder",
+    id: "galangal-powder",
     type: "natural",
     cuisines: ["Thai"],
     names: [
@@ -517,7 +517,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "garam masala",
+    id: "garam-masala",
     type: "natural",
     cuisines: ["Indian"],
     names: [
@@ -533,7 +533,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "garlic powder",
+    id: "garlic-powder",
     type: "natural",
     names: [
       {
@@ -547,7 +547,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "ginger powder",
+    id: "ginger-powder",
     type: "natural",
     names: [
       {
@@ -582,7 +582,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "green cardamom",
+    id: "green-cardamom",
     type: "natural",
     cuisines: ["Indian"],
     names: [
@@ -601,7 +601,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "green sichuan pepper",
+    id: "green-sichuan-pepper",
     type: "natural",
     cuisines: ["Chinese"],
     names: [
@@ -626,7 +626,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "ground cassia cinnamon",
+    id: "ground-cassia-cinnamon",
     type: "natural",
     names: [
       {
@@ -640,7 +640,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "ground ceylon cinnamon",
+    id: "ground-ceylon-cinnamon",
     type: "natural",
     names: [
       {
@@ -654,7 +654,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "ground coriander seeds",
+    id: "ground-coriander-seeds",
     type: "natural",
     cuisines: ["Indian"],
     names: [
@@ -674,7 +674,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "ground cumin seeds",
+    id: "ground-cumin-seeds",
     type: "natural",
     cuisines: ["Indian"],
     names: [
@@ -694,7 +694,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "ground fennel seeds",
+    id: "ground-fennel-seeds",
     type: "natural",
     cuisines: ["Indian"],
     names: [
@@ -714,7 +714,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "ground mace",
+    id: "ground-mace",
     type: "natural",
     names: [
       {
@@ -728,7 +728,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "ground nutmeg",
+    id: "ground-nutmeg",
     type: "natural",
     names: [
       {
@@ -756,7 +756,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "juniper berries",
+    id: "juniper-berries",
     type: "natural",
     names: [
       {
@@ -812,7 +812,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "monosodium glutamate",
+    id: "monosodium-glutamate",
     type: "chemical",
     cuisines: [
       "Chinese",
@@ -843,7 +843,7 @@ export const spices: Spice[] = [
     ],
   },
   {
-    id: "nigella seeds",
+    id: "nigella-seeds",
     type: "natural",
     cuisines: ["Indian"],
     names: [
@@ -935,7 +935,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "ras el hanout",
+    id: "ras-el-hanout",
     type: "natural",
     cuisines: [
       "Tunisian",
@@ -960,7 +960,7 @@ export const spices: Spice[] = [
     ],
   },
   {
-    id: "red sichuan pepper",
+    id: "red-sichuan-pepper",
     type: "natural",
     cuisines: ["Chinese"],
     names: [
@@ -985,7 +985,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "rose pepper",
+    id: "rose-pepper",
     type: "natural",
     names: [
       {
@@ -1080,7 +1080,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "star anise",
+    id: "star-anise",
     type: "natural",
     cuisines: ["Chinese"],
     names: [
@@ -1127,7 +1127,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "table sugar",
+    id: "table-sugar",
     type: "chemical",
     chemicalFormula: "C12H22O11",
     eCode: "E621",
@@ -1221,7 +1221,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "white pepper",
+    id: "white-pepper",
     type: "natural",
     names: [
       {
@@ -1239,7 +1239,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "white sesame seeds",
+    id: "white-sesame-seeds",
     type: "natural",
     names: [
       {
@@ -1269,7 +1269,7 @@ export const spices: Spice[] = [
     ]
   },
   {
-    id: "yellow mustard seeds",
+    id: "yellow-mustard-seeds",
     type: "natural",
     names: [
       {

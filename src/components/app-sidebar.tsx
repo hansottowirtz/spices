@@ -22,25 +22,31 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {spices.map((spice) => (
-                <SidebarMenuItem key={spice.id}>
-                  <SidebarMenuButton>
-                    <Link
-                      href={`/spices/${encodeURIComponent(spice.id)}`}
-                      className="p-4 text-sm flex flex-row gap-2 items-center"
-                    >
-                      <Image
-                        src={`/spices/${spice.imageId ?? spice.id}.png`}
-                        alt={spice.id}
-                        width={32}
-                        height={32}
-                        className="rounded-full"
-                      />
-                      {spice.id}
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {spices.map((spice) => {
+                const englishName = spice.names.find(
+                  (name) => name.lang === "English"
+                );
+                const name = englishName?.value ?? spice.id;
+                return (
+                  <SidebarMenuItem key={spice.id}>
+                    <SidebarMenuButton>
+                      <Link
+                        href={`/spices/${encodeURIComponent(spice.id)}`}
+                        className="p-4 text-sm flex flex-row gap-2 items-center leading-none"
+                      >
+                        <Image
+                          src={`/spices/${spice.imageId ?? spice.id}.png`}
+                          alt={spice.id}
+                          width={32}
+                          height={32}
+                          className="rounded-full"
+                        />
+                        {name}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
