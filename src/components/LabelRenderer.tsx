@@ -1,7 +1,9 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { Fragment, Ref, useId } from "react";
-import { Spice } from "@/lib/spices";
+import { cuisineLanguages, Spice } from "@/lib/spices";
+import { LabelStyle, Language } from "./label-settings-provider";
 
 const SIZE = 600;
 
@@ -69,7 +71,7 @@ function CircularTextPath({
           SIZE / 2,
           SIZE / 2
         )}
-        className={`fill-none ${wireframe ? 'stroke-pink-500' : 'stroke-none'}`}
+        className={`fill-none ${wireframe ? "stroke-pink-500" : "stroke-none"}`}
       />
       <text>
         {strokeStyles?.map((strokeStyle, i) => (
@@ -96,33 +98,41 @@ function CircularTextPath({
   );
 }
 
-export function LabelRenderer({ spice, outline, ref, settings }: { spice: Spice, outline?: boolean, settings: {
-  textSettings: TextSettings
-}, ref?: Ref<HTMLDivElement> }) {
+export function LabelRenderer({
+  spice,
+  outline,
+  ref,
+  style: settings,
+}: {
+  spice: Spice;
+  outline?: boolean;
+  style: LabelStyle;
+  ref?: Ref<HTMLDivElement>;
+}) {
   const imageId = spice.imageId ?? spice.id;
 
   return (
     <div className="relative" style={{ width: SIZE, height: SIZE }} ref={ref}>
       <BackgroundLayerSvg className="absolute top-0 left-0" />
       <div className="absolute top-0 left-0 w-full h-full">
-        <img src={`/spices/${imageId}.png`} className={`w-full h-full ${outline ? "outline rounded-full outline-2 outline-black dark:outline-0" : ""}`} />
+        <img
+          alt={`Image for ${spice.id}`}
+          src={`/spices/${imageId}.png`}
+          className={`w-full h-full ${
+            outline
+              ? "outline rounded-full outline-2 outline-black dark:outline-0"
+              : ""
+          }`}
+        />
       </div>
-      <TextLayerSvg className="absolute top-0 left-0" spice={spice} settings={settings.textSettings} />
+      <TextLayerSvg
+        className="absolute top-0 left-0"
+        spice={spice}
+        style={settings}
+      />
     </div>
   );
 }
-
-type TextSettings = {
-  title: {
-    margin: number;
-  },
-  binomial: {
-    margin: number;
-  },
-  bottom: {
-    margin: number;
-  },
-};
 
 function BackgroundLayerSvg({ className }: { className: string }) {
   return (
@@ -159,22 +169,20 @@ const strokeStyles: React.CSSProperties[] = [
 ];
 
 const findName = (
-  names: Array<{ lang: string; value: string }>,
+  names: Array<{ lang: Language; value: string }>,
   language: string
 ) => names.find((x) => x.lang === language);
-
-const preferredSecondaryLanguage = "Chinese Simplified";
 
 function TextLayerSvg({
   className,
   spice,
-  settings,
+  style,
 }: {
   className: string;
   spice: Spice;
-  settings: TextSettings;
+  style: LabelStyle;
 }) {
-  const title = findName(spice.names, "English")?.value;
+  const title = findName(spice.names, style.primaryLanguage)?.value;
   const binomial = findName(spice.names, "Binomial")?.value;
 
   const etymologicalOriginName = spice.etymologicalOrigin
@@ -182,43 +190,49 @@ function TextLayerSvg({
     : undefined;
   const mainCuisine = spice.cuisines?.[0];
   const cuisineName = mainCuisine
-    ? findName(spice.names, mainCuisine)
+    ? findName(spice.names, cuisineLanguages[mainCuisine])
     : undefined;
   const chemicalName = spice.eCode;
-  const secondaryName = preferredSecondaryLanguage
-    ? findName(spice.names, preferredSecondaryLanguage)
+  const secondaryName = style.secondaryLanguage
+    ? findName(spice.names, style.secondaryLanguage)
     : undefined;
 
+  const bottomTexts: {
+    lang: Language;
+    value: string;
+    type: "local" | "chemical";
+  }[] = [];
+  if (etymologicalOriginName) {
+    bottomTexts.push({
+      lang: etymologicalOriginName.lang,
+      value: etymologicalOriginName.value,
+      type: "local",
+    });
+  }
+  if (cuisineName) {
+    bottomTexts.push({
+      lang: cuisineName.lang,
+      value: cuisineName.value,
+      type: "local",
+    });
+  }
+  if (secondaryName) {
+    bottomTexts.push({
+      lang: secondaryName.lang,
+      value: secondaryName.value,
+      type: "local",
+    });
+  }
+
+  const uniqueBottomTexts: typeof bottomTexts = [];
+  for (const x of bottomTexts) {
+    if (x.lang === style.primaryLanguage) continue;
+    if (uniqueBottomTexts.some((y) => y.lang === x.lang)) continue;
+    uniqueBottomTexts.push(x);
+  }
+
   const bottom = [
-    ...(etymologicalOriginName
-      ? [
-          {
-            type: "local" as const,
-            lang: etymologicalOriginName.lang,
-            value: etymologicalOriginName.value,
-          },
-        ]
-      : []),
-    ...(cuisineName && cuisineName.lang !== etymologicalOriginName?.lang
-      ? [
-          {
-            type: "local" as const,
-            lang: cuisineName.lang,
-            value: cuisineName.value,
-          },
-        ]
-      : []),
-    ...(secondaryName &&
-    secondaryName.lang !== etymologicalOriginName?.lang &&
-    secondaryName.lang !== cuisineName?.lang
-      ? [
-          {
-            type: "local" as const,
-            lang: secondaryName.lang,
-            value: secondaryName.value,
-          },
-        ]
-      : []),
+    ...uniqueBottomTexts,
     ...(chemicalName
       ? [
           {
@@ -229,6 +243,13 @@ function TextLayerSvg({
       : []),
   ];
 
+  const titleFontLanguage =
+    style.languageFonts.English ?? style.languageFonts.default;
+  const titleFont = titleFontLanguage.heading ?? titleFontLanguage.default;
+
+  const chemicalFont = style.chemicalFont;
+  const binomialFont = style.binomialFont;
+
   return (
     <svg
       className={className}
@@ -237,17 +258,19 @@ function TextLayerSvg({
       viewBox={`0 0 ${SIZE} ${SIZE}`}
     >
       <CircularTextPath
-        radius={(SIZE / 2) * settings.title.margin}
+        radius={(SIZE / 2) * style.textOffsets.title.margin * (1 - style.bleed)}
         startAngle={Math.PI * (-3 / 8)}
         endAngle={Math.PI * (11 / 8)}
         strokeStyles={strokeStyles}
+        wireframe={style.wireframe}
       >
         <tspan
           style={{
-            fontFamily: "Glegoo",
-            fontSize: "60px",
-            fontWeight: "bold",
-            letterSpacing: "-1px",
+            fontFamily: titleFont.family,
+            fontSize: `${4 * (titleFont.size ?? 1)}em`,
+            fontWeight: titleFont.weight ?? "bold",
+            letterSpacing: `${titleFont.spacing ?? 0}em`,
+            fontStyle: titleFont.style,
           }}
           alignmentBaseline="middle"
         >
@@ -255,16 +278,22 @@ function TextLayerSvg({
         </tspan>
       </CircularTextPath>
       <CircularTextPath
-        radius={(SIZE / 2) * settings.binomial.margin}
+        radius={
+          (SIZE / 2) * style.textOffsets.binomial.margin * (1 - style.bleed)
+        }
         startAngle={Math.PI * (5 / 8)}
         endAngle={Math.PI * (3 / 8)}
         invert
         strokeStyles={strokeStyles}
+        wireframe={style.wireframe}
       >
         <tspan
           style={{
-            fontFamily: "Petit Formal Script",
-            fontSize: "20px",
+            fontFamily: binomialFont.family,
+            fontSize: `${1.3 * (binomialFont.size ?? 1)}em`,
+            fontWeight: binomialFont.weight,
+            letterSpacing: `${binomialFont.spacing ?? 0}em`,
+            fontStyle: binomialFont.style,
           }}
           alignmentBaseline="middle"
         >
@@ -272,23 +301,30 @@ function TextLayerSvg({
         </tspan>
       </CircularTextPath>
       <CircularTextPath
-        radius={(SIZE / 2) * settings.bottom.margin}
+        radius={
+          (SIZE / 2) * style.textOffsets.bottom.margin * (1 - style.bleed)
+        }
         startAngle={Math.PI * (5 / 8)}
         endAngle={Math.PI * (3 / 8)}
         invert
         strokeStyles={strokeStyles}
+        wireframe={style.wireframe}
       >
         {bottom.map((x, i) => {
+          const font =
+            x.type === "chemical"
+              ? chemicalFont
+              : accessKeyOrDefault(style.languageFonts, x.lang).default;
+
           return (
             <Fragment key={i}>
               <tspan
                 style={{
-                  fontSize: "40px",
-                  ...(x.type === "chemical"
-                    ? {
-                        fontFamily: "Courier Prime",
-                      }
-                    : bottomLanguageFontStyles[x.lang]),
+                  fontFamily: font.family,
+                  fontSize: `${2.5 * (font.size ?? 1)}em`,
+                  fontWeight: font.weight,
+                  letterSpacing: `${font.spacing ?? 0}em`,
+                  fontStyle: font.style,
                 }}
                 dx={i > 0 ? 10 : 0}
                 alignmentBaseline="middle"
@@ -310,25 +346,12 @@ function TextLayerSvg({
       </CircularTextPath>
     </svg>
   );
-};
+}
 
-const bottomLanguageFontStyles: Record<string, React.CSSProperties> = {
-  "Chinese Simplified": {
-    fontFamily: "serif",
-  },
-  "Chinese Traditional": {
-    fontFamily: "serif",
-  },
-  Korean: {
-    fontFamily: "sans-serif",
-  },
-  Japanese: {
-    fontFamily: "serif",
-  },
-  Persian: {
-    fontFamily: "Noto Sans Arabic",
-  },
-  Arabic: {
-    fontFamily: "Noto Sans Arabic",
-  },
-};
+function accessKeyOrDefault<
+  T,
+  TObj extends Record<string, T> & { default: T },
+  TKey extends keyof TObj
+>(obj: TObj, key: TKey): TObj["default"] {
+  return key in obj ? obj[key] : obj.default;
+}

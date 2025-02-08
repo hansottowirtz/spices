@@ -1,9 +1,11 @@
 "use client";
 
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "./ui/button";
-import { LabelRenderer } from "@/app/LabelRenderer";
+import { LabelRenderer } from "@/components/LabelRenderer";
 import { Spice } from "@/lib/spices";
+import { useSnapshot } from "valtio";
+import { labelStyleState } from "./label-settings-provider";
 
 function delay(ms: number) {
   return new Promise((resolve) => {
@@ -17,7 +19,7 @@ export function ExportLabelButton({ spice }: { spice: Spice }) {
   const stuffRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const [svg, setSvg] = useState<string | null>(null);
+  const style = useSnapshot(labelStyleState);
 
   return (
     <div>
@@ -72,14 +74,14 @@ export function ExportLabelButton({ spice }: { spice: Spice }) {
           img.addEventListener("error", (e) => {
             console.error(e);
           });
-          img.src = "data:image/svg+xml;base64," + btoa(svg);
+          img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svg)));
           setLoaded(false);
         }}
       >
         Export
       </Button>
       <div className="hidden">
-        {loaded && <LabelRenderer spice={spice} ref={labelRendererRef} />}
+        {loaded && <LabelRenderer spice={spice} style={style} ref={labelRendererRef} />}
       </div>
       {/* {svg && (
         <div className="relative" dangerouslySetInnerHTML={{ __html: svg }} />

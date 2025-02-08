@@ -1,3 +1,5 @@
+import { Language } from "@/components/label-settings-provider";
+
 export type Spice = {
   id: string;
   imageId?: string;
@@ -5,7 +7,7 @@ export type Spice = {
   cuisines?: string[];
   etymologicalOrigin?: string;
   names: {
-    lang: string;
+    lang: Language;
     value: string;
     romanised?: string;
   }[];
