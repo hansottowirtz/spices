@@ -13,7 +13,7 @@ export default function Home() {
   return (
     <div className="p-4 flex flex-wrap gap-2 justify-center">
       {spices.map((spice) => {
-        return <Label key={spice.id} spice={spice} style={style} />;
+        return <Label key={spice.id} spice={spice} style={style} outline />;
       })}
     </div>
   );

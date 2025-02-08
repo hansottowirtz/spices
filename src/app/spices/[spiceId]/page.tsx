@@ -36,11 +36,11 @@ export default async function Page({
     spice.names.find((name) => name.lang === "English")?.value ?? spice.id;
 
   return (
-    <div className="p-4 flex flex-row flex-wrap items-start gap-2">
-      <div className="flex-1 sticky top-4">
+    <div className="flex flex-col md:flex-row md:items-start gap-2">
+      <div className="md:flex-1 sticky top-0 w-screen p-2 z-10">
         <LabelRendererOnPage spice={spice} />
       </div>
-      <div className="flex-1">
+      <div className="flex-1 p-2">
         <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-4">
           {title}
         </h1>

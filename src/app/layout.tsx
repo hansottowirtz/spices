@@ -51,10 +51,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <SidebarProvider>
+          <SidebarProvider defaultOpen={false}>
             <LabelSettingsProvider>
               <AppSidebar />
-              <main className="flex-1">
+              <main className="min-w-0">
                 <div>
                   <header className="flex items-center justify-between p-4 bg-gray-100 dark:bg-gray-800">
                     <SidebarTrigger />
