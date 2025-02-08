@@ -4,7 +4,8 @@ import { useSnapshot } from "valtio";
 import { labelStyleState } from "./label-settings-provider";
 import { Spice } from "@/lib/spices";
 import { LabelRendererScaled } from "./label-renderer-scaled";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { cn } from "@/lib/utils";
 
 const HEADER_HEIGHT = 70;
 
@@ -34,10 +35,18 @@ export function LabelRendererOnPage({ spice }: { spice: Spice }) {
     };
   }, []);
 
-  console.log("size", size);
+  const ref = useRef<HTMLDivElement>(null);
+  
   return (
-    <div className="w-full" style={size ? { maxWidth: "100%", width: size } : {}}>
-      <LabelRendererScaled spice={spice} outline style={settings} />
+    <div className="w-full aspect-square" ref={ref}>
+      <div className="w-full" style={size ? { height: size } : {}}>
+        <LabelRendererScaled
+          className="h-full"
+          spice={spice}
+          outline
+          style={settings}
+        />
+      </div>
     </div>
   );
 }

@@ -15,7 +15,7 @@ export function LabelRendererScaled(
     <div className={cn("w-full", props.className)} ref={ref}>
       <div
         style={{
-          transform: `scale(${rect.width / SIZE})`,
+          transform: `scale(${Math.min(rect.width, rect.height) / SIZE})`,
           transformOrigin: "top left",
         }}
       >
