@@ -6,6 +6,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ModeToggle } from "@/components/mode-toggle";
 import { LabelSettingsProvider } from "@/components/label-settings-provider";
+import Link from "next/link";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -57,9 +58,9 @@ export default function RootLayout({
                 <div>
                   <header className="flex items-center justify-between p-4 bg-gray-100 dark:bg-gray-800">
                     <SidebarTrigger />
-                    <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+                    <Link href="/" className="text-2xl font-bold text-gray-800 dark:text-gray-100">
                       Spices
-                    </h1>
+                    </Link>
                     <ModeToggle />
                   </header>
                   {children}
