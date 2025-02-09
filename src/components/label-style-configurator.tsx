@@ -24,8 +24,17 @@ import { Input } from "./ui/input";
 import { useCallback, useEffect, useState } from "react";
 import { Check, ChevronsUpDown, X } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator } from "./ui/command";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from "./ui/command";
 import { cn } from "@/lib/utils";
+import { useLocalFontsQuery } from "@/hooks/use-local-fonts-query";
 
 export function LabelStyleConfigurator({}: { spice: Spice }) {
   const labelStyleSnapshot = useSnapshot(labelStyleState);
@@ -387,32 +396,24 @@ function FontFamilySelect({
 }) {
   const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-    if (!('queryLocalFonts' in window)) return;
+  const [loadLocalFonts, setLoadLocalFonts] = useState(false);
 
-    // const abortController = new AbortController();
-
-    // window.queryLocalFonts().then((fonts) => {
-    //   console.log(fonts)
-    // }).catch(() => {
-
-    // });
-  }, []);
+  const localFonts = useLocalFontsQuery({ enabled: loadLocalFonts });
 
   const fonts = [
-    'serif',
-    'sans-serif',
-    'monospace',
-    'Comic Sans MS',
-    'Courier New',
-    'Georgia',
-    'Lucida Console',
-    'Lucida Sans Unicode',
-    'Palatino Linotype',
-    'Tahoma',
-    'Times New Roman',
-    'Trebuchet MS',
-    'Verdana',
+    "serif",
+    "sans-serif",
+    "monospace",
+    "Comic Sans MS",
+    "Courier New",
+    "Georgia",
+    "Lucida Console",
+    "Lucida Sans Unicode",
+    "Palatino Linotype",
+    "Tahoma",
+    "Times New Roman",
+    "Trebuchet MS",
+    "Verdana",
   ];
 
   return (
@@ -424,9 +425,7 @@ function FontFamilySelect({
           aria-expanded={open}
           className="w-[200px] justify-between"
         >
-          {value
-            ? fonts.find((font) => value === font)
-            : "Select framework..."}
+          {value ? fonts.find((font) => value === font) : "Select framework..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -436,9 +435,43 @@ function FontFamilySelect({
           <CommandList>
             <CommandEmpty>No font found.</CommandEmpty>
             <CommandGroup heading="Local fonts">
-              <CommandItem disabled>
+              {/* <CommandItem disabled>
                 Local fonts access not allowed.
-              </CommandItem>
+              </CommandItem> */}
+              {!localFonts.browserSupport ? (
+                <CommandItem disabled>
+                  Local fonts access not available.
+                </CommandItem>
+              ) : localFonts.isPermissionRejected ? (
+                <CommandItem disabled>Local fonts access rejected.</CommandItem>
+              ) : !localFonts.query.data && !loadLocalFonts ? (
+                <CommandItem onSelect={() => setLoadLocalFonts(true)}>
+                  Load local fonts
+                </CommandItem>
+              ) : (
+                <>
+                  {localFonts.query.data?.map((font) => (
+                    <CommandItem
+                      key={font.postscriptName}
+                      value={font.postscriptName}
+                      onSelect={(currentValue) => {
+                        onValueChange(currentValue);
+                        setOpen(false);
+                      }}
+                    >
+                      <Check
+                        className={cn(
+                          "mr-2 h-4 w-4",
+                          value === font.postscriptName
+                            ? "opacity-100"
+                            : "opacity-0"
+                        )}
+                      />
+                      {font.postscriptName}
+                    </CommandItem>
+                  ))}
+                </>
+              )}
             </CommandGroup>
             <CommandSeparator />
             <CommandGroup heading="Web fonts">
@@ -449,7 +482,7 @@ function FontFamilySelect({
                   onSelect={(currentValue) => {
                     // setValue(currentValue === value ? "" : currentValue)
                     onValueChange(currentValue);
-                    setOpen(false)
+                    setOpen(false);
                   }}
                 >
                   <Check
@@ -466,7 +499,7 @@ function FontFamilySelect({
         </Command>
       </PopoverContent>
     </Popover>
-  )
+  );
 }
 
 // import * as React from "react"
@@ -489,9 +522,5 @@ function FontFamilySelect({
 // } from "@/components/ui/popover"
 
 // export function ComboboxDemo() {
-  
-// }
 
-declare global {
-  function queryLocalFonts(): Promise<unknown>;
-}
+// }

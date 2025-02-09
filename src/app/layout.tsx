@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ModeToggle } from "@/components/mode-toggle";
 import { LabelSettingsProvider } from "@/components/label-settings-provider";
 import Link from "next/link";
+import { QueryClientProvider } from "@/components/query-client-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,30 +46,35 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <SidebarProvider defaultOpen={false}>
-            <LabelSettingsProvider>
-              <AppSidebar />
-              <main className="min-w-0">
-                <div>
-                  <header className="flex items-center justify-between p-4 bg-gray-100 dark:bg-gray-800">
-                    <SidebarTrigger />
-                    <Link href="/" className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-                      Spices
-                    </Link>
-                    <ModeToggle />
-                  </header>
-                  {children}
-                </div>
-              </main>
-            </LabelSettingsProvider>
-          </SidebarProvider>
-        </ThemeProvider>
+        <QueryClientProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <SidebarProvider defaultOpen={false}>
+              <LabelSettingsProvider>
+                <AppSidebar />
+                <main className="min-w-0">
+                  <div>
+                    <header className="flex items-center justify-between p-4 bg-gray-100 dark:bg-gray-800">
+                      <SidebarTrigger />
+                      <Link
+                        href="/"
+                        className="text-2xl font-bold text-gray-800 dark:text-gray-100"
+                      >
+                        Spices
+                      </Link>
+                      <ModeToggle />
+                    </header>
+                    {children}
+                  </div>
+                </main>
+              </LabelSettingsProvider>
+            </SidebarProvider>
+          </ThemeProvider>
+        </QueryClientProvider>
       </body>
     </html>
   );

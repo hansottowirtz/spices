@@ -4,6 +4,7 @@ import useMeasure from "react-use-measure";
 import { cn } from "@/lib/utils";
 
 const SIZE = 600;
+
 export function LabelRendererScaled(
   props: ComponentProps<typeof LabelRenderer> & {
     className?: string;
@@ -14,6 +15,7 @@ export function LabelRendererScaled(
   return (
     <div className={cn("w-full", props.className)} ref={ref}>
       <div
+        className="inline-block"
         style={{
           transform: `scale(${Math.min(rect.width, rect.height) / SIZE})`,
           transformOrigin: "top left",
