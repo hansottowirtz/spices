@@ -1,11 +1,16 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { Fragment, Ref, useId } from "react";
+import {
+  Fragment,
+  Ref,
+  useId,
+} from "react";
 import { cuisineLanguages, Spice } from "@/lib/spices";
 import { LabelStyle, Language } from "./label-settings-provider";
 
 const SIZE = 600;
+const REM = 16;
 
 function calculateCircleSectionPath(
   radius: number,
@@ -59,6 +64,7 @@ function CircularTextPath({
   wireframe?: boolean;
 }) {
   const id = useId();
+
   return (
     <>
       <path
@@ -73,7 +79,7 @@ function CircularTextPath({
         )}
         className={`fill-none ${wireframe ? "stroke-pink-500" : "stroke-none"}`}
       />
-      <text>
+      <text style={{ fontSize: REM }}>
         {strokeStyles?.map((strokeStyle, i) => (
           <textPath
             key={i}
@@ -103,16 +109,22 @@ export function LabelRenderer({
   outline,
   ref,
   style: settings,
+  scaleToFit
 }: {
   spice: Spice;
   outline?: boolean;
   style: LabelStyle;
   ref?: Ref<HTMLDivElement>;
+  scaleToFit?: boolean;
 }) {
   const imageId = spice.imageId ?? spice.id;
 
   return (
-    <div className="relative" style={{ width: SIZE, height: SIZE }} ref={ref}>
+    <div
+      className="relative"
+      style={scaleToFit ? { aspectRatio: 1 } : { width: SIZE, height: SIZE, fontSize: REM }}
+      ref={ref}
+    >
       <BackgroundLayerSvg className="absolute top-0 left-0" />
       <div className="absolute top-0 left-0 w-full h-full">
         <img
@@ -138,8 +150,6 @@ function BackgroundLayerSvg({ className }: { className: string }) {
   return (
     <svg
       className={className}
-      width={SIZE}
-      height={SIZE}
       viewBox={`0 0 ${SIZE} ${SIZE}`}
     >
       <circle cx={SIZE / 2} cy={SIZE / 2} r={SIZE / 2} fill="#fff" />
@@ -253,8 +263,6 @@ function TextLayerSvg({
   return (
     <svg
       className={className}
-      width={SIZE}
-      height={SIZE}
       viewBox={`0 0 ${SIZE} ${SIZE}`}
     >
       <CircularTextPath

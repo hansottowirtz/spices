@@ -56,7 +56,7 @@ export default function RootLayout({
             <SidebarProvider defaultOpen={false}>
               <LabelSettingsProvider>
                 <AppSidebar />
-                <main className="min-w-0">
+                <main className="min-w-0 w-full">
                   <div>
                     <header className="flex items-center justify-between p-4 bg-gray-100 dark:bg-gray-800">
                       <SidebarTrigger />
