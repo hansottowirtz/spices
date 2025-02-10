@@ -31,8 +31,7 @@ function Label(props: ComponentProps<typeof LabelRenderer>) {
       className="size-[50%] aspect-square sm:size-[200px]"
     >
       <div className="p-1 relative">
-        <div className="absolute inset-0 size-full rounded-full bg-white outline-2 outline-black dark:outline-none" />
-        {inView && <LabelRenderer scaleToFit {...props} />}
+        <LabelRenderer scaleToFit outline deferRender={!inView} {...props} />
       </div>
     </Link>
   );

@@ -1,13 +1,11 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import {
-  Fragment,
-  Ref,
-  useId,
-} from "react";
+import { Fragment, Ref, useId } from "react";
 import { cuisineLanguages, Spice } from "@/lib/spices";
 import { LabelStyle, Language } from "./label-settings-provider";
+import Image from "next/image";
+import { cn } from "@/lib/utils";
 
 const SIZE = 600;
 const REM = 16;
@@ -109,49 +107,62 @@ export function LabelRenderer({
   outline,
   ref,
   style: settings,
-  scaleToFit
+  scaleToFit,
+  deferRender,
 }: {
   spice: Spice;
   outline?: boolean;
   style: LabelStyle;
   ref?: Ref<HTMLDivElement>;
   scaleToFit?: boolean;
+  deferRender?: boolean;
 }) {
   const imageId = spice.imageId ?? spice.id;
 
   return (
     <div
       className="relative"
-      style={scaleToFit ? { aspectRatio: 1 } : { width: SIZE, height: SIZE, fontSize: REM }}
+      style={
+        scaleToFit
+          ? { aspectRatio: 1 }
+          : { width: SIZE, height: SIZE, fontSize: REM }
+      }
       ref={ref}
     >
-      <BackgroundLayerSvg className="absolute top-0 left-0" />
-      <div className="absolute top-0 left-0 w-full h-full">
-        <img
-          alt={`Image for ${spice.id}`}
-          src={`/spices/${imageId}.png`}
-          className={`w-full h-full ${
-            outline
-              ? "outline rounded-full outline-2 outline-black dark:outline-0"
-              : ""
-          }`}
+      <div className="size-full relative aspect-square">
+        <div
+          className={"outline " + cn(
+            "absolute inset-0 rounded-full bg-white",
+            outline && "outline-2 outline-black dark:outline-none"
+          )}
         />
       </div>
-      <TextLayerSvg
-        className="absolute top-0 left-0"
-        spice={spice}
-        style={settings}
-      />
+      {!deferRender && (
+        <>
+          <BackgroundLayerSvg className="absolute top-0 left-0" />
+          <div className="absolute top-0 left-0 w-full h-full">
+            <Image
+              alt={`Image for ${spice.id}`}
+              src={`/spices/${imageId}.png`}
+              width={SIZE}
+              height={SIZE}
+              className="size-full"
+            />
+          </div>
+          <TextLayerSvg
+            className="absolute top-0 left-0"
+            spice={spice}
+            style={settings}
+          />
+        </>
+      )}
     </div>
   );
 }
 
 function BackgroundLayerSvg({ className }: { className: string }) {
   return (
-    <svg
-      className={className}
-      viewBox={`0 0 ${SIZE} ${SIZE}`}
-    >
+    <svg className={className} viewBox={`0 0 ${SIZE} ${SIZE}`}>
       <circle cx={SIZE / 2} cy={SIZE / 2} r={SIZE / 2} fill="#fff" />
     </svg>
   );
@@ -261,10 +272,7 @@ function TextLayerSvg({
   const binomialFont = style.binomialFont;
 
   return (
-    <svg
-      className={className}
-      viewBox={`0 0 ${SIZE} ${SIZE}`}
-    >
+    <svg className={className} viewBox={`0 0 ${SIZE} ${SIZE}`}>
       <CircularTextPath
         radius={(SIZE / 2) * style.textOffsets.title.margin * (1 - style.bleed)}
         startAngle={Math.PI * (-3 / 8)}
