@@ -76,6 +76,7 @@ export function LabelStyleConfigurator({}: { spice: Spice }) {
           objectKey="bleed"
           step={0.001}
           isPercentage
+          unit="%"
         />
       </div>
       <div className="my-2">
@@ -92,6 +93,7 @@ export function LabelStyleConfigurator({}: { spice: Spice }) {
                 objectKey="margin"
                 step={0.005}
                 isPercentage
+                unit="%"
               />
             </div>
           );
@@ -187,15 +189,57 @@ function FontEditor({ fontSettings }: { fontSettings: FontSettings }) {
   return (
     <div>
       <div className="my-2 flex flex-row space-x-2 items-center">
-        <div>Family</div>
+        <div className="min-w-16">Family</div>
         <FontFamilySelect
           value={fontSettingsSnapshot.family}
           onValueChange={(value) => (fontSettings.family = value)}
         />
       </div>
+      <div className="my-2 flex flex-row space-x-2">
+        <div className="min-w-16">Weight</div>
+        <Select
+          value={fontSettingsSnapshot.weight}
+          onValueChange={(v) => (fontSettings.weight = v)}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Select a weight" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectLabel>Weight</SelectLabel>
+              {["normal", "bold"].map((weight) => (
+                <SelectItem key={weight} value={weight}>
+                  {weight}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="my-2 flex flex-row space-x-2">
+        <div className="min-w-16">Style</div>
+        <Select
+          value={fontSettingsSnapshot.style}
+          onValueChange={(v) => (fontSettings.style = v)}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Select a style" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectLabel>Style</SelectLabel>
+              {["normal", "italic"].map((style) => (
+                <SelectItem key={style} value={style}>
+                  {style}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      </div>
       {fontSettingsSnapshot.size === undefined ? (
         <div className="my-2 flex flex-row space-x-2">
-          <div>Size</div>
+          <div className="min-w-16">Size</div>
           <Button onClick={() => (fontSettings.size = 1)}>Add Size</Button>
         </div>
       ) : (
@@ -210,25 +254,27 @@ function FontEditor({ fontSettings }: { fontSettings: FontSettings }) {
         />
       )}
       <div className="my-2 flex flex-row space-x-2">
-        <div>Weight</div>
-        <Input
-          value={fontSettingsSnapshot.weight}
-          onChange={(e) => (fontSettings.weight = e.target.value)}
-        />
-      </div>
-      <div className="my-2 flex flex-row space-x-2">
-        <div>Spacing</div>
-        <Input
-          value={fontSettingsSnapshot.spacing}
-          onChange={(e) => (fontSettings.spacing = Number(e.target.value))}
-        />
-      </div>
-      <div className="my-2 flex flex-row space-x-2">
-        <div>Style</div>
-        <Input
-          value={fontSettingsSnapshot.style}
-          onChange={(e) => (fontSettings.style = e.target.value)}
-        />
+        {fontSettings.spacing === undefined ? (
+          <>
+            <div className="min-w-16">Spacing</div>
+            <Button onClick={() => (fontSettings.spacing = 0)}>
+              Add Spacing
+            </Button>
+          </>
+        ) : (
+          <div className="flex-1">
+            <LabeledSliderManaged
+              label="Spacing"
+              min={-0.2}
+              max={0.2}
+              object={fontSettings}
+              objectKey="spacing"
+              step={0.0001}
+              unit="em"
+              decimalPlaces={4}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
@@ -353,6 +399,8 @@ function LabeledSlider({
     }
   }, [value, isFocused, valueToInput]);
 
+  const totalNumbers = Math.max(`${max}`.length, `${min}`.length) + (decimalPlaces ?? 0);
+
   return (
     <div className="flex flex-row gap-4">
       <div className="min-w-16">{label}</div>
@@ -364,12 +412,13 @@ function LabeledSlider({
         step={step}
       />
       {/* {formatValue ? formatValue(value) : value} */}
-      <div className="flex flex-row items-center relative h-8">
+      <div className="flex flex-row items-center relative h-8 font-mono">
         <Input
           type="text"
           value={inputState}
           onChange={handleInput}
-          className="w-20 h-full"
+          className="h-full"
+          style={{ width: totalNumbers * 4 + (unit ? (unit.length * 8) + 70 : 0) }}
           onFocus={() => {
             setIsFocused(true);
           }}
@@ -400,20 +449,42 @@ function FontFamilySelect({
 
   const localFonts = useLocalFontsQuery({ enabled: loadLocalFonts });
 
-  const fonts = [
+  const builtInFonts = [
+    // "serif",
+    // "sans-serif",
+    // "monospace",
+    // "Comic Sans MS",
+    // "Courier New",
+    // "Georgia",
+    // "Lucida Console",
+    // "Lucida Sans Unicode",
+    // "Palatino Linotype",
+    // "Tahoma",
+    // "Times New Roman",
+    // "Trebuchet MS",
+    // "Verdana",
     "serif",
     "sans-serif",
     "monospace",
-    "Comic Sans MS",
-    "Courier New",
-    "Georgia",
-    "Lucida Console",
-    "Lucida Sans Unicode",
-    "Palatino Linotype",
-    "Tahoma",
+    "Arial",
+    "Helvetica",
     "Times New Roman",
-    "Trebuchet MS",
-    "Verdana",
+    "Courier New",
+    "Glegoo",
+    "Noto Sans Arabic",
+    "Noto Sans Syriac",
+    "Petit Formal Script",
+    "Courier Prime",
+  ];
+
+  const uniqueLocalFontFamilies = unique(
+    localFonts.query.data ?? [],
+    (f) => f.family
+  );
+
+  const allFonts = [
+    ...builtInFonts,
+    ...(uniqueLocalFontFamilies.map((f) => f.family) ?? []),
   ];
 
   return (
@@ -425,7 +496,9 @@ function FontFamilySelect({
           aria-expanded={open}
           className="w-[200px] justify-between"
         >
-          {value ? fonts.find((font) => value === font) : "Select framework..."}
+          {value
+            ? allFonts.find((font) => value === font)
+            : "Select framework..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -450,10 +523,10 @@ function FontFamilySelect({
                 </CommandItem>
               ) : (
                 <>
-                  {localFonts.query.data?.map((font) => (
+                  {uniqueLocalFontFamilies.map((font) => (
                     <CommandItem
-                      key={font.postscriptName}
-                      value={font.postscriptName}
+                      key={font.family}
+                      value={font.family}
                       onSelect={(currentValue) => {
                         onValueChange(currentValue);
                         setOpen(false);
@@ -462,20 +535,18 @@ function FontFamilySelect({
                       <Check
                         className={cn(
                           "mr-2 h-4 w-4",
-                          value === font.postscriptName
-                            ? "opacity-100"
-                            : "opacity-0"
+                          value === font.family ? "opacity-100" : "opacity-0"
                         )}
                       />
-                      {font.postscriptName}
+                      {font.family}
                     </CommandItem>
                   ))}
                 </>
               )}
             </CommandGroup>
             <CommandSeparator />
-            <CommandGroup heading="Web fonts">
-              {fonts.map((font) => (
+            <CommandGroup heading="Builtin fonts">
+              {builtInFonts.map((font) => (
                 <CommandItem
                   key={font}
                   value={font}
@@ -524,3 +595,13 @@ function FontFamilySelect({
 // export function ComboboxDemo() {
 
 // }
+
+function unique<T>(arr: T[], key: (item: T) => string) {
+  const seen = new Set<string>();
+  return arr.filter((item) => {
+    const k = key(item);
+    if (seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+}

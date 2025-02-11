@@ -1,10 +1,8 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { Fragment, Ref, useId } from "react";
+import { Fragment, Ref, useId, createElement, ReactNode } from "react";
 import { cuisineLanguages, Spice } from "@/lib/spices";
 import { LabelStyle, Language } from "./label-settings-provider";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 const SIZE = 600;
@@ -109,6 +107,7 @@ export function LabelRenderer({
   style: settings,
   scaleToFit,
   deferRender,
+  ImageComponent,
 }: {
   spice: Spice;
   outline?: boolean;
@@ -116,6 +115,8 @@ export function LabelRenderer({
   ref?: Ref<HTMLDivElement>;
   scaleToFit?: boolean;
   deferRender?: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ImageComponent?: (props: any) => ReactNode;
 }) {
   const imageId = spice.imageId ?? spice.id;
 
@@ -141,13 +142,18 @@ export function LabelRenderer({
         <>
           <BackgroundLayerSvg className="absolute top-0 left-0" />
           <div className="absolute top-0 left-0 w-full h-full">
-            <Image
-              alt={`Image for ${spice.id}`}
-              src={`/spices/${imageId}.png`}
-              width={SIZE}
-              height={SIZE}
-              className="size-full"
-            />
+            {
+              createElement(
+                (ImageComponent ?? "img") as "img",
+                {
+                  alt: `Image for ${spice.id}`,
+                  src: `/spices/${imageId}.png`,
+                  width: SIZE,
+                  height: SIZE,
+                  className: "size-full",
+                }
+              )
+            }
           </div>
           <TextLayerSvg
             className="absolute top-0 left-0"

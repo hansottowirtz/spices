@@ -7,11 +7,12 @@ import { useSnapshot } from "valtio";
 import { useInView } from "react-intersection-observer";
 import { ComponentProps } from "react";
 import { LabelRenderer } from "@/components/LabelRenderer";
+import Image from "next/image";
 
 export default function Home() {
   const style = useSnapshot(labelStyleState);
   return (
-    <div className="flex flex-wrap justify-center py-1">
+    <div className="flex flex-wrap justify-center py-4">
       {spices.map((spice) => {
         return <Label key={spice.id} spice={spice} style={style} outline />;
       })}
@@ -31,7 +32,7 @@ function Label(props: ComponentProps<typeof LabelRenderer>) {
       className="size-[50%] aspect-square sm:size-[200px]"
     >
       <div className="p-1 relative">
-        <LabelRenderer scaleToFit outline deferRender={!inView} {...props} />
+        <LabelRenderer scaleToFit outline deferRender={!inView} ImageComponent={Image} {...props} />
       </div>
     </Link>
   );

@@ -7,6 +7,7 @@ import { useRef } from "react";
 import { useScrollMeasures } from "@/hooks/use-scroll-measures";
 import { cn } from "@/lib/utils";
 import { LabelRenderer } from "./LabelRenderer";
+import Image from "next/image";
 
 const HEADER_HEIGHT = 70;
 
@@ -38,7 +39,7 @@ export function LabelRendererOnPage({ spice }: { spice: Spice }) {
         style={size ? { height: size } : {}}
       >
         <div className="h-full flex justify-around">
-          <LabelRenderer scaleToFit spice={spice} outline style={settings} />
+          <LabelRenderer scaleToFit spice={spice} outline style={settings} ImageComponent={Image} />
         </div>
       </div>
     </div>
