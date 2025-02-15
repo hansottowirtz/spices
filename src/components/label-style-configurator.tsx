@@ -8,6 +8,7 @@ import {
   LabelStyle,
   labelStyleState,
   Language,
+  TextOffsets,
 } from "./label-settings-provider";
 import {
   Select,
@@ -36,11 +37,25 @@ import {
 } from "./ui/command";
 import { FontData, useLocalFontsQuery } from "@/hooks/use-local-fonts-query";
 import { useQuery } from "@tanstack/react-query";
+import { getSpiceNames } from "./LabelRenderer";
 
-export function LabelStyleConfigurator({}: { spice: Spice }) {
+export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
   const labelStyleSnapshot = useSnapshot(labelStyleState);
 
-  const settingsArr = [
+  const [hideUnused, setHideUnused] = useState(true);
+
+  const usedLanguages = new Set<string>();
+  const names = getSpiceNames(spice, labelStyleSnapshot);
+  for (const [, value] of Object.entries(names)) {
+    if (!value || typeof value === "string") continue;
+    usedLanguages.add(value.lang);
+  }
+
+  const settingsArr: {
+    key: keyof TextOffsets;
+    label: string;
+    unused?: boolean;
+  }[] = [
     {
       key: "title",
       label: "Title",
@@ -48,12 +63,17 @@ export function LabelStyleConfigurator({}: { spice: Spice }) {
     {
       key: "binomial",
       label: "Binomial",
+      unused: !spice.names.find((n) => n.lang === "Binomial"),
     },
     {
       key: "bottom",
       label: "Bottom",
     },
   ] as const;
+
+  const languageFonts = Object.entries(labelStyleSnapshot.languageFonts).filter(
+    ([lang]) => lang === "default" || !hideUnused || usedLanguages.has(lang)
+  );
 
   return (
     <div>
@@ -63,6 +83,15 @@ export function LabelStyleConfigurator({}: { spice: Spice }) {
           <Checkbox
             checked={labelStyleSnapshot.wireframe}
             onCheckedChange={(v) => (labelStyleState.wireframe = !!v)}
+          />
+        </label>
+      </div>
+      <div className="my-2">
+        <label className="font-bold mb-2 flex flex-row items-center space-x-2">
+          <span>Hide unused styles</span>
+          <Checkbox
+            checked={hideUnused}
+            onCheckedChange={(v) => setHideUnused(!!v)}
           />
         </label>
       </div>
@@ -81,23 +110,25 @@ export function LabelStyleConfigurator({}: { spice: Spice }) {
       </div>
       <div className="my-2">
         <div className="font-bold mb-2">Offsets</div>
-        {settingsArr.map(({ key, label }) => {
-          const setting = labelStyleState.textOffsets[key];
-          return (
-            <div className="my-1" key={key}>
-              <LabeledSliderManaged
-                label={label}
-                min={0}
-                max={1}
-                object={setting}
-                objectKey="margin"
-                step={0.005}
-                isPercentage
-                unit="%"
-              />
-            </div>
-          );
-        })}
+        {settingsArr
+          .filter(({ unused }) => !unused || !hideUnused)
+          .map(({ key, label }) => {
+            const setting = labelStyleState.textOffsets[key];
+            return (
+              <div className="my-1" key={key}>
+                <LabeledSliderManaged
+                  label={label}
+                  min={0}
+                  max={1}
+                  object={setting}
+                  objectKey="margin"
+                  step={0.005}
+                  isPercentage
+                  unit="%"
+                />
+              </div>
+            );
+          })}
       </div>
       <div className="my-2">
         <div className="font-bold mb-2">Primary Language</div>
@@ -117,7 +148,7 @@ export function LabelStyleConfigurator({}: { spice: Spice }) {
       </div>
       <div className="my-2">
         <div className="font-bold mb-2">Language fonts</div>
-        {Object.entries(labelStyleSnapshot.languageFonts).map(([lang]) => {
+        {languageFonts.map(([lang]) => {
           const font = labelStyleState.languageFonts[lang as Language]!;
           return (
             <LanguageFontsEditor
@@ -253,7 +284,9 @@ function FontEditor({
   const [selectedFamily, setSelectedFamily] = useState<FontFamilySelectValue>(
     fontSettingsToFontFamilySelectValue(value)
   );
-  const localFonts = useLocalFontsQuery({ enabled: selectedFamily?.type === "local" });
+  const localFonts = useLocalFontsQuery({
+    enabled: selectedFamily?.type === "local",
+  });
 
   const snapPostscriptName =
     snap.type === "local" ? snap.familyPostscriptName : undefined;
@@ -302,13 +335,14 @@ function FontEditor({
               onChange({
                 type: "builtin",
                 family: value.familyName,
+                weight: snap.type === "builtin" ? snap.weight : undefined,
                 size: snap.size,
                 spacing: snap.spacing,
               });
               setSelectedFamily({
                 type: "builtin",
                 familyName: value.familyName,
-              })
+              });
             }
           }}
         />
@@ -358,7 +392,10 @@ function FontEditor({
             <div className="min-w-16">Weight</div>
             <Select
               value={snap.weight}
-              onValueChange={(v) => ((value as BuiltinFontSettings).weight = v)}
+              onValueChange={(v) =>
+                ((value as BuiltinFontSettings).weight =
+                  v as BuiltinFontSettings["weight"])
+              }
               disabled={uniqueWeights.length <= 1}
             >
               <SelectTrigger className="w-[180px]">
@@ -601,7 +638,12 @@ function LabeledSlider({
 }
 
 type FontFamilySelectValue =
-  | { type: "local"; familyName: string; fullName: string; postscriptName: string; }
+  | {
+      type: "local";
+      familyName: string;
+      fullName: string;
+      postscriptName: string;
+    }
   | { type: "builtin"; familyName: string };
 
 function FontFamilySelect({
@@ -645,7 +687,9 @@ function FontFamilySelect({
     "Courier Prime",
   ];
 
-  const uniqueLocalFontFamilies = [...new Set<string>(localFonts.query.data?.map((f) => f.family) ?? [])];
+  const uniqueLocalFontFamilies = [
+    ...new Set<string>(localFonts.query.data?.map((f) => f.family) ?? []),
+  ];
 
   const fontNameMap: Record<string, string> = {};
   for (const fontFamily of builtInFonts) {
@@ -655,8 +699,12 @@ function FontFamilySelect({
     fontNameMap["local___" + fontFamily] = fontFamily;
   }
 
-  const commandValue = value.type === "local" ? "local___" + value.familyName : "builtin___" + value.familyName;
+  const commandValue =
+    value.type === "local"
+      ? "local___" + value.familyName
+      : "builtin___" + value.familyName;
 
+  console.log({ localFonts });
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -676,7 +724,10 @@ function FontFamilySelect({
           onValueChange={(value) => {
             const [type, fontFamily] = value.split("___");
             if (type === "local") {
-              const fontData = findDefaultVariation(localFonts.query.data!, fontFamily)!;
+              const fontData = findDefaultVariation(
+                localFonts.query.data!,
+                fontFamily
+              )!;
               onValueChange({
                 type: "local",
                 familyName: fontData.family,
@@ -707,8 +758,11 @@ function FontFamilySelect({
                 </CommandItem>
               ) : localFonts.isPermissionRejected ? (
                 <CommandItem disabled>
-                  Local fonts access rejected. You can change it in the browser settings.
+                  Local fonts access rejected. You can change it in the browser
+                  settings.
                 </CommandItem>
+              ) : localFonts.query.isLoading ? (
+                <CommandItem disabled>Loading local fonts...</CommandItem>
               ) : !localFonts.query.data && !loadLocalFonts ? (
                 <CommandItem onSelect={() => setLoadLocalFonts(true)}>
                   Load local fonts

@@ -229,17 +229,9 @@ function fontSettingsToStyleAndPortal(font: FontSettings, baseSize = 1) {
   return { style };
 }
 
-function TextLayerSvg({
-  className,
-  spice,
-  style,
-}: {
-  className: string;
-  spice: Spice;
-  style: LabelStyle;
-}) {
-  const title = findName(spice.names, style.primaryLanguage)?.value;
-  const binomial = findName(spice.names, "Binomial")?.value;
+export function getSpiceNames(spice: Spice, style: LabelStyle) {
+  const title = findName(spice.names, style.primaryLanguage);
+  const binomial = findName(spice.names, "Binomial");
 
   const etymologicalOriginName = spice.etymologicalOrigin
     ? findName(spice.names, spice.etymologicalOrigin!)
@@ -252,6 +244,34 @@ function TextLayerSvg({
   const secondaryName = style.secondaryLanguage
     ? findName(spice.names, style.secondaryLanguage)
     : undefined;
+
+  return {
+    title,
+    binomial,
+    etymologicalOriginName,
+    cuisineName,
+    chemicalName,
+    secondaryName,
+  };
+}
+
+function TextLayerSvg({
+  className,
+  spice,
+  style,
+}: {
+  className: string;
+  spice: Spice;
+  style: LabelStyle;
+}) {
+  const {
+    title,
+    binomial,
+    etymologicalOriginName,
+    cuisineName,
+    chemicalName,
+    secondaryName,
+  } = getSpiceNames(spice, style);
 
   const bottomTexts: {
     lang: Language;
@@ -312,8 +332,6 @@ function TextLayerSvg({
     1.3
   );
 
-  console.log({ titleStyleAndPortal})
-
   return (
     <svg className={className} viewBox={`0 0 ${SIZE} ${SIZE}`}>
       <CircularTextPath
@@ -324,7 +342,7 @@ function TextLayerSvg({
         wireframe={style.wireframe}
       >
         <tspan style={titleStyleAndPortal.style} alignmentBaseline="middle">
-          {title}
+          {title?.value}
         </tspan>
         {titleStyleAndPortal.portal}
       </CircularTextPath>
@@ -339,7 +357,7 @@ function TextLayerSvg({
         wireframe={style.wireframe}
       >
         <tspan style={binomialStyleAndPortal.style} alignmentBaseline="middle">
-          {binomial}
+          {binomial?.value}
         </tspan>
         {binomialStyleAndPortal.portal}
       </CircularTextPath>

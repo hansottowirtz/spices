@@ -18,7 +18,7 @@ export type Language =
 export type BuiltinFontSettings = {
   type: "builtin";
   family: string;
-  weight?: string;
+  weight?: "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900";
   style?: string;
   spacing?: number;
   size?: number;
@@ -88,7 +88,7 @@ export const labelStyleState = proxy<LabelStyle>({
         type: "builtin",
         family: "Glegoo",
         spacing: -(1 / 60),
-        weight: "bold",
+        weight: "700",
       },
       default: {
         type: "builtin",

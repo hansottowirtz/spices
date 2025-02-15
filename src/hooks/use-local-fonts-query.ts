@@ -10,12 +10,12 @@ export function useLocalFontsQuery({ enabled }: { enabled: boolean }) {
       const result = await navigator.permissions.query({
         name: ("local-fonts" as PermissionName)
       });
-      return result.state === "granted";
+      return result.state;
     },
     enabled: browserSupport,
   });
 
-  const runQuery = browserSupport && (hasPermissionQuery.data || enabled);
+  const runQuery = browserSupport && (hasPermissionQuery.data !== "denied" || enabled);
 
   const query = useQuery({
     queryKey: ["localFonts"],
@@ -31,7 +31,7 @@ export function useLocalFontsQuery({ enabled }: { enabled: boolean }) {
     query,
     browserSupport,
     hasPermissionQuery,
-    isPermissionRejected: hasPermissionQuery.error?.name.includes("SecurityError"),
+    isPermissionRejected: hasPermissionQuery.data === "denied",
   };
 }
 
