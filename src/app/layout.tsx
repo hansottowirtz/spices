@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Glegoo } from "next/font/google";
 import "./globals.css";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -20,10 +20,18 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const glegooBold = Glegoo({
+  variable: "--font-glegoo-bold",
+  weight: "700",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
   title: "Spices",
   description: "Spices labels generator",
 };
+
+console.log(geistSans.variable);
 
 export default function RootLayout({
   children,
@@ -45,7 +53,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${glegooBold.variable} antialiased font-sans`}
       >
         <QueryClientProvider>
           <ThemeProvider
@@ -63,7 +71,7 @@ export default function RootLayout({
                       <SidebarTrigger />
                       <Link
                         href="/"
-                        className="text-2xl font-bold text-gray-800 dark:text-gray-100"
+                        className="text-2xl font-bold text-gray-800 dark:text-gray-100 font-header"
                       >
                         Spices
                       </Link>

@@ -15,13 +15,26 @@ export type Language =
   | "Hindi"
   | "Thai";
 
-export type FontSettings = {
+export type BuiltinFontSettings = {
+  type: "builtin";
   family: string;
-  spacing?: number;
-  size?: number;
   weight?: string;
   style?: string;
+  spacing?: number;
+  size?: number;
 };
+
+export type LocalFontSettings = {
+  type: "local";
+  familyFullName: string;
+  familyPostscriptName: string;
+  spacing?: number;
+  size?: number;
+};
+
+export type FontSettings =
+  | BuiltinFontSettings
+  | LocalFontSettings
 
 export type TextOffsets = {
   title: {
@@ -72,66 +85,46 @@ export const labelStyleState = proxy<LabelStyle>({
   languageFonts: {
     default: {
       heading: {
+        type: "builtin",
         family: "Glegoo",
         spacing: -(1 / 60),
         weight: "bold",
       },
       default: {
+        type: "builtin",
         family: "serif",
       },
     },
     Arabic: {
-      default: {
-        family: "Noto Sans Arabic",
-      },
+      default: { type: "builtin", family: "Noto Sans Arabic" },
     },
     Persian: {
-      default: {
-        family: "Noto Sans Arabic",
-      },
+      default: { type: "builtin", family: "Noto Sans Arabic" },
     },
     "Chinese Simplified": {
-      default: {
-        family: "serif",
-      },
+      default: { type: "builtin", family: "serif" },
     },
     "Chinese Traditional": {
-      default: {
-        family: "serif",
-      },
+      default: { type: "builtin", family: "serif" },
     },
     Dutch: {
-      default: {
-        family: "serif",
-      },
+      default: { type: "builtin", family: "serif" },
     },
     Korean: {
-      default: {
-        family: "sans-serif",
-      },
+      default: { type: "builtin", family: "sans-serif" },
     },
     Spanish: {
-      default: {
-        family: "serif",
-      },
+      default: { type: "builtin", family: "serif" },
     },
     Hindi: {
-      default: {
-        family: "sans-serif",
-      },
+      default: { type: "builtin", family: "sans-serif" },
     },
     Japanese: {
-      default: {
-        family: "serif",
-      },
+      default: { type: "builtin", family: "serif" },
     },
   },
-  chemicalFont: {
-    family: "Courier Prime",
-  },
-  binomialFont: {
-    family: "Petit Formal Script",
-  },
+  chemicalFont: { type: "builtin", family: "Courier Prime" },
+  binomialFont: { type: "builtin", family: "Petit Formal Script" },
 });
 
 export function LabelSettingsProvider({

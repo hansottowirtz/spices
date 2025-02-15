@@ -35,7 +35,7 @@ export function useLocalFontsQuery({ enabled }: { enabled: boolean }) {
   };
 }
 
-type FontData = {
+export type FontData = {
   family: string;
   fullName: string;
   postscriptName: string;

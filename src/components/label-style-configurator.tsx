@@ -3,6 +3,7 @@
 import { Spice } from "@/lib/spices";
 import { Slider } from "./ui/slider";
 import {
+  BuiltinFontSettings,
   FontSettings,
   LabelStyle,
   labelStyleState,
@@ -22,7 +23,7 @@ import { Checkbox } from "./ui/checkbox";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useCallback, useEffect, useState } from "react";
-import { Check, ChevronsUpDown, X } from "lucide-react";
+import { ChevronsUpDown, X } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import {
   Command,
@@ -33,8 +34,8 @@ import {
   CommandList,
   CommandSeparator,
 } from "./ui/command";
-import { cn } from "@/lib/utils";
-import { useLocalFontsQuery } from "@/hooks/use-local-fonts-query";
+import { FontData, useLocalFontsQuery } from "@/hooks/use-local-fonts-query";
+import { useQuery } from "@tanstack/react-query";
 
 export function LabelStyleConfigurator({}: { spice: Spice }) {
   const labelStyleSnapshot = useSnapshot(labelStyleState);
@@ -57,7 +58,6 @@ export function LabelStyleConfigurator({}: { spice: Spice }) {
   return (
     <div>
       <div className="my-2">
-        {/* <div className="font-bold mb-2">Wireframe</div> */}
         <label className="font-bold mb-2 flex flex-row items-center space-x-2">
           <span>Wireframe</span>
           <Checkbox
@@ -159,7 +159,10 @@ function LanguageFontsEditor({
     <div className="border-b py-4 last-of-type:border-0">
       <div className="font-bold mb-2 underline">{lang}</div>
       <div className="font-bold mb-2">Default</div>
-      <FontEditor fontSettings={languageFontSettings.default} />
+      <FontEditor
+        value={languageFontSettings.default}
+        onChange={(v) => (languageFontSettings.default = v)}
+      />
       <div className="font-bold mb-2 flex flex-row items-center space-x-2">
         <div className="flex-1">Heading</div>
         {snap.heading && (
@@ -172,7 +175,10 @@ function LanguageFontsEditor({
         )}
       </div>
       {snap.heading ? (
-        <FontEditor fontSettings={languageFontSettings.heading!} />
+        <FontEditor
+          value={languageFontSettings.heading!}
+          onChange={(v) => (languageFontSettings.heading = v)}
+        />
       ) : (
         <Button
           onClick={() => (languageFontSettings.heading = { ...snap.default })}
@@ -184,82 +190,237 @@ function LanguageFontsEditor({
   );
 }
 
-function FontEditor({ fontSettings }: { fontSettings: FontSettings }) {
-  const fontSettingsSnapshot = useSnapshot(fontSettings, { sync: true });
+// function isFontData(obj: FontData | string): obj is FontData {
+//   return typeof obj !== "string";
+// }
+
+// // from https://gist.github.com/lukaszgrolik/5849599
+// const STYLE_MAP = {
+//   // 'Italic': [null, 'italic'],
+//   // 'Oblique': [null, 'oblique'],
+//   Thin: [100, null],
+//   "Ultra Light": [200, null],
+//   ExtraLight: [200, null],
+//   Light: [300, null],
+//   Normal: [400, null],
+//   Regular: [400, null],
+//   Medium: [500, null],
+//   "Demi Bold": [600, null],
+//   SemiBold: [600, null],
+//   Bold: [700, null],
+//   "Extra Bold": [800, null],
+//   Heavy: [900, null],
+//   Black: [900, null],
+//   ExtraBlack: [900, null],
+//   Plain: [400, null],
+//   // 'Regular': [400, 'normal'],
+// };
+
+// function parseStyle(style: string) {
+//   // const knownStyles = ['Italic'];
+//   // const knownWeights = ['Bold', 'Demi Bold', 'Heavy', 'Medium', ];
+// }
+
+function parseFontFullNameToVariation(font: FontData) {
+  const name = font.fullName.replace(font.family, "").trim();
+  if (!name) return "Regular";
+  return name;
+}
+
+function fontSettingsToFontFamilySelectValue(
+  settings: FontSettings
+): FontFamilySelectValue {
+  if (settings.type === "builtin") {
+    return { type: "builtin", familyName: settings.family };
+  } else {
+    return {
+      type: "local",
+      familyName: settings.familyFullName,
+      fullName: settings.familyFullName,
+      postscriptName: settings.familyPostscriptName,
+    };
+  }
+}
+
+function FontEditor({
+  value,
+  onChange,
+}: {
+  value: FontSettings;
+  onChange: (v: FontSettings) => void;
+}) {
+  const snap = useSnapshot(value, { sync: true });
+  const [selectedFamily, setSelectedFamily] = useState<FontFamilySelectValue>(
+    fontSettingsToFontFamilySelectValue(value)
+  );
+  const localFonts = useLocalFontsQuery({ enabled: selectedFamily?.type === "local" });
+
+  const snapPostscriptName =
+    snap.type === "local" ? snap.familyPostscriptName : undefined;
+  const fontFamilyName =
+    snap.type === "builtin"
+      ? snap.family
+      : localFonts.query.data?.find(
+          (f) => f.postscriptName === snapPostscriptName
+        )?.family;
+
+  const fontAccessApi = useFontAccessAPI();
+
+  const weightsAndStyles =
+    snap.type === "local"
+      ? null
+      : fontAccessApi.data?.filter((f) => f.family === fontFamilyName);
+
+  const uniqueWeights = unique(weightsAndStyles ?? [], (f) => f.weight);
+  const uniqueStyles = unique(weightsAndStyles ?? [], (f) => f.style);
+
   return (
     <div>
       <div className="my-2 flex flex-row space-x-2 items-center">
         <div className="min-w-16">Family</div>
         <FontFamilySelect
-          value={fontSettingsSnapshot.family}
-          onValueChange={(value) => (fontSettings.family = value)}
+          value={selectedFamily}
+          onValueChange={(value) => {
+            if (value === null) {
+              return;
+            }
+            if (value.type === "local") {
+              onChange({
+                type: "local",
+                familyFullName: value.fullName,
+                familyPostscriptName: value.postscriptName,
+                size: snap.size,
+                spacing: snap.spacing,
+              });
+              setSelectedFamily({
+                type: "local",
+                familyName: value.familyName,
+                fullName: value.fullName,
+                postscriptName: value.postscriptName,
+              });
+            } else {
+              onChange({
+                type: "builtin",
+                family: value.familyName,
+                size: snap.size,
+                spacing: snap.spacing,
+              });
+              setSelectedFamily({
+                type: "builtin",
+                familyName: value.familyName,
+              })
+            }
+          }}
         />
       </div>
-      <div className="my-2 flex flex-row space-x-2">
-        <div className="min-w-16">Weight</div>
-        <Select
-          value={fontSettingsSnapshot.weight}
-          onValueChange={(v) => (fontSettings.weight = v)}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select a weight" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectLabel>Weight</SelectLabel>
-              {["normal", "bold"].map((weight) => (
-                <SelectItem key={weight} value={weight}>
-                  {weight}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="my-2 flex flex-row space-x-2">
-        <div className="min-w-16">Style</div>
-        <Select
-          value={fontSettingsSnapshot.style}
-          onValueChange={(v) => (fontSettings.style = v)}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select a style" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectLabel>Style</SelectLabel>
-              {["normal", "italic"].map((style) => (
-                <SelectItem key={style} value={style}>
-                  {style}
-                </SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-      </div>
-      {fontSettingsSnapshot.size === undefined ? (
+      {snap.type === "local" && (
+        <>
+          <div className="my-2 flex flex-row space-x-2">
+            <div className="min-w-16">Variation</div>
+            <Select
+              value={snap.familyPostscriptName}
+              onValueChange={(v) => {
+                const font = localFonts.query.data!.find(
+                  (f) => f.postscriptName === v
+                )!;
+                onChange({
+                  ...snap,
+                  familyFullName: font.fullName,
+                  familyPostscriptName: font.postscriptName,
+                });
+              }}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select a variation" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Variation</SelectLabel>
+                  {localFonts.query
+                    .data!.filter((x) => x.family === fontFamilyName)
+                    .map((font) => (
+                      <SelectItem
+                        key={font.postscriptName}
+                        value={font.postscriptName}
+                      >
+                        {parseFontFullNameToVariation(font)}
+                      </SelectItem>
+                    ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+        </>
+      )}
+      {snap.type === "builtin" && (
+        <>
+          <div className="my-2 flex flex-row space-x-2">
+            <div className="min-w-16">Weight</div>
+            <Select
+              value={snap.weight}
+              onValueChange={(v) => ((value as BuiltinFontSettings).weight = v)}
+              disabled={uniqueWeights.length <= 1}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select a weight" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Weight</SelectLabel>
+                  {uniqueWeights.map(({ weight }) => (
+                    <SelectItem key={weight} value={weight}>
+                      {weight}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="my-2 flex flex-row space-x-2">
+            <div className="min-w-16">Style</div>
+            <Select
+              value={snap.style}
+              onValueChange={(v) => ((value as BuiltinFontSettings).style = v)}
+              disabled={uniqueStyles.length <= 1}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select a style" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Style</SelectLabel>
+                  {uniqueStyles.map(({ style }) => (
+                    <SelectItem key={style} value={style}>
+                      {style}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
+        </>
+      )}
+      {snap.size === undefined ? (
         <div className="my-2 flex flex-row space-x-2">
           <div className="min-w-16">Size</div>
-          <Button onClick={() => (fontSettings.size = 1)}>Add Size</Button>
+          <Button onClick={() => (value.size = 1)}>Add Size</Button>
         </div>
       ) : (
         <LabeledSliderManaged
           label="Size"
           min={0}
           max={4}
-          object={fontSettings as Record<"size", number>}
+          object={value as Record<"size", number>}
           objectKey="size"
           step={0.01}
           unit="em"
         />
       )}
       <div className="my-2 flex flex-row space-x-2">
-        {fontSettings.spacing === undefined ? (
+        {value.spacing === undefined ? (
           <>
             <div className="min-w-16">Spacing</div>
-            <Button onClick={() => (fontSettings.spacing = 0)}>
-              Add Spacing
-            </Button>
+            <Button onClick={() => (value.spacing = 0)}>Add Spacing</Button>
           </>
         ) : (
           <div className="flex-1">
@@ -267,7 +428,7 @@ function FontEditor({ fontSettings }: { fontSettings: FontSettings }) {
               label="Spacing"
               min={-0.2}
               max={0.2}
-              object={fontSettings}
+              object={value}
               objectKey="spacing"
               step={0.0001}
               unit="em"
@@ -399,7 +560,8 @@ function LabeledSlider({
     }
   }, [value, isFocused, valueToInput]);
 
-  const totalNumbers = Math.max(`${max}`.length, `${min}`.length) + (decimalPlaces ?? 0);
+  const totalNumbers =
+    Math.max(`${max}`.length, `${min}`.length) + (decimalPlaces ?? 0);
 
   return (
     <div className="flex flex-row gap-4">
@@ -418,7 +580,9 @@ function LabeledSlider({
           value={inputState}
           onChange={handleInput}
           className="h-full"
-          style={{ width: totalNumbers * 4 + (unit ? (unit.length * 8) + 70 : 0) }}
+          style={{
+            width: totalNumbers * 4 + (unit ? unit.length * 8 + 70 : 0),
+          }}
           onFocus={() => {
             setIsFocused(true);
           }}
@@ -436,12 +600,16 @@ function LabeledSlider({
   );
 }
 
+type FontFamilySelectValue =
+  | { type: "local"; familyName: string; fullName: string; postscriptName: string; }
+  | { type: "builtin"; familyName: string };
+
 function FontFamilySelect({
   value,
   onValueChange,
 }: {
-  value: string;
-  onValueChange: (v: string) => void;
+  value: FontFamilySelectValue;
+  onValueChange: (v: FontFamilySelectValue) => void;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -477,15 +645,17 @@ function FontFamilySelect({
     "Courier Prime",
   ];
 
-  const uniqueLocalFontFamilies = unique(
-    localFonts.query.data ?? [],
-    (f) => f.family
-  );
+  const uniqueLocalFontFamilies = [...new Set<string>(localFonts.query.data?.map((f) => f.family) ?? [])];
 
-  const allFonts = [
-    ...builtInFonts,
-    ...(uniqueLocalFontFamilies.map((f) => f.family) ?? []),
-  ];
+  const fontNameMap: Record<string, string> = {};
+  for (const fontFamily of builtInFonts) {
+    fontNameMap["builtin___" + fontFamily] = fontFamily;
+  }
+  for (const fontFamily of uniqueLocalFontFamilies) {
+    fontNameMap["local___" + fontFamily] = fontFamily;
+  }
+
+  const commandValue = value.type === "local" ? "local___" + value.familyName : "builtin___" + value.familyName;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -496,75 +666,65 @@ function FontFamilySelect({
           aria-expanded={open}
           className="w-[200px] justify-between"
         >
-          {value
-            ? allFonts.find((font) => value === font)
-            : "Select framework..."}
+          {fontNameMap[commandValue] ?? "Select font..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0">
-        <Command>
+        <Command
+          value={commandValue}
+          onValueChange={(value) => {
+            const [type, fontFamily] = value.split("___");
+            if (type === "local") {
+              const fontData = findDefaultVariation(localFonts.query.data!, fontFamily)!;
+              onValueChange({
+                type: "local",
+                familyName: fontData.family,
+                fullName: fontData.fullName,
+                postscriptName: fontData.postscriptName,
+              });
+            } else {
+              onValueChange({ type: "builtin", familyName: fontFamily });
+            }
+          }}
+          disablePointerSelection
+        >
           <CommandInput placeholder="Search font..." />
           <CommandList>
             <CommandEmpty>No font found.</CommandEmpty>
+            <CommandGroup heading="Builtin fonts">
+              {builtInFonts.map((font) => (
+                <CommandItem key={font} value={"builtin___" + font}>
+                  {font}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+            <CommandSeparator />
             <CommandGroup heading="Local fonts">
-              {/* <CommandItem disabled>
-                Local fonts access not allowed.
-              </CommandItem> */}
               {!localFonts.browserSupport ? (
                 <CommandItem disabled>
                   Local fonts access not available.
                 </CommandItem>
               ) : localFonts.isPermissionRejected ? (
-                <CommandItem disabled>Local fonts access rejected.</CommandItem>
+                <CommandItem disabled>
+                  Local fonts access rejected. You can change it in the browser settings.
+                </CommandItem>
               ) : !localFonts.query.data && !loadLocalFonts ? (
                 <CommandItem onSelect={() => setLoadLocalFonts(true)}>
                   Load local fonts
                 </CommandItem>
               ) : (
                 <>
-                  {uniqueLocalFontFamilies.map((font) => (
+                  {uniqueLocalFontFamilies.map((fontFamily) => (
                     <CommandItem
-                      key={font.family}
-                      value={font.family}
-                      onSelect={(currentValue) => {
-                        onValueChange(currentValue);
-                        setOpen(false);
-                      }}
+                      key={fontFamily}
+                      value={"local___" + fontFamily}
                     >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          value === font.family ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      {font.family}
+                      {fontFamily}
                     </CommandItem>
                   ))}
                 </>
               )}
-            </CommandGroup>
-            <CommandSeparator />
-            <CommandGroup heading="Builtin fonts">
-              {builtInFonts.map((font) => (
-                <CommandItem
-                  key={font}
-                  value={font}
-                  onSelect={(currentValue) => {
-                    // setValue(currentValue === value ? "" : currentValue)
-                    onValueChange(currentValue);
-                    setOpen(false);
-                  }}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === font ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                  {font}
-                </CommandItem>
-              ))}
             </CommandGroup>
           </CommandList>
         </Command>
@@ -572,29 +732,6 @@ function FontFamilySelect({
     </Popover>
   );
 }
-
-// import * as React from "react"
-// import { Check, ChevronsUpDown } from "lucide-react"
-
-// import { cn } from "@/lib/utils"
-// import { Button } from "@/components/ui/button"
-// import {
-//   Command,
-//   CommandEmpty,
-//   CommandGroup,
-//   CommandInput,
-//   CommandItem,
-//   CommandList,
-// } from "@/components/ui/command"
-// import {
-//   Popover,
-//   PopoverContent,
-//   PopoverTrigger,
-// } from "@/components/ui/popover"
-
-// export function ComboboxDemo() {
-
-// }
 
 function unique<T>(arr: T[], key: (item: T) => string) {
   const seen = new Set<string>();
@@ -604,4 +741,20 @@ function unique<T>(arr: T[], key: (item: T) => string) {
     seen.add(k);
     return true;
   });
+}
+
+function useFontAccessAPI() {
+  return useQuery({
+    queryKey: ["fonts"],
+    queryFn: async () => {
+      await document.fonts.ready;
+      return Array.from(document.fonts.values());
+    },
+  });
+}
+
+function findDefaultVariation(fonts: FontData[], family: string) {
+  const familyFonts = fonts.filter((f) => f.family === family);
+  if (!familyFonts) return null;
+  return familyFonts.find((f) => f.style === "Regular") ?? familyFonts[0];
 }

@@ -1,8 +1,15 @@
 "use client";
 
-import { Fragment, Ref, useId, createElement, ReactNode } from "react";
+import {
+  Fragment,
+  Ref,
+  useId,
+  createElement,
+  ReactNode,
+  CSSProperties,
+} from "react";
 import { cuisineLanguages, Spice } from "@/lib/spices";
-import { LabelStyle, Language } from "./label-settings-provider";
+import { FontSettings, LabelStyle, Language } from "./label-settings-provider";
 import { cn } from "@/lib/utils";
 
 const SIZE = 600;
@@ -123,37 +130,36 @@ export function LabelRenderer({
   return (
     <div
       className="relative"
-      style={
-        scaleToFit
+      style={{
+        fontSynthesis: "none",
+        ...(scaleToFit
           ? { aspectRatio: 1 }
-          : { width: SIZE, height: SIZE, fontSize: REM }
-      }
+          : { width: SIZE, height: SIZE, fontSize: REM }),
+      }}
       ref={ref}
     >
       <div className="size-full relative aspect-square">
         <div
-          className={"outline " + cn(
-            "absolute inset-0 rounded-full bg-white",
-            outline && "outline-2 outline-black dark:outline-none"
-          )}
+          className={
+            "outline " +
+            cn(
+              "absolute inset-0 rounded-full bg-white",
+              outline && "outline-2 outline-black dark:outline-none"
+            )
+          }
         />
       </div>
       {!deferRender && (
         <>
           <BackgroundLayerSvg className="absolute top-0 left-0" />
           <div className="absolute top-0 left-0 w-full h-full">
-            {
-              createElement(
-                (ImageComponent ?? "img") as "img",
-                {
-                  alt: `Image for ${spice.id}`,
-                  src: `/spices/${imageId}.png`,
-                  width: SIZE,
-                  height: SIZE,
-                  className: "size-full",
-                }
-              )
-            }
+            {createElement((ImageComponent ?? "img") as "img", {
+              alt: `Image for ${spice.id}`,
+              src: `/spices/${imageId}.png`,
+              width: SIZE,
+              height: SIZE,
+              className: "size-full",
+            })}
           </div>
           <TextLayerSvg
             className="absolute top-0 left-0"
@@ -199,6 +205,29 @@ const findName = (
   names: Array<{ lang: Language; value: string }>,
   language: string
 ) => names.find((x) => x.lang === language);
+
+function fontSettingsToStyleAndPortal(font: FontSettings, baseSize = 1) {
+  const style: CSSProperties = {
+    fontSize: `${baseSize * (font.size ?? 1)}em`,
+    letterSpacing: `${font.spacing ?? 0}em`,
+  };
+  if (font.type === "local") {
+    style.fontFamily = font.familyPostscriptName;
+    const portal = (
+      <style>{`
+        @font-face {
+          font-family: '${font.familyPostscriptName}';
+          src: local('${font.familyFullName}'), local('${font.familyPostscriptName}');
+        }
+      `}</style>
+    );
+    return { style, portal };
+  }
+  style.fontFamily = font.family;
+  style.fontWeight = font.weight;
+  style.fontStyle = font.style;
+  return { style };
+}
 
 function TextLayerSvg({
   className,
@@ -277,6 +306,14 @@ function TextLayerSvg({
   const chemicalFont = style.chemicalFont;
   const binomialFont = style.binomialFont;
 
+  const titleStyleAndPortal = fontSettingsToStyleAndPortal(titleFont, 4);
+  const binomialStyleAndPortal = fontSettingsToStyleAndPortal(
+    binomialFont,
+    1.3
+  );
+
+  console.log({ titleStyleAndPortal})
+
   return (
     <svg className={className} viewBox={`0 0 ${SIZE} ${SIZE}`}>
       <CircularTextPath
@@ -286,18 +323,10 @@ function TextLayerSvg({
         strokeStyles={strokeStyles}
         wireframe={style.wireframe}
       >
-        <tspan
-          style={{
-            fontFamily: titleFont.family,
-            fontSize: `${4 * (titleFont.size ?? 1)}em`,
-            fontWeight: titleFont.weight ?? "bold",
-            letterSpacing: `${titleFont.spacing ?? 0}em`,
-            fontStyle: titleFont.style,
-          }}
-          alignmentBaseline="middle"
-        >
+        <tspan style={titleStyleAndPortal.style} alignmentBaseline="middle">
           {title}
         </tspan>
+        {titleStyleAndPortal.portal}
       </CircularTextPath>
       <CircularTextPath
         radius={
@@ -309,18 +338,10 @@ function TextLayerSvg({
         strokeStyles={strokeStyles}
         wireframe={style.wireframe}
       >
-        <tspan
-          style={{
-            fontFamily: binomialFont.family,
-            fontSize: `${1.3 * (binomialFont.size ?? 1)}em`,
-            fontWeight: binomialFont.weight,
-            letterSpacing: `${binomialFont.spacing ?? 0}em`,
-            fontStyle: binomialFont.style,
-          }}
-          alignmentBaseline="middle"
-        >
+        <tspan style={binomialStyleAndPortal.style} alignmentBaseline="middle">
           {binomial}
         </tspan>
+        {binomialStyleAndPortal.portal}
       </CircularTextPath>
       <CircularTextPath
         radius={
@@ -333,21 +354,18 @@ function TextLayerSvg({
         wireframe={style.wireframe}
       >
         {bottom.map((x, i) => {
-          const font =
+          const fontCssAndPortal =
             x.type === "chemical"
-              ? chemicalFont
-              : accessKeyOrDefault(style.languageFonts, x.lang).default;
-
+              ? fontSettingsToStyleAndPortal(chemicalFont, 2.5)
+              : fontSettingsToStyleAndPortal(
+                  accessKeyOrDefault(style.languageFonts, x.lang).default,
+                  2.5
+                );
           return (
             <Fragment key={i}>
+              {fontCssAndPortal.portal}
               <tspan
-                style={{
-                  fontFamily: font.family,
-                  fontSize: `${2.5 * (font.size ?? 1)}em`,
-                  fontWeight: font.weight,
-                  letterSpacing: `${font.spacing ?? 0}em`,
-                  fontStyle: font.style,
-                }}
+                style={fontCssAndPortal.style}
                 dx={i > 0 ? 10 : 0}
                 alignmentBaseline="middle"
               >
