@@ -1,10 +1,11 @@
 "use client";
 
-import { Spice } from "@/lib/spices";
+import { languages, Spice } from "@/lib/spices";
 import { Slider } from "./ui/slider";
 import {
   BuiltinFontSettings,
   FontSettings,
+  getFallbackLanguages,
   LabelStyle,
   labelStyleState,
   Language,
@@ -51,7 +52,7 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
     usedLanguages.add(value.lang);
   }
 
-  const settingsArr: {
+  const offsetSettingsArr: {
     key: keyof TextOffsets;
     label: string;
     unused?: boolean;
@@ -63,7 +64,7 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
     {
       key: "binomial",
       label: "Binomial",
-      unused: !spice.names.find((n) => n.lang === "Binomial"),
+      unused: !spice.binomialName,
     },
     {
       key: "bottom",
@@ -77,40 +78,58 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
 
   return (
     <div>
-      <div className="my-2">
-        <label className="font-bold mb-2 flex flex-row items-center space-x-2">
-          <span>Wireframe</span>
-          <Checkbox
-            checked={labelStyleSnapshot.wireframe}
-            onCheckedChange={(v) => (labelStyleState.wireframe = !!v)}
-          />
-        </label>
-      </div>
-      <div className="my-2">
-        <label className="font-bold mb-2 flex flex-row items-center space-x-2">
-          <span>Hide unused styles</span>
-          <Checkbox
-            checked={hideUnused}
-            onCheckedChange={(v) => setHideUnused(!!v)}
-          />
-        </label>
-      </div>
-      <div className="my-2">
-        <div className="font-bold mb-2">Bleed</div>
-        <LabeledSliderManaged
-          label="Bleed"
-          min={0}
-          max={0.5}
-          object={labelStyleState}
-          objectKey="bleed"
-          step={0.001}
-          isPercentage
-          unit="%"
+      <Section>
+        <div>
+          <label className="font-bold mb-2 flex flex-row items-center space-x-2">
+            <span>Wireframe</span>
+            <Checkbox
+              checked={labelStyleSnapshot.wireframe}
+              onCheckedChange={(v) => (labelStyleState.wireframe = !!v)}
+            />
+          </label>
+        </div>
+        <div>
+          <label className="font-bold mb-2 flex flex-row items-center space-x-2">
+            <span>Hide unused styles</span>
+            <Checkbox
+              checked={hideUnused}
+              onCheckedChange={(v) => setHideUnused(!!v)}
+            />
+          </label>
+        </div>
+      </Section>
+      <Separator />
+      <Section>
+        <div className="font-bold my-2">Primary Language</div>
+        <LanguageSelect
+          value={labelStyleSnapshot.primaryLanguage}
+          onValueChange={(v: Language) => (labelStyleState.primaryLanguage = v)}
         />
-      </div>
-      <div className="my-2">
+        <div className="font-bold my-2">Secondary Language</div>
+        <LanguageSelect
+          value={labelStyleSnapshot.secondaryLanguage}
+          onValueChange={(v: Language) =>
+            (labelStyleState.secondaryLanguage = v)
+          }
+        />
+      </Section>
+      <Separator />
+      <Section>
+        <div className="font-bold mb-2">Bleed</div>
+        <div>
+          <LabeledSliderManaged
+            label="Bleed"
+            min={0}
+            max={0.5}
+            object={labelStyleState}
+            objectKey="bleed"
+            step={0.001}
+            isPercentage
+            unit="%"
+          />
+        </div>
         <div className="font-bold mb-2">Offsets</div>
-        {settingsArr
+        {offsetSettingsArr
           .filter(({ unused }) => !unused || !hideUnused)
           .map(({ key, label }) => {
             const setting = labelStyleState.textOffsets[key];
@@ -129,54 +148,48 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
               </div>
             );
           })}
-      </div>
-      <div className="my-2">
-        <div className="font-bold mb-2">Primary Language</div>
-        <LanguageSelect
-          value={labelStyleSnapshot.primaryLanguage}
-          onValueChange={(v: Language) => (labelStyleState.primaryLanguage = v)}
-        />
-      </div>
-      <div className="my-2">
-        <div className="font-bold mb-2">Secondary Language</div>
-        <LanguageSelect
-          value={labelStyleSnapshot.secondaryLanguage}
-          onValueChange={(v: Language) =>
-            (labelStyleState.secondaryLanguage = v)
-          }
-        />
-      </div>
-      <div className="my-2">
+      </Section>
+      <Separator />
+      <Section>
         <div className="font-bold mb-2">Language fonts</div>
-        {languageFonts.map(([lang]) => {
-          const font = labelStyleState.languageFonts[lang as Language]!;
-          return (
-            <LanguageFontsEditor
-              key={lang}
-              language={lang as Language}
-              languageFontSettings={font}
+        <div>
+          {languageFonts.map(([lang]) => {
+            const font = labelStyleState.languageFonts[lang as Language]!;
+            return (
+              <LanguageFontsEditor
+                key={lang}
+                language={lang as Language}
+                languageFontSettings={font}
+              />
+            );
+          })}
+        </div>
+      </Section>
+      <Separator />
+      {(spice.eCode || !hideUnused) && (
+        <>
+          <Section>
+            <div className="font-bold mb-2">Chemical font</div>
+            <FontEditor
+              value={labelStyleState.chemicalFont}
+              onChange={(v) => (labelStyleState.chemicalFont = v)}
             />
-          );
-        })}
-      </div>
+          </Section>
+          <Separator />
+        </>
+      )}
+      {(spice.binomialName || !hideUnused) && (
+        <Section>
+          <div className="font-bold mb-2">Binomial font</div>
+          <FontEditor
+            value={labelStyleState.binomialFont}
+            onChange={(v) => (labelStyleState.binomialFont = v)}
+          />
+        </Section>
+      )}
     </div>
   );
 }
-
-const languages: Language[] = [
-  "English",
-  "Arabic",
-  "Binomial",
-  "Chinese Simplified",
-  "Chinese Traditional",
-  "Dutch",
-  "Hindi",
-  "Japanese",
-  "Korean",
-  "Persian",
-  "Spanish",
-  "Thai",
-];
 
 function LanguageFontsEditor({
   language: lang,
@@ -187,7 +200,7 @@ function LanguageFontsEditor({
 }) {
   const snap = useSnapshot(languageFontSettings);
   return (
-    <div className="border-b py-4 last-of-type:border-0">
+    <div className="border-t py-4 first-of-type:border-0 first-of-type:pt-0">
       <div className="font-bold mb-2 underline">{lang}</div>
       <div className="font-bold mb-2">Default</div>
       <FontEditor
@@ -478,6 +491,8 @@ function FontEditor({
   );
 }
 
+const enDisplayNames = new Intl.DisplayNames(["en"], { type: "language" });
+
 function LanguageSelect({
   value,
   onValueChange,
@@ -485,22 +500,30 @@ function LanguageSelect({
   value: Language;
   onValueChange: (v: Language) => void;
 }) {
+  const fallback = getFallbackLanguages(value, languages);
   return (
-    <Select value={value} onValueChange={onValueChange}>
-      <SelectTrigger className="w-[180px]">
-        <SelectValue placeholder="Select a language" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectGroup>
-          <SelectLabel>Language</SelectLabel>
-          {languages.map((language) => (
-            <SelectItem key={language} value={language}>
-              {language}
-            </SelectItem>
-          ))}
-        </SelectGroup>
-      </SelectContent>
-    </Select>
+    <>
+      <Select value={value} onValueChange={onValueChange}>
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder="Select a language" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel>Language</SelectLabel>
+            {languages.map((language) => (
+              <SelectItem key={language} value={language}>
+                {enDisplayNames.of(language)}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+      {fallback.length > 0 && (
+        <div className="text-xs text-gray-500">
+          Fallback: {fallback.map((lang) => enDisplayNames.of(lang)).join(", ")}
+        </div>
+      )}
+    </>
   );
 }
 
@@ -681,6 +704,7 @@ function FontFamilySelect({
     "Times New Roman",
     "Courier New",
     "Glegoo",
+    "Barlow Semi Condensed",
     "Noto Sans Arabic",
     "Noto Sans Syriac",
     "Petit Formal Script",
@@ -785,6 +809,14 @@ function FontFamilySelect({
       </PopoverContent>
     </Popover>
   );
+}
+
+function Section({ children }: { children: React.ReactNode }) {
+  return <div className="px-4 my-4">{children}</div>;
+}
+
+function Separator() {
+  return <div className="border-t border-gray-200 dark:border-gray-800 my-2" />;
 }
 
 function unique<T>(arr: T[], key: (item: T) => string) {

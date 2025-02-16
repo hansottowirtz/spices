@@ -1,5 +1,7 @@
 import { Language } from "@/components/label-settings-provider";
 
+export const appLanguage: Language = "en";
+
 export type Spice = {
   id: string;
   imageId?: string;
@@ -11,9 +13,10 @@ export type Spice = {
     value: string;
     romanised?: string;
   }[];
+  binomialName?: string;
   chemicalFormula?: string;
   eCode?: string;
-}
+};
 
 export const spices: Spice[] = [
   {
@@ -22,19 +25,20 @@ export const spices: Spice[] = [
     cuisines: ["Japanese"],
     names: [
       {
-        lang: "English",
+        lang: "en",
         value: "Agar-agar",
       },
       {
-        lang: "Japanese",
+        lang: "ja",
         value: "寒天",
         romanised: "kanten",
       },
       {
-        lang: "Binomial",
-        value: "Gracilaria",
+        lang: "nl",
+        value: "Agar-agar",
       }
-    ]
+    ],
+    binomialName: "Gracilaria",
   },
   {
     id: "allspice",
@@ -42,18 +46,23 @@ export const spices: Spice[] = [
     cuisines: ["Caribbean"],
     names: [
       {
-        lang: "English",
+        lang: "en",
         value: "Allspice",
       },
       {
-        lang: "Spanish",
+        lang: "es",
         value: "Pimienta de Jamaica",
       },
       {
-        lang: "Binomial",
-        value: "Pimenta dioica",
+        lang: "es-MX",
+        value: "Pimienta gorda",
+      },
+      {
+        lang: "nl",
+        value: "Piment",
       }
-    ]
+    ],
+    binomialName: "Pimenta dioica",
   },
   {
     id: "amchoor",
@@ -61,19 +70,20 @@ export const spices: Spice[] = [
     cuisines: ["Indian"],
     names: [
       {
-        lang: "English",
+        lang: "en",
         value: "Amchoor",
       },
       {
-        lang: "Hindi",
+        lang: "hi",
         value: "अमचूर",
         romanised: "amchur",
       },
       {
-        lang: "Binomial",
-        value: "Mangifera indica",
+        lang: "nl",
+        value: "Amchoor",
       }
-    ]
+    ],
+    binomialName: "Mangifera indica",
   },
   {
     id: "anardana-powder",
@@ -81,19 +91,20 @@ export const spices: Spice[] = [
     cuisines: ["Indian"],
     names: [
       {
-        lang: "English",
+        lang: "en",
         value: "Anardana powder",
       },
       {
-        lang: "Hindi",
+        lang: "hi",
         value: "अनारदाना पाउडर",
         romanised: "anāradānā pāudar",
       },
       {
-        lang: "Binomial",
-        value: "Punica granatum",
+        lang: "nl",
+        value: "Anardana poeder",
       }
-    ]
+    ],
+    binomialName: "Punica granatum",
   },
   {
     id: "asafoetida",
@@ -101,23 +112,24 @@ export const spices: Spice[] = [
     cuisines: ["Indian"],
     names: [
       {
-        lang: "English",
+        lang: "en",
         value: "Asafoetida",
       },
       {
-        lang: "Spanish",
+        lang: "es",
         value: "Asafétida",
       },
       {
-        lang: "Binomial",
-        value: "Ferula assa-foetida",
-      },
-      {
-        lang: "Hindi",
+        lang: "hi",
         value: "हींग",
         romanised: "hīng",
+      },
+      {
+        lang: "nl",
+        value: "Asafoetida",
       }
-    ]
+    ],
+    binomialName: "Ferula assa-foetida",
   },
   {
     id: "baking-soda",
@@ -127,14 +139,18 @@ export const spices: Spice[] = [
     eCode: "E500",
     names: [
       {
-        lang: "English",
+        lang: "en",
         value: "Baking soda",
       },
       {
-        lang: "Spanish",
+        lang: "es",
         value: "Bicarbonato de sodio",
       },
-    ]
+      {
+        lang: "nl",
+        value: "Bakpoeder",
+      }
+    ],
   },
   {
     id: "bay-leaf",
@@ -142,18 +158,19 @@ export const spices: Spice[] = [
     cuisines: [],
     names: [
       {
-        lang: "English",
+        lang: "en",
         value: "Bay leaf",
       },
       {
-        lang: "Spanish",
+        lang: "es",
         value: "Hoja de laurel",
       },
       {
-        lang: "Binomial",
-        value: "Laurus nobilis",
+        lang: "nl",
+        value: "Laurierblaadje",
       }
-    ]
+    ],
+    binomialName: "Laurus nobilis",
   },
   {
     id: "black-cardamom",
@@ -161,18 +178,19 @@ export const spices: Spice[] = [
     cuisines: ["Indian"],
     names: [
       {
-        lang: "English",
+        lang: "en",
         value: "Black cardamom",
       },
       {
-        lang: "Spanish", 
+        lang: "es",
         value: "Cardamomo negro",
       },
       {
-        lang: "Binomial",
-        value: "Amomum subulatum"
+        lang: "nl",
+        value: "Zwarte kardemom"
       }
-    ]
+    ],
+    binomialName: "Amomum subulatum",
   },
   {
     id: "black-mustard-seeds",
@@ -180,14 +198,15 @@ export const spices: Spice[] = [
     cuisines: ["Indian"],
     names: [
       {
-        lang: "English",
-        value: "Black mustard seeds"
+        lang: "en",
+        value: "Black mustard seeds",
       },
       {
-        lang: "Binomial",
-        value: "Brassica nigra"
+        lang: "nl",
+        value: "Zwart mosterdzaad"
       }
-    ]
+    ],
+    binomialName: "Brassica nigra",
   },
   {
     id: "black-sesame-seeds",
@@ -195,70 +214,75 @@ export const spices: Spice[] = [
     cuisines: [],
     names: [
       {
-        lang: "English",
-        value: "Black sesame seeds"
+        lang: "en",
+        value: "Black sesame seeds",
       },
       {
-        lang: "Binomial",
-        value: "Sesamum indicum"
+        lang: "nl",
+        value: "Zwart sesamzaad"
       }
-    ] 
+    ],
+    binomialName: "Sesamum indicum",
   },
   {
     id: "brown-mustard-seeds",
     type: "natural",
     names: [
       {
-        lang: "English",
-        value: "Brown mustard seeds"
+        lang: "en",
+        value: "Brown mustard seeds",
       },
       {
-        lang: "Binomial",
-        value: "Brassica juncea"
+        lang: "nl",
+        value: "Bruin mosterdzaad"
       }
-    ]
+    ],
+    binomialName: "Brassica juncea",
   },
   {
     id: "cassia-cinnamon",
     type: "natural",
     names: [
       {
-        lang: "English",
-        value: "Cassia cinnamon"
+        lang: "en",
+        value: "Cassia cinnamon",
       },
       {
-        lang: "Binomial",
-        value: "Cinnamomum cassia"
+        lang: "nl",
+        value: "Cassia kaneel"
       }
-    ]
+    ],
+    binomialName: "Cinnamomum cassia",
   },
   {
     id: "cayenne-pepper",
     type: "natural",
     names: [
       {
-        lang: "English",
-        value: "Cayenne pepper"
+        lang: "en",
+        value: "Cayenne pepper",
       },
       {
-        lang: "Binomial",
-        value: "Capsicum annuum"
+        lang: "nl",
+        value: "Cayennepeper"
       }
-    ]
+    ],
+    binomialName: "Capsicum annuum",
   },
   {
     id: "ceylon-cinnamon",
     type: "natural",
     names: [
       {
-        lang: "English",
-        value: "Ceylon cinnamon"
+        lang: "en",
+        value: "Ceylon cinnamon",
       },
       {
-        lang: "Binomial",
-        value: "Cinnamomum verum"
+        lang: "nl",
+        value: "Ceylon kaneel"
       }
-    ]
+    ],
+    binomialName: "Cinnamomum verum",
   },
   {
     id: "chinese-five-spice",
@@ -266,38 +290,40 @@ export const spices: Spice[] = [
     cuisines: ["Chinese"],
     names: [
       {
-        lang: "English",
-        value: "Chinese five spice"
+        lang: "en",
+        value: "Chinese five spice",
       },
       {
-        lang: "Chinese Simplified",
+        lang: "zh-CN",
         value: "五香粉",
-        romanised: "wǔxiāng fěn"
+        romanised: "wǔxiāng fěn",
       },
       {
-        lang: "Chinese Traditional",
+        lang: "zh-TW",
         value: "五香粉",
-        romanised: "wǔxiāng fěn"
+        romanised: "wǔxiāng fěn",
       },
       {
-        lang: "Binomial",
-        value: "Zingiberaceae"
+        lang: "nl",
+        value: "Chinees vijfkruidenpoeder"
       }
-    ]
+    ],
+    binomialName: "Zingiberaceae",
   },
   {
     id: "chives",
     type: "natural",
     names: [
       {
-        lang: "English",
-        value: "Chives"
+        lang: "en",
+        value: "Chives",
       },
       {
-        lang: "Binomial",
-        value: "Allium schoenoprasum"
+        lang: "nl",
+        value: "Bieslook"
       }
-    ]
+    ],
+    binomialName: "Allium schoenoprasum",
   },
   {
     id: "citric-acid",
@@ -307,32 +333,37 @@ export const spices: Spice[] = [
     eCode: "E330",
     names: [
       {
-        lang: "English",
-        value: "Citric acid"
+        lang: "en",
+        value: "Citric acid",
       },
       {
-        lang: "Spanish",
-        value: "Ácido cítrico"
+        lang: "es",
+        value: "Ácido cítrico",
+      },
+      {
+        lang: "nl",
+        value: "Citroenzuur"
       }
-    ]
+    ],
   },
   {
     id: "cloves",
     type: "natural",
     names: [
       {
-        lang: "English",
-        value: "Cloves"
+        lang: "en",
+        value: "Cloves",
       },
       {
-        lang: "Spanish",
-        value: "Clavos de olor"
+        lang: "es",
+        value: "Clavos de olor",
       },
       {
-        lang: "Binomial",
-        value: "Syzygium aromaticum"
+        lang: "nl",
+        value: "Kruidnagels"
       }
-    ]
+    ],
+    binomialName: "Syzygium aromaticum",
   },
   {
     id: "coriander-leaves",
@@ -340,19 +371,20 @@ export const spices: Spice[] = [
     cuisines: ["Indian"],
     names: [
       {
-        lang: "English",
-        value: "Coriander leaves"
+        lang: "en",
+        value: "Coriander leaves",
       },
       {
-        lang: "Binomial",
-        value: "Coriandrum sativum"
-      },
-      {
-        lang: "Hindi",
+        lang: "hi",
         value: "हरा धनिया",
-        romanised: "harā dhaniya"
+        romanised: "harā dhaniya",
+      },
+      {
+        lang: "nl",
+        value: "Korianderblaadjes"
       }
-    ]
+    ],
+    binomialName: "Coriandrum sativum",
   },
   {
     id: "coriander-seeds",
@@ -360,19 +392,20 @@ export const spices: Spice[] = [
     cuisines: ["Indian"],
     names: [
       {
-        lang: "English",
-        value: "Coriander seeds"
+        lang: "en",
+        value: "Coriander seeds",
       },
       {
-        lang: "Binomial",
-        value: "Coriandrum sativum"
-      },
-      {
-        lang: "Hindi",
+        lang: "hi",
         value: "धनिया",
-        romanised: "dhaniya"
+        romanised: "dhaniya",
+      },
+      {
+        lang: "nl",
+        value: "Korianderzaad"
       }
-    ]
+    ],
+    binomialName: "Coriandrum sativum",
   },
   {
     id: "cumin-seeds",
@@ -380,68 +413,50 @@ export const spices: Spice[] = [
     cuisines: ["Indian"],
     names: [
       {
-        lang: "English",
+        lang: "en",
         value: "Cumin seeds",
       },
       {
-        lang: "Spanish",
+        lang: "es",
         value: "Comino",
       },
       {
-        lang: "Binomial",
-        value: "Cuminum cyminum",
-      },
-      {
-        lang: "Hindi",
+        lang: "hi",
         value: "जीरा",
         romanised: "jeera",
       },
       {
-        lang: "Chinese Simplified",
+        lang: "zh-CN",
         value: "孜然",
         romanised: "zīrán",
       },
       {
-        lang: "Chinese Traditional",
+        lang: "zh-TW",
         value: "孜然",
         romanised: "zīrán",
+      },
+      {
+        lang: "nl",
+        value: "Komijnzaad"
       }
-    ]
+    ],
+    binomialName: "Cuminum cyminum",
   },
-  // {
-  //   id: "curry-leaves",
-  //   type: "natural",
-  //   cuisines: ["Indian"],
-  //   names: [
-  //     {
-  //       lang: "English",
-  //       value: "Curry leaves"
-  //     },
-  //     {
-  //       lang: "Binomial",
-  //       value: "Murraya koenigii"
-  //     },
-  //     {
-  //       lang: "Hindi",
-  //       value: "करी पत्ते",
-  //       romanised: "karī patte"
-  //     }
-  //   ]
-  // },
   {
     id: "dill-seeds",
     type: "natural",
     cuisines: [],
     names: [
       {
-        lang: "English",
-        value: "Dill seeds"
+        lang: "en",
+        value: "Dill seeds",
       },
       {
-        lang: "Binomial",
-        value: "Anethum graveolens"
+        lang: "nl",
+        value: "Dillezaad"
       }
-    ]
+    ],
+    binomialName: "Anethum graveolens",
   },
   {
     id: "fennel-seeds",
@@ -449,19 +464,20 @@ export const spices: Spice[] = [
     cuisines: ["Indian"],
     names: [
       {
-        lang: "English",
-        value: "Fennel seeds"
+        lang: "en",
+        value: "Fennel seeds",
       },
       {
-        lang: "Binomial",
-        value: "Foeniculum vulgare"
-      },
-      {
-        lang: "Hindi",
+        lang: "hi",
         value: "सौंफ",
-        romanised: "saunf"
+        romanised: "saunf",
+      },
+      {
+        lang: "nl",
+        value: "Venkelzaad"
       }
-    ]
+    ],
+    binomialName: "Foeniculum vulgare",
   },
   {
     id: "fenugreek-leaves",
@@ -469,19 +485,19 @@ export const spices: Spice[] = [
     cuisines: ["Indian"],
     names: [
       {
-        lang: "English",
-        value: "Fenugreek leaves"
+        lang: "en",
+        value: "Fenugreek leaves",
       },
       {
-        lang: "Binomial",
-        value: "Trigonella foenum-graecum"
-      },
-      {
-        lang: "Hindi",
+        lang: "hi",
         value: "कसूरी मेथी",
-        romanised: "kasūrī methī"
+        romanised: "kasūrī methī",
+      },      {
+        lang: "nl",
+        value: "Fenegriekblaadjes"
       }
-    ]
+    ],
+    binomialName: "Trigonella foenum-graecum",
   },
   {
     id: "fenugreek-seeds",
@@ -489,19 +505,20 @@ export const spices: Spice[] = [
     cuisines: ["Indian"],
     names: [
       {
-        lang: "English",
-        value: "Fenugreek seeds"
+        lang: "en",
+        value: "Fenugreek seeds",
       },
       {
-        lang: "Binomial",
-        value: "Trigonella foenum-graecum"
-      },
-      {
-        lang: "Hindi",
+        lang: "hi",
         value: "मेथी दाना",
-        romanised: "methī dānā"
+        romanised: "methī dānā",
+      },
+      {
+        lang: "nl",
+        value: "Fenegriekzaad"
       }
-    ]
+    ],
+    binomialName: "Trigonella foenum-graecum",
   },
   {
     id: "galangal-powder",
@@ -509,14 +526,15 @@ export const spices: Spice[] = [
     cuisines: ["Thai"],
     names: [
       {
-        lang: "English",
-        value: "Galangal powder"
+        lang: "en",
+        value: "Galangal powder",
       },
       {
-        lang: "Binomial",
-        value: "Alpinia galanga"
+        lang: "nl",
+        value: "Galangalpoeder"
       }
-    ]
+    ],
+    binomialName: "Alpinia galanga",
   },
   {
     id: "garam-masala",
@@ -524,43 +542,49 @@ export const spices: Spice[] = [
     cuisines: ["Indian"],
     names: [
       {
-        lang: "English",
-        value: "Garam masala"
+        lang: "en",
+        value: "Garam masala",
       },
       {
-        lang: "Hindi",
+        lang: "hi",
         value: "गरम मसाला",
-        romanised: "garam masālā"
+        romanised: "garam masālā",
+      },
+      {
+        lang: "nl",
+        value: "Garam masala"
       }
-    ]
+    ],
   },
   {
     id: "garlic-powder",
     type: "natural",
     names: [
       {
-        lang: "English",
-        value: "Garlic powder"
+        lang: "en",
+        value: "Garlic powder",
       },
       {
-        lang: "Binomial",
-        value: "Allium sativum"
+        lang: "nl",
+        value: "Knoflookpoeder"
       }
-    ]
+    ],
+    binomialName: "Allium sativum",
   },
   {
     id: "ginger-powder",
     type: "natural",
     names: [
       {
-        lang: "English",
-        value: "Ginger powder"
+        lang: "en",
+        value: "Ginger powder",
       },
       {
-        lang: "Binomial",
-        value: "Zingiber officinale"
+        lang: "nl",
+        value: "Gemberpoeder"
       }
-    ]
+    ],
+    binomialName: "Zingiber officinale",
   },
   {
     id: "gochugaru",
@@ -569,19 +593,20 @@ export const spices: Spice[] = [
     etymologicalOrigin: "Korean",
     names: [
       {
-        lang: "English",
+        lang: "en",
         value: "Gochugaru",
       },
       {
-        lang: "Korean",
+        lang: "ko",
         value: "고추가루",
         romanised: "gochugaru",
       },
       {
-        lang: "Binomial",
-        value: "Capsicum annuum",
+        lang: "nl",
+        value: "Gochugaru"
       }
-    ]
+    ],
+    binomialName: "Capsicum annuum",
   },
   {
     id: "green-cardamom",
@@ -589,18 +614,19 @@ export const spices: Spice[] = [
     cuisines: ["Indian"],
     names: [
       {
-        lang: "English",
-        value: "Green cardamom"
+        lang: "en",
+        value: "Green cardamom",
       },
       {
-        lang: "Spanish",
-        value: "Cardamomo verde"
+        lang: "es",
+        value: "Cardamomo verde",
       },
       {
-        lang: "Binomial",
-        value: "Elettaria cardamomum"
+        lang: "nl",
+        value: "Groene kardemom"
       }
-    ]
+    ],
+    binomialName: "Elettaria cardamomum",
   },
   {
     id: "green-sichuan-pepper",
@@ -608,52 +634,55 @@ export const spices: Spice[] = [
     cuisines: ["Chinese"],
     names: [
       {
-        lang: "English",
-        value: "Green Sichuan pepper"
+        lang: "en",
+        value: "Green Sichuan pepper",
       },
       {
-        lang: "Chinese Simplified",
+        lang: "zh-CN",
         value: "青花椒",
-        romanised: "qīng huājiāo"
+        romanised: "qīng huājiāo",
       },
       {
-        lang: "Chinese Traditional",
+        lang: "zh-TW",
         value: "青花椒",
-        romanised: "qīng huājiāo"
+        romanised: "qīng huājiāo",
       },
       {
-        lang: "Binomial",
-        value: "Zanthoxylum armatum"
+        lang: "nl",
+        value: "Groene Sichuanpeper"
       }
-    ]
+    ],
+    binomialName: "Zanthoxylum armatum",
   },
   {
     id: "ground-cassia-cinnamon",
     type: "natural",
     names: [
       {
-        lang: "English",
-        value: "Ground cassia cinnamon"
+        lang: "en",
+        value: "Ground cassia cinnamon",
       },
       {
-        lang: "Binomial",
-        value: "Cinnamomum cassia"
+        lang: "nl",
+        value: "Gemalen cassia kaneel"
       }
-    ]
+    ],
+    binomialName: "Cinnamomum cassia",
   },
   {
     id: "ground-ceylon-cinnamon",
     type: "natural",
     names: [
       {
-        lang: "English",
-        value: "Ground ceylon cinnamon"
+        lang: "en",
+        value: "Ground ceylon cinnamon",
       },
       {
-        lang: "Binomial",
-        value: "Cinnamomum verum"
+        lang: "nl",
+        value: "Gemalen Ceylon kaneel"
       }
-    ]
+    ],
+    binomialName: "Cinnamomum verum",
   },
   {
     id: "ground-coriander-seeds",
@@ -661,19 +690,20 @@ export const spices: Spice[] = [
     cuisines: ["Indian"],
     names: [
       {
-        lang: "English",
-        value: "Ground coriander seeds"
+        lang: "en",
+        value: "Ground coriander seeds",
       },
       {
-        lang: "Binomial",
-        value: "Coriandrum sativum"
-      },
-      {
-        lang: "Hindi",
+        lang: "hi",
         value: "धनिया पाउडर",
-        romanised: "dhaniya pāudar"
+        romanised: "dhaniya pāudar",
+      },
+      {
+        lang: "nl",
+        value: "Gemalen korianderzaad"
       }
-    ]
+    ],
+    binomialName: "Coriandrum sativum",
   },
   {
     id: "ground-cumin-seeds",
@@ -681,19 +711,20 @@ export const spices: Spice[] = [
     cuisines: ["Indian"],
     names: [
       {
-        lang: "English",
-        value: "Ground cumin seeds"
+        lang: "en",
+        value: "Ground cumin seeds",
       },
       {
-        lang: "Binomial",
-        value: "Cuminum cyminum"
-      },
-      {
-        lang: "Hindi",
+        lang: "hi",
         value: "जीरा पाउडर",
-        romanised: "jeera pāudar"
+        romanised: "jeera pāudar",
+      },
+      {
+        lang: "nl",
+        value: "Gemalen komijnzaad"
       }
-    ]
+    ],
+    binomialName: "Cuminum cyminum",
   },
   {
     id: "ground-fennel-seeds",
@@ -701,75 +732,80 @@ export const spices: Spice[] = [
     cuisines: ["Indian"],
     names: [
       {
-        lang: "English",
-        value: "Ground fennel seeds"
+        lang: "en",
+        value: "Ground fennel seeds",
       },
       {
-        lang: "Binomial",
-        value: "Foeniculum vulgare"
-      },
-      {
-        lang: "Hindi",
+        lang: "hi",
         value: "सौंफ पाउडर",
-        romanised: "saunf pāudar"
+        romanised: "saunf pāudar",
+      },
+      {
+        lang: "nl",
+        value: "Gemalen venkelzaad"
       }
-    ]
+    ],
+    binomialName: "Foeniculum vulgare",
   },
   {
     id: "ground-mace",
     type: "natural",
     names: [
       {
-        lang: "English",
-        value: "Ground mace"
+        lang: "en",
+        value: "Ground mace",
       },
       {
-        lang: "Binomial",
-        value: "Myristica fragrans"
+        lang: "nl",
+        value: "Gemalen foelie"
       }
-    ]
+    ],
+    binomialName: "Myristica fragrans",
   },
   {
     id: "ground-nutmeg",
     type: "natural",
     names: [
       {
-        lang: "English",
-        value: "Ground nutmeg"
+        lang: "en",
+        value: "Ground nutmeg",
       },
       {
-        lang: "Binomial",
-        value: "Myristica fragrans"
-      },
-    ]
+        lang: "nl",
+        value: "Gemalen nootmuskaat"
+      }
+    ],
+    binomialName: "Myristica fragrans",
   },
   {
     id: "hyssop",
     type: "natural",
     names: [
       {
-        lang: "English",
-        value: "Hyssop"
+        lang: "en",
+        value: "Hyssop",
       },
       {
-        lang: "Binomial",
-        value: "Hyssopus officinalis"
+        lang: "nl",
+        value: "Hyssop"
       }
-    ]
+    ],
+    binomialName: "Hyssopus officinalis",
   },
   {
     id: "juniper-berries",
     type: "natural",
     names: [
       {
-        lang: "English",
-        value: "Juniper berries"
+        lang: "en",
+        value: "Juniper berries",
       },
       {
-        lang: "Binomial",
-        value: "Juniperus communis"
+        lang: "nl",
+        value: "Jeneverbessen"
       }
-    ]
+    ],
+    binomialName: "Juniperus communis",
   },
   {
     id: "lemongrass",
@@ -777,70 +813,72 @@ export const spices: Spice[] = [
     cuisines: ["Thai"],
     names: [
       {
-        lang: "English",
+        lang: "en",
         value: "Lemongrass",
       },
       {
-        lang: "Spanish",
+        lang: "es",
         value: "Hierba de limón",
       },
       {
-        lang: "Binomial",
-        value: "Cymbopogon",
-      },
-      {
-        lang: "Thai",
+        lang: "th",
         value: "ตะไคร้",
         romanised: "takhrai",
+      },
+      {
+        lang: "nl",
+        value: "Citroengras"
       }
-    ]
+    ],
+    binomialName: "Cymbopogon",
   },
   {
     id: "mace",
     type: "natural",
     names: [
       {
-        lang: "English",
-        value: "Mace"
+        lang: "en",
+        value: "Mace",
       },
       {
-        lang: "Spanish",
-        value: "Macis"
+        lang: "es",
+        value: "Macis",
       },
       {
-        lang: "Binomial",
-        value: "Myristica fragrans"
+        lang: "nl",
+        value: "Foelie"
       }
-    ]
+    ],
+    binomialName: "Myristica fragrans",
   },
   {
     id: "monosodium-glutamate",
     type: "chemical",
-    cuisines: [
-      "Chinese",
-      "Japanese",
-      "Korean"
-    ],
+    cuisines: ["Chinese", "Japanese", "Korean"],
     chemicalFormula: "C5H8NO4Na",
     eCode: "E621",
     names: [
       {
-        lang: "English",
+        lang: "en",
         value: "Monosodium glutamate",
       },
       {
-        lang: "Spanish",
+        lang: "es",
         value: "Glutamato monosódico",
       },
       {
-        lang: "Chinese Simplified",
+        lang: "zh-CN",
         value: "味精",
         romanised: "wèijīng",
       },
       {
-        lang: "Chinese Traditional",
+        lang: "zh-TW",
         value: "味精",
         romanised: "wèijīng",
+      },
+      {
+        lang: "nl",
+        value: "Monosodiumglutamaat"
       }
     ],
   },
@@ -850,114 +888,119 @@ export const spices: Spice[] = [
     cuisines: ["Indian"],
     names: [
       {
-        lang: "English",
-        value: "Nigella seeds"
+        lang: "en",
+        value: "Nigella seeds",
       },
       {
-        lang: "Binomial",
-        value: "Nigella sativa"
-      },
-      {
-        lang: "Hindi",
+        lang: "hi",
         value: "कलौंजी",
-        romanised: "kalauṅjī"
+        romanised: "kalauṅjī",
+      },
+      {
+        lang: "nl",
+        value: "Zwarte komijnzaad"
       }
-    ]
+    ],
+    binomialName: "Nigella sativa",
   },
   {
     id: "nutmeg",
     type: "natural",
     names: [
       {
-        lang: "English",
-        value: "Nutmeg"
+        lang: "en",
+        value: "Nutmeg",
       },
       {
-        lang: "Spanish",
-        value: "Nuez moscada"
+        lang: "es",
+        value: "Nuez moscada",
       },
       {
-        lang: "Binomial",
-        value: "Myristica fragrans"
+        lang: "nl",
+        value: "Nootmuskaat"
       }
-    ]
+    ],
+    binomialName: "Myristica fragrans",
   },
   {
     id: "oregano",
     type: "natural",
     names: [
       {
-        lang: "English",
+        lang: "en",
+        value: "Oregano",
+      },
+      {
+        lang: "es",
+        value: "Orégano",
+      },
+      {
+        lang: "nl",
         value: "Oregano"
-      },
-      {
-        lang: "Spanish",
-        value: "Orégano"
-      },
-      {
-        lang: "Binomial",
-        value: "Origanum vulgare"
       }
-    ]
+    ],
+    binomialName: "Origanum vulgare",
   },
   {
     id: "paprika",
     type: "natural",
     names: [
       {
-        lang: "English",
+        lang: "en",
+        value: "Paprika",
+      },
+      {
+        lang: "es",
+        value: "Pimentón",
+      },
+      {
+        lang: "nl",
         value: "Paprika"
-      },
-      {
-        lang: "Spanish",
-        value: "Pimentón"
-      },
-      {
-        lang: "Binomial",
-        value: "Capsicum annuum"
       }
-    ]
+    ],
+    binomialName: "Capsicum annuum",
   },
   {
     id: "parsley",
     type: "natural",
     names: [
       {
-        lang: "English",
-        value: "Parsley"
+        lang: "en",
+        value: "Parsley",
       },
       {
-        lang: "Spanish",
-        value: "Perejil"
+        lang: "es",
+        value: "Perejil",
       },
       {
-        lang: "Binomial",
-        value: "Petroselinum crispum"
+        lang: "nl",
+        value: "Peterselie"
       }
-    ]
+    ],
+    binomialName: "Petroselinum crispum",
   },
   {
     id: "ras-el-hanout",
     type: "natural",
-    cuisines: [
-      "Tunisian",
-      "Algerian",
-      "Moroccan"
-    ],
+    cuisines: ["Tunisian", "Algerian", "Moroccan"],
     etymologicalOrigin: "Arabic",
     names: [
       {
-        lang: "English",
+        lang: "en",
         value: "Ras el hanout",
       },
       {
-        lang: "Spanish",
+        lang: "es",
         value: "Ras el hanout",
       },
       {
-        lang: "Arabic",
+        lang: "ar",
         value: "رأس الحانوت",
         romanised: "raʾs al-ḥānūt",
+      },
+      {
+        lang: "nl",
+        value: "Ras el hanout"
       }
     ],
   },
@@ -967,60 +1010,63 @@ export const spices: Spice[] = [
     cuisines: ["Chinese"],
     names: [
       {
-        lang: "English",
-        value: "Red Sichuan pepper"
+        lang: "en",
+        value: "Red Sichuan pepper",
       },
       {
-        lang: "Chinese Simplified",
+        lang: "zh-CN",
         value: "红花椒",
-        romanised: "hóng huājiāo"
+        romanised: "hóng huājiāo",
       },
       {
-        lang: "Chinese Traditional",
+        lang: "zh-TW",
         value: "紅花椒",
-        romanised: "hóng huājiāo"
+        romanised: "hóng huājiāo",
       },
       {
-        lang: "Binomial",
-        value: "Zanthoxylum bungeaneum"
+        lang: "nl",
+        value: "Rode Sichuanpeper"
       }
-    ]
+    ],
+    binomialName: "Zanthoxylum bungeaneum",
   },
   {
     id: "rose-pepper",
     type: "natural",
     names: [
       {
-        lang: "English",
-        value: "Rose pepper"
+        lang: "en",
+        value: "Rose pepper",
       },
       {
-        lang: "Spanish",
-        value: "Pimienta rosa"
+        lang: "es",
+        value: "Pimienta rosa",
       },
       {
-        lang: "Binomial",
-        value: "Schinus terebinthifolia"
+        lang: "nl",
+        value: "Roze peper"
       }
-    ]
+    ],
+    binomialName: "Schinus terebinthifolia",
   },
   {
     id: "rosemary",
     type: "natural",
     names: [
       {
-        lang: "English",
-        value: "Rosemary"
+        lang: "en",
+        value: "Rosemary",
       },
       {
-        lang: "Spanish",
-        value: "Romero"
+        lang: "es",
+        value: "Romero",
       },
       {
-        lang: "Binomial",
-        value: "Rosmarinus officinalis"
+        lang: "nl",
+        value: "Rozemarijn"
       }
-    ]
+    ],
+    binomialName: "Rosmarinus officinalis",
   },
   {
     id: "saffron",
@@ -1029,41 +1075,43 @@ export const spices: Spice[] = [
     etymologicalOrigin: "Persian",
     names: [
       {
-        lang: "English",
+        lang: "en",
         value: "Saffron",
       },
       {
-        lang: "Spanish",
+        lang: "es",
         value: "Azafrán",
       },
       {
-        lang: "Binomial",
-        value: "Crocus sativus",
-      },
-      {
-        lang: "Persian",
+        lang: "fa",
         value: "زعفران",
         romanised: "za'farān",
+      },
+      {
+        lang: "nl",
+        value: "Saffraan"
       }
-    ]
+    ],
+    binomialName: "Crocus sativus",
   },
   {
     id: "sage",
     type: "natural",
     names: [
       {
-        lang: "English",
-        value: "Sage"
+        lang: "en",
+        value: "Sage",
       },
       {
-        lang: "Spanish",
-        value: "Salvia"
+        lang: "es",
+        value: "Salvia",
       },
       {
-        lang: "Binomial",
-        value: "Salvia officinalis"
+        lang: "nl",
+        value: "Salie"
       }
-    ] 
+    ],
+    binomialName: "Salvia officinalis",
   },
   {
     id: "salt",
@@ -1072,14 +1120,18 @@ export const spices: Spice[] = [
     eCode: "E621",
     names: [
       {
-        lang: "English",
-        value: "Salt"
+        lang: "en",
+        value: "Salt",
       },
       {
-        lang: "Spanish",
-        value: "Sal"
+        lang: "es",
+        value: "Sal",
+      },
+      {
+        lang: "nl",
+        value: "Zout"
       }
-    ]
+    ],
   },
   {
     id: "star-anise",
@@ -1087,46 +1139,48 @@ export const spices: Spice[] = [
     cuisines: ["Chinese"],
     names: [
       {
-        lang: "English",
-        value: "Star anise"
+        lang: "en",
+        value: "Star anise",
       },
       {
-        lang: "Spanish",
-        value: "Anís estrellado"
+        lang: "es",
+        value: "Anís estrellado",
       },
       {
-        lang: "Binomial",
-        value: "Illicium verum"
-      },
-      {
-        lang: "Chinese Simplified",
+        lang: "zh-CN",
         value: "八角",
-        romanised: "bājiǎo"
+        romanised: "bājiǎo",
       },
       {
-        lang: "Chinese Traditional",
+        lang: "zh-TW",
         value: "八角",
-        romanised: "bājiǎo"
+        romanised: "bājiǎo",
+      },
+      {
+        lang: "nl",
+        value: "Steranijs"
       }
-    ]
+    ],
+    binomialName: "Illicium verum",
   },
   {
     id: "sumac",
     type: "natural",
     names: [
       {
-        lang: "English",
-        value: "Sumac"
+        lang: "en",
+        value: "Sumac",
       },
       {
-        lang: "Spanish",
-        value: "Zumaque"
+        lang: "es",
+        value: "Zumaque",
       },
       {
-        lang: "Binomial",
-        value: "Rhus coriaria"
+        lang: "nl",
+        value: "Sumak"
       }
-    ]
+    ],
+    binomialName: "Rhus coriaria",
   },
   {
     id: "table-sugar",
@@ -1135,50 +1189,56 @@ export const spices: Spice[] = [
     eCode: "E621",
     names: [
       {
-        lang: "English",
-        value: "Table sugar"
+        lang: "en",
+        value: "Table sugar",
       },
       {
-        lang: "Spanish",
-        value: "Azúcar de mesa"
+        lang: "es",
+        value: "Azúcar de mesa",
+      },
+      {
+        lang: "nl",
+        value: "Tafelsuiker"
       }
-    ] 
+    ],
   },
   {
     id: "tarragon",
     type: "natural",
     names: [
       {
-        lang: "English",
-        value: "Tarragon"
+        lang: "en",
+        value: "Tarragon",
       },
       {
-        lang: "Spanish",
-        value: "Estragón"
+        lang: "es",
+        value: "Estragón",
       },
       {
-        lang: "Binomial",
-        value: "Artemisia dracunculus"
+        lang: "nl",
+        value: "Dragon"
       }
-    ]
+    ],
+    binomialName: "Artemisia dracunculus",
   },
   {
     id: "thyme",
     type: "natural",
     names: [
       {
-        lang: "English",
-        value: "Thyme"
+        lang: "en",
+        value: "Thyme",
       },
       {
-        lang: "Spanish",
-        value: "Tomillo"
+        lang: "es",
+        value: "Tomillo",
       },
       {
-        lang: "Binomial",
-        value: "Thymus vulgaris"
+        lang: "nl",
+        value: "Tijm"
       }
-    ]
+    ],
+    binomialName: "Thymus vulgaris",
   },
   {
     id: "turmeric",
@@ -1186,73 +1246,77 @@ export const spices: Spice[] = [
     cuisines: ["Indian"],
     names: [
       {
-        lang: "English",
-        value: "Turmeric"
+        lang: "en",
+        value: "Turmeric",
       },
       {
-        lang: "Spanish",
-        value: "Cúrcuma"
+        lang: "es",
+        value: "Cúrcuma",
       },
       {
-        lang: "Binomial",
-        value: "Curcuma longa"
-      },
-      {
-        lang: "Hindi",
+        lang: "hi",
         value: "हल्दी",
-        romanised: "haldī"
+        romanised: "haldī",
+      },
+      {
+        lang: "nl",
+        value: "Kurkuma"
       }
-    ]
+    ],
+    binomialName: "Curcuma longa",
   },
   {
     id: "vanilla",
     type: "natural",
     names: [
       {
-        lang: "English",
-        value: "Vanilla"
+        lang: "en",
+        value: "Vanilla",
       },
       {
-        lang: "Spanish",
-        value: "Vainilla"
+        lang: "es",
+        value: "Vainilla",
       },
       {
-        lang: "Binomial",
-        value: "Vanilla planifolia"
+        lang: "nl",
+        value: "Vanille"
       }
-    ]
+    ],
+    binomialName: "Vanilla planifolia",
   },
   {
     id: "white-pepper",
     type: "natural",
     names: [
       {
-        lang: "English",
-        value: "White pepper"
+        lang: "en",
+        value: "White pepper",
       },
       {
-        lang: "Spanish",
-        value: "Pimienta blanca"
+        lang: "es",
+        value: "Pimienta blanca",
       },
       {
-        lang: "Binomial",
-        value: "Piper nigrum"
+        lang: "nl",
+        value: "Witte peper"
       }
-    ]
+    ],
+    binomialName: "Piper nigrum",
   },
   {
     id: "white-sesame-seeds",
     type: "natural",
     names: [
       {
-        lang: "English",
-        value: "White sesame seeds"
+        lang: "en",
+        value: "White sesame seeds",
       },
       {
-        lang: "Binomial",
-        value: "Sesamum indicum"
+        lang: "nl",
+        value: "Wit sesamzaad"
       }
-    ]
+    ],
+    binomialName: "Sesamum indicum",
   },
   {
     id: "xylitol",
@@ -1261,28 +1325,33 @@ export const spices: Spice[] = [
     eCode: "E967",
     names: [
       {
-        lang: "English",
-        value: "Xylitol"
+        lang: "en",
+        value: "Xylitol",
       },
       {
-        lang: "Spanish",
-        value: "Xilitol"
+        lang: "es",
+        value: "Xilitol",
+      },
+      {
+        lang: "nl",
+        value: "Xylitol"
       }
-    ]
+    ],
   },
   {
     id: "yellow-mustard-seeds",
     type: "natural",
     names: [
       {
-        lang: "English",
-        value: "Yellow mustard seeds"
+        lang: "en",
+        value: "Yellow mustard seeds",
       },
       {
-        lang: "Binomial",
-        value: "Sinapis alba"
+        lang: "nl",
+        value: "Geel mosterdzaad"
       }
-    ]
+    ],
+    binomialName: "Sinapis alba",
   },
   {
     id: "za'atar",
@@ -1291,22 +1360,42 @@ export const spices: Spice[] = [
     etymologicalOrigin: "Arabic",
     names: [
       {
-        lang: "English",
+        lang: "en",
         value: "Za'atar",
       },
       {
-        lang: "Arabic",
+        lang: "ar",
         value: "زَعْتَر",
         romanised: "za'tar",
+      },
+      {
+        lang: "nl",
+        value: "Za'atar"
       }
-    ]
-  }
+    ],
+  },
 ];
 
-export const cuisineLanguages: Record<string, string> = {
-  Caribbean: "English",
-  Indian: "Hindi",
-  Chinese: "Chinese Simplified",
-  Japanese: "Japanese",
-  Korean: "Korean"
+export const cuisineLanguages: Record<string, Language[]> = {
+  Caribbean: ["en"],
+  Indian: ["hi"],
+  Chinese: ["zh-CN", "zh-TW"],
+  Japanese: ["ja"],
+  Korean: ["ko"],
 };
+
+export const languages: Language[] = [
+  "en",
+  "en-US",
+  "ar",
+  "es",
+  "es-MX",
+  "fa",
+  "hi",
+  "ja",
+  "ko",
+  "nl",
+  "th",
+  "zh-CN",
+  "zh-TW",
+];

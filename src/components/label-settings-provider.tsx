@@ -1,24 +1,35 @@
 import { PartialExceptDefault } from "@/lib/partial-except-default";
+import { languages } from "@/lib/spices";
 import { proxy } from "valtio";
 
 export type Language =
-  | "English"
-  | "Binomial"
-  | "Chinese Simplified"
-  | "Spanish"
-  | "Persian"
-  | "Arabic"
-  | "Chinese Traditional"
-  | "Dutch"
-  | "Korean"
-  | "Japanese"
-  | "Hindi"
-  | "Thai";
+  | "en"
+  | "en-US"
+  | "zh-CN"
+  | "zh-TW"
+  | "nl"
+  | "ko"
+  | "ja"
+  | "es"
+  | "es-MX"
+  | "fa"
+  | "ar"
+  | "hi"
+  | "th";
 
 export type BuiltinFontSettings = {
   type: "builtin";
   family: string;
-  weight?: "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900";
+  weight?:
+    | "100"
+    | "200"
+    | "300"
+    | "400"
+    | "500"
+    | "600"
+    | "700"
+    | "800"
+    | "900";
   style?: string;
   spacing?: number;
   size?: number;
@@ -32,9 +43,7 @@ export type LocalFontSettings = {
   size?: number;
 };
 
-export type FontSettings =
-  | BuiltinFontSettings
-  | LocalFontSettings
+export type FontSettings = BuiltinFontSettings | LocalFontSettings;
 
 export type TextOffsets = {
   title: {
@@ -65,11 +74,37 @@ export type LabelStyle = {
   >;
   chemicalFont: FontSettings;
   binomialFont: FontSettings;
+  bottomSeparator: string;
+  bottomSeparatorFont: FontSettings;
 };
 
+function getDefaultPrimaryLanguage(): Language {
+  return "en";
+}
+
+function getDefaultSecondaryLanguage(): Language {
+  const primaryLanguage = getDefaultPrimaryLanguage();
+  if (typeof navigator !== "undefined") {
+    for (const navLang of navigator.languages as Language[]) {
+      const fallbacks = getFallbackLanguages(navLang, languages);
+      if (
+        languages.includes(navLang) &&
+        navLang !== primaryLanguage &&
+        !fallbacks.includes(primaryLanguage)
+      ) {
+        return navLang;
+      }
+    }
+    return "zh-CN";
+  }
+  return "zh-CN";
+}
+
+console.log("sec", getDefaultSecondaryLanguage());
+
 export const labelStyleState = proxy<LabelStyle>({
-  primaryLanguage: "English",
-  secondaryLanguage: "Chinese Simplified",
+  primaryLanguage: getDefaultPrimaryLanguage(),
+  secondaryLanguage: getDefaultSecondaryLanguage(),
   bleed: 0.05,
   textOffsets: {
     title: {
@@ -92,45 +127,53 @@ export const labelStyleState = proxy<LabelStyle>({
       },
       default: {
         type: "builtin",
-        family: "serif",
+        family: "Barlow Semi Condensed",
       },
     },
-    Arabic: {
+    ar: {
       default: { type: "builtin", family: "Noto Sans Arabic" },
     },
-    Persian: {
+    fa: {
       default: { type: "builtin", family: "Noto Sans Arabic" },
     },
-    "Chinese Simplified": {
+    "zh-CN": {
       default: { type: "builtin", family: "serif" },
     },
-    "Chinese Traditional": {
+    "zh-TW": {
       default: { type: "builtin", family: "serif" },
     },
-    Dutch: {
-      default: { type: "builtin", family: "serif" },
+    nl: {
+      default: { type: "builtin", family: "Barlow Semi Condensed" },
     },
-    Korean: {
+    ko: {
       default: { type: "builtin", family: "sans-serif" },
     },
-    Spanish: {
-      default: { type: "builtin", family: "serif" },
+    es: {
+      default: { type: "builtin", family: "Barlow Semi Condensed" },
     },
-    Hindi: {
-      default: { type: "builtin", family: "sans-serif" },
+    "es-MX": {
+      default: { type: "builtin", family: "Barlow Semi Condensed" },
     },
-    Japanese: {
+    hi: {
+      default: { type: "builtin", family: "Barlow Semi Condensed" },
+    },
+    ja: {
       default: { type: "builtin", family: "serif" },
     },
   },
   chemicalFont: { type: "builtin", family: "Courier Prime" },
   binomialFont: { type: "builtin", family: "Petit Formal Script" },
+  bottomSeparator: "•",
+  bottomSeparatorFont: { type: "builtin", family: "sans-serif" },
 });
 
-export function LabelSettingsProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return children;
+export function getFallbackLanguages(
+  lang: Language,
+  languages: Language[]
+): Language[] {
+  const [primary, secondary] = lang.split("-") as [Language, Language];
+  if (secondary) {
+    if (languages.includes(primary as Language)) return [primary];
+  }
+  return [];
 }

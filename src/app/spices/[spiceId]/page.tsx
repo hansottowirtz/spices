@@ -1,7 +1,7 @@
 import { ExportLabelButton } from "@/components/export-label-button";
 import { LabelRendererOnPage } from "@/components/label-renderer-on-page";
 import { LabelStyleConfigurator } from "@/components/label-style-configurator";
-import { spices } from "@/lib/spices";
+import { appLanguage, spices } from "@/lib/spices";
 import { notFound } from "next/navigation";
 
 export async function generateMetadata({
@@ -15,7 +15,7 @@ export async function generateMetadata({
     notFound();
   }
   const title =
-    spice.names.find((name) => name.lang === "English")?.value ?? spice.id;
+    spice.names.find((name) => name.lang === appLanguage)?.value ?? spice.id;
   return {
     title: `${title} - Spices`,
   };
@@ -33,7 +33,7 @@ export default async function Page({
     notFound();
   }
   const title =
-    spice.names.find((name) => name.lang === "English")?.value ?? spice.id;
+    spice.names.find((name) => name.lang === appLanguage)?.value ?? spice.id;
 
   return (
     <div className="flex flex-col md:flex-row md:items-start gap-2">
@@ -75,7 +75,7 @@ export default async function Page({
           <ExportLabelButton spice={spice} />
         </div>
         <div className="my-4">
-          <div className="px-4 py-2 border border-gray-200 dark:border-gray-800 rounded-md max-w-[400px]">
+          <div className="border border-gray-200 dark:border-gray-800 rounded-md max-w-[400px]">
             <LabelStyleConfigurator spice={spice} />
           </div>
         </div>

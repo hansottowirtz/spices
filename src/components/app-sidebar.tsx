@@ -9,7 +9,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { spices } from "@/lib/spices";
+import { appLanguage, spices } from "@/lib/spices";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -23,7 +23,7 @@ export function AppSidebar() {
             <SidebarMenu>
               {spices.map((spice) => {
                 const englishName = spice.names.find(
-                  (name) => name.lang === "English"
+                  (name) => name.lang === appLanguage
                 );
                 const name = englishName?.value ?? spice.id;
                 return (

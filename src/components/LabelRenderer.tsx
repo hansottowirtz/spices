@@ -9,7 +9,7 @@ import {
   CSSProperties,
 } from "react";
 import { cuisineLanguages, Spice } from "@/lib/spices";
-import { FontSettings, LabelStyle, Language } from "./label-settings-provider";
+import { FontSettings, getFallbackLanguages, LabelStyle, Language } from "./label-settings-provider";
 import { cn } from "@/lib/utils";
 
 const SIZE = 600;
@@ -203,8 +203,13 @@ const strokeStyles: React.CSSProperties[] = [
 
 const findName = (
   names: Array<{ lang: Language; value: string }>,
-  language: string
-) => names.find((x) => x.lang === language);
+  language: string,
+) => {
+  const name = names.find((x) => x.lang === language);
+  if (name) return name;
+  const fallbacks = getFallbackLanguages(language as Language, names.map((x) => x.lang));
+  return names.find((x) => fallbacks.includes(x.lang));
+}
 
 function fontSettingsToStyleAndPortal(font: FontSettings, baseSize = 1) {
   const style: CSSProperties = {
@@ -231,14 +236,26 @@ function fontSettingsToStyleAndPortal(font: FontSettings, baseSize = 1) {
 
 export function getSpiceNames(spice: Spice, style: LabelStyle) {
   const title = findName(spice.names, style.primaryLanguage);
-  const binomial = findName(spice.names, "Binomial");
+  const binomial = spice.binomialName;
+
+  const secondaryLanguage = style.secondaryLanguage;
 
   const etymologicalOriginName = spice.etymologicalOrigin
     ? findName(spice.names, spice.etymologicalOrigin!)
     : undefined;
   const mainCuisine = spice.cuisines?.[0];
   const cuisineName = mainCuisine
-    ? findName(spice.names, cuisineLanguages[mainCuisine])
+    ? (() => {
+        const cuisineLangs = cuisineLanguages[mainCuisine];
+        if (!cuisineLangs) return;
+        if (secondaryLanguage && cuisineLangs.includes(secondaryLanguage)) {
+          const name = findName(spice.names, secondaryLanguage);
+          if (name) {
+            return name;
+          }
+        }
+        return findName(spice.names, cuisineLangs[0]);
+      })()
     : undefined;
   const chemicalName = spice.eCode;
   const secondaryName = style.secondaryLanguage
@@ -320,8 +337,9 @@ function TextLayerSvg({
   ];
 
   const titleFontLanguage =
-    style.languageFonts.English ?? style.languageFonts.default;
-  const titleFont = titleFontLanguage.heading ?? titleFontLanguage.default;
+    (title ? style.languageFonts[title?.lang] : null) ??
+    style.languageFonts.default;
+  const titleFont = titleFontLanguage.heading ?? style.languageFonts.default.heading ?? titleFontLanguage.default;
 
   const chemicalFont = style.chemicalFont;
   const binomialFont = style.binomialFont;
@@ -331,6 +349,7 @@ function TextLayerSvg({
     binomialFont,
     1.3
   );
+  const bottomSeparatorStyleAndPortal = fontSettingsToStyleAndPortal(style.bottomSeparatorFont, 2);
 
   return (
     <svg className={className} viewBox={`0 0 ${SIZE} ${SIZE}`}>
@@ -357,7 +376,7 @@ function TextLayerSvg({
         wireframe={style.wireframe}
       >
         <tspan style={binomialStyleAndPortal.style} alignmentBaseline="middle">
-          {binomial?.value}
+          {binomial}
         </tspan>
         {binomialStyleAndPortal.portal}
       </CircularTextPath>
@@ -371,6 +390,7 @@ function TextLayerSvg({
         strokeStyles={strokeStyles}
         wireframe={style.wireframe}
       >
+        {bottomSeparatorStyleAndPortal.portal}
         {bottom.map((x, i) => {
           const fontCssAndPortal =
             x.type === "chemical"
@@ -391,11 +411,11 @@ function TextLayerSvg({
               </tspan>
               {i < bottom.length - 1 && (
                 <tspan
-                  style={{ fontSize: "35px", padding: "0 10px" }}
+                  style={{ padding: "0 12px", ...bottomSeparatorStyleAndPortal.style }}
                   dx={10}
                   alignmentBaseline="middle"
                 >
-                  {"/"}
+                  {style.bottomSeparator}
                 </tspan>
               )}
             </Fragment>
