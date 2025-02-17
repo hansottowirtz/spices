@@ -37,6 +37,7 @@ export type BuiltinFontSettings = {
 
 export type LocalFontSettings = {
   type: "local";
+  familyName: string;
   familyFullName: string;
   familyPostscriptName: string;
   spacing?: number;
@@ -69,6 +70,8 @@ export type LabelStyle = {
       {
         heading?: FontSettings;
         default: FontSettings;
+        romanized?: FontSettings;
+        showRomanized?: boolean;
       }
     >
   >;
@@ -78,29 +81,31 @@ export type LabelStyle = {
   bottomSeparatorFont: FontSettings;
 };
 
-function getDefaultPrimaryLanguage(): Language {
+export function getDefaultPrimaryLanguage(): Language {
   return "en";
 }
 
-function getDefaultSecondaryLanguage(): Language {
+export function getDefaultSecondaryLanguage(navigatorLanguages: Language[] = []): Language {
   const primaryLanguage = getDefaultPrimaryLanguage();
-  if (typeof navigator !== "undefined") {
-    for (const navLang of navigator.languages as Language[]) {
-      const fallbacks = getFallbackLanguages(navLang, languages);
-      if (
-        languages.includes(navLang) &&
-        navLang !== primaryLanguage &&
-        !fallbacks.includes(primaryLanguage)
-      ) {
-        return navLang;
-      }
+  for (const navLang of navigatorLanguages) {
+    const fallbacks = getFallbackLanguages(navLang, languages);
+    if (
+      languages.includes(navLang) &&
+      navLang !== primaryLanguage &&
+      !fallbacks.includes(primaryLanguage)
+    ) {
+      return navLang;
     }
-    return "zh-CN";
   }
   return "zh-CN";
 }
 
-console.log("sec", getDefaultSecondaryLanguage());
+export function getNavigatorLanguages(): Language[] {
+  if (typeof navigator !== "undefined") {
+    return navigator.languages as Language[];
+  }
+  return [];
+}
 
 export const labelStyleState = proxy<LabelStyle>({
   primaryLanguage: getDefaultPrimaryLanguage(),
@@ -132,6 +137,7 @@ export const labelStyleState = proxy<LabelStyle>({
     },
     ar: {
       default: { type: "builtin", family: "Noto Sans Arabic" },
+      romanized: { type: "builtin", family: "El Messiri" },
     },
     fa: {
       default: { type: "builtin", family: "Noto Sans Arabic" },
@@ -155,10 +161,11 @@ export const labelStyleState = proxy<LabelStyle>({
       default: { type: "builtin", family: "Barlow Semi Condensed" },
     },
     hi: {
-      default: { type: "builtin", family: "Barlow Semi Condensed" },
+      default: { type: "builtin", family: "Laila" },
+      romanized: { type: "builtin", family: "Khmer MN" },
     },
     ja: {
-      default: { type: "builtin", family: "serif" },
+      default: { type: "builtin", family: "M PLUS Rounded 1c", weight: "300" },
     },
   },
   chemicalFont: { type: "builtin", family: "Courier Prime" },

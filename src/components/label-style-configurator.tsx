@@ -1,6 +1,6 @@
 "use client";
 
-import { languages, Spice } from "@/lib/spices";
+import { languages, languagesWithRomanized, Spice } from "@/lib/spices";
 import { Slider } from "./ui/slider";
 import {
   BuiltinFontSettings,
@@ -171,7 +171,9 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
           <Section>
             <div className="font-bold mb-2">Chemical font</div>
             <FontEditor
-              value={labelStyleState.chemicalFont}
+              value={
+                labelStyleSnapshot.chemicalFont && labelStyleState.chemicalFont
+              }
               onChange={(v) => (labelStyleState.chemicalFont = v)}
             />
           </Section>
@@ -182,7 +184,9 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
         <Section>
           <div className="font-bold mb-2">Binomial font</div>
           <FontEditor
-            value={labelStyleState.binomialFont}
+            value={
+              labelStyleSnapshot.binomialFont && labelStyleState.binomialFont
+            }
             onChange={(v) => (labelStyleState.binomialFont = v)}
           />
         </Section>
@@ -201,7 +205,7 @@ function LanguageFontsEditor({
   const snap = useSnapshot(languageFontSettings);
   return (
     <div className="border-t py-4 first-of-type:border-0 first-of-type:pt-0">
-      <div className="font-bold mb-2 underline">{lang}</div>
+      <div className="font-bold mb-2 underline">{enDisplayNames.of(lang)}</div>
       <div className="font-bold mb-2">Default</div>
       <FontEditor
         value={languageFontSettings.default}
@@ -224,11 +228,57 @@ function LanguageFontsEditor({
           onChange={(v) => (languageFontSettings.heading = v)}
         />
       ) : (
-        <Button
-          onClick={() => (languageFontSettings.heading = { ...snap.default })}
-        >
-          Add Heading style
-        </Button>
+        <div className="my-2">
+          <Button
+            onClick={() => (languageFontSettings.heading = { ...snap.default })}
+          >
+            Add Heading style
+          </Button>
+        </div>
+      )}
+      {languagesWithRomanized.includes(lang) && (
+        <>
+          <div className="font-bold mb-2 flex flex-row items-center space-x-2">
+            <div className="flex-1">Romanized</div>
+            {snap.romanized && (
+              <Button
+                className="size-8"
+                onClick={() => (languageFontSettings.romanized = undefined)}
+              >
+                <X />
+              </Button>
+            )}
+          </div>
+          <label className="font-bold mb-2 flex flex-row items-center space-x-2">
+            <span>Show</span>
+            <Checkbox
+              checked={languageFontSettings.showRomanized}
+              onCheckedChange={(v) =>
+                (languageFontSettings.showRomanized = !!v)
+              }
+            />
+          </label>
+          {snap.showRomanized && (
+            <>
+              {snap.romanized ? (
+                <FontEditor
+                  value={languageFontSettings.romanized!}
+                  onChange={(v) => (languageFontSettings.romanized = v)}
+                />
+              ) : (
+                <div className="my-2">
+                  <Button
+                    onClick={() =>
+                      (languageFontSettings.romanized = { ...snap.default })
+                    }
+                  >
+                    Add Romanized style
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
+        </>
       )}
     </div>
   );
@@ -279,7 +329,7 @@ function fontSettingsToFontFamilySelectValue(
   } else {
     return {
       type: "local",
-      familyName: settings.familyFullName,
+      familyName: settings.familyName,
       fullName: settings.familyFullName,
       postscriptName: settings.familyPostscriptName,
     };
@@ -294,9 +344,8 @@ function FontEditor({
   onChange: (v: FontSettings) => void;
 }) {
   const snap = useSnapshot(value, { sync: true });
-  const [selectedFamily, setSelectedFamily] = useState<FontFamilySelectValue>(
-    fontSettingsToFontFamilySelectValue(value)
-  );
+  const selectedFamily = fontSettingsToFontFamilySelectValue(snap);
+
   const localFonts = useLocalFontsQuery({
     enabled: selectedFamily?.type === "local",
   });
@@ -333,16 +382,11 @@ function FontEditor({
             if (value.type === "local") {
               onChange({
                 type: "local",
+                familyName: value.familyName,
                 familyFullName: value.fullName,
                 familyPostscriptName: value.postscriptName,
                 size: snap.size,
                 spacing: snap.spacing,
-              });
-              setSelectedFamily({
-                type: "local",
-                familyName: value.familyName,
-                fullName: value.fullName,
-                postscriptName: value.postscriptName,
               });
             } else {
               onChange({
@@ -351,10 +395,6 @@ function FontEditor({
                 weight: snap.type === "builtin" ? snap.weight : undefined,
                 size: snap.size,
                 spacing: snap.spacing,
-              });
-              setSelectedFamily({
-                type: "builtin",
-                familyName: value.familyName,
               });
             }
           }}
@@ -561,7 +601,9 @@ function LabeledSliderManaged<
     <LabeledSlider
       label={label}
       value={snap[objectKey] as number}
-      onValueChange={(v) => ((object as Record<TKey, number>)[objectKey] = v)}
+      onValueChange={(v) => {
+        (object as Record<TKey, number>)[objectKey] = v;
+      }}
       min={min}
       max={max}
       step={step}
@@ -709,6 +751,7 @@ function FontFamilySelect({
     "Noto Sans Syriac",
     "Petit Formal Script",
     "Courier Prime",
+    "M PLUS Rounded 1c"
   ];
 
   const uniqueLocalFontFamilies = [
@@ -728,7 +771,6 @@ function FontFamilySelect({
       ? "local___" + value.familyName
       : "builtin___" + value.familyName;
 
-  console.log({ localFonts });
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
@@ -736,13 +778,13 @@ function FontFamilySelect({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          className="min-w-[250px] justify-between"
         >
           {fontNameMap[commandValue] ?? "Select font..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      <PopoverContent className="w-[250px] p-0">
         <Command
           value={commandValue}
           onValueChange={(value) => {

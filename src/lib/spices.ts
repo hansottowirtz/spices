@@ -11,7 +11,7 @@ export type Spice = {
   names: {
     lang: Language;
     value: string;
-    romanised?: string;
+    romanized?: string;
   }[];
   binomialName?: string;
   chemicalFormula?: string;
@@ -31,7 +31,7 @@ export const spices: Spice[] = [
       {
         lang: "ja",
         value: "寒天",
-        romanised: "kanten",
+        romanized: "kanten",
       },
       {
         lang: "nl",
@@ -76,7 +76,7 @@ export const spices: Spice[] = [
       {
         lang: "hi",
         value: "अमचूर",
-        romanised: "amchur",
+        romanized: "amchur",
       },
       {
         lang: "nl",
@@ -97,7 +97,7 @@ export const spices: Spice[] = [
       {
         lang: "hi",
         value: "अनारदाना पाउडर",
-        romanised: "anāradānā pāudar",
+        romanized: "anāradānā pāudar",
       },
       {
         lang: "nl",
@@ -122,7 +122,7 @@ export const spices: Spice[] = [
       {
         lang: "hi",
         value: "हींग",
-        romanised: "hīng",
+        romanized: "hīng",
       },
       {
         lang: "nl",
@@ -296,12 +296,12 @@ export const spices: Spice[] = [
       {
         lang: "zh-CN",
         value: "五香粉",
-        romanised: "wǔxiāng fěn",
+        romanized: "wǔxiāng fěn",
       },
       {
         lang: "zh-TW",
         value: "五香粉",
-        romanised: "wǔxiāng fěn",
+        romanized: "wǔxiāng fěn",
       },
       {
         lang: "nl",
@@ -377,7 +377,7 @@ export const spices: Spice[] = [
       {
         lang: "hi",
         value: "हरा धनिया",
-        romanised: "harā dhaniya",
+        romanized: "harā dhaniya",
       },
       {
         lang: "nl",
@@ -398,7 +398,7 @@ export const spices: Spice[] = [
       {
         lang: "hi",
         value: "धनिया",
-        romanised: "dhaniya",
+        romanized: "dhaniya",
       },
       {
         lang: "nl",
@@ -423,17 +423,17 @@ export const spices: Spice[] = [
       {
         lang: "hi",
         value: "जीरा",
-        romanised: "jeera",
+        romanized: "jeera",
       },
       {
         lang: "zh-CN",
         value: "孜然",
-        romanised: "zīrán",
+        romanized: "zīrán",
       },
       {
         lang: "zh-TW",
         value: "孜然",
-        romanised: "zīrán",
+        romanized: "zīrán",
       },
       {
         lang: "nl",
@@ -470,7 +470,7 @@ export const spices: Spice[] = [
       {
         lang: "hi",
         value: "सौंफ",
-        romanised: "saunf",
+        romanized: "saunf",
       },
       {
         lang: "nl",
@@ -491,7 +491,7 @@ export const spices: Spice[] = [
       {
         lang: "hi",
         value: "कसूरी मेथी",
-        romanised: "kasūrī methī",
+        romanized: "kasūrī methī",
       },      {
         lang: "nl",
         value: "Fenegriekblaadjes"
@@ -511,7 +511,7 @@ export const spices: Spice[] = [
       {
         lang: "hi",
         value: "मेथी दाना",
-        romanised: "methī dānā",
+        romanized: "methī dānā",
       },
       {
         lang: "nl",
@@ -548,7 +548,7 @@ export const spices: Spice[] = [
       {
         lang: "hi",
         value: "गरम मसाला",
-        romanised: "garam masālā",
+        romanized: "garam masālā",
       },
       {
         lang: "nl",
@@ -599,7 +599,7 @@ export const spices: Spice[] = [
       {
         lang: "ko",
         value: "고추가루",
-        romanised: "gochugaru",
+        romanized: "gochugaru",
       },
       {
         lang: "nl",
@@ -640,12 +640,12 @@ export const spices: Spice[] = [
       {
         lang: "zh-CN",
         value: "青花椒",
-        romanised: "qīng huājiāo",
+        romanized: "qīng huājiāo",
       },
       {
         lang: "zh-TW",
         value: "青花椒",
-        romanised: "qīng huājiāo",
+        romanized: "qīng huājiāo",
       },
       {
         lang: "nl",
@@ -696,7 +696,7 @@ export const spices: Spice[] = [
       {
         lang: "hi",
         value: "धनिया पाउडर",
-        romanised: "dhaniya pāudar",
+        romanized: "dhaniya pāudar",
       },
       {
         lang: "nl",
@@ -717,7 +717,7 @@ export const spices: Spice[] = [
       {
         lang: "hi",
         value: "जीरा पाउडर",
-        romanised: "jeera pāudar",
+        romanized: "jeera pāudar",
       },
       {
         lang: "nl",
@@ -738,7 +738,7 @@ export const spices: Spice[] = [
       {
         lang: "hi",
         value: "सौंफ पाउडर",
-        romanised: "saunf pāudar",
+        romanized: "saunf pāudar",
       },
       {
         lang: "nl",
@@ -823,7 +823,7 @@ export const spices: Spice[] = [
       {
         lang: "th",
         value: "ตะไคร้",
-        romanised: "takhrai",
+        romanized: "takhrai",
       },
       {
         lang: "nl",
@@ -869,12 +869,12 @@ export const spices: Spice[] = [
       {
         lang: "zh-CN",
         value: "味精",
-        romanised: "wèijīng",
+        romanized: "wèijīng",
       },
       {
         lang: "zh-TW",
         value: "味精",
-        romanised: "wèijīng",
+        romanized: "wèijīng",
       },
       {
         lang: "nl",
@@ -894,7 +894,7 @@ export const spices: Spice[] = [
       {
         lang: "hi",
         value: "कलौंजी",
-        romanised: "kalauṅjī",
+        romanized: "kalauṅjī",
       },
       {
         lang: "nl",
@@ -996,7 +996,7 @@ export const spices: Spice[] = [
       {
         lang: "ar",
         value: "رأس الحانوت",
-        romanised: "raʾs al-ḥānūt",
+        romanized: "raʾs al-ḥānūt",
       },
       {
         lang: "nl",
@@ -1016,12 +1016,12 @@ export const spices: Spice[] = [
       {
         lang: "zh-CN",
         value: "红花椒",
-        romanised: "hóng huājiāo",
+        romanized: "hóng huājiāo",
       },
       {
         lang: "zh-TW",
         value: "紅花椒",
-        romanised: "hóng huājiāo",
+        romanized: "hóng huājiāo",
       },
       {
         lang: "nl",
@@ -1085,7 +1085,7 @@ export const spices: Spice[] = [
       {
         lang: "fa",
         value: "زعفران",
-        romanised: "za'farān",
+        romanized: "za'farān",
       },
       {
         lang: "nl",
@@ -1149,12 +1149,12 @@ export const spices: Spice[] = [
       {
         lang: "zh-CN",
         value: "八角",
-        romanised: "bājiǎo",
+        romanized: "bājiǎo",
       },
       {
         lang: "zh-TW",
         value: "八角",
-        romanised: "bājiǎo",
+        romanized: "bājiǎo",
       },
       {
         lang: "nl",
@@ -1256,7 +1256,7 @@ export const spices: Spice[] = [
       {
         lang: "hi",
         value: "हल्दी",
-        romanised: "haldī",
+        romanized: "haldī",
       },
       {
         lang: "nl",
@@ -1366,7 +1366,7 @@ export const spices: Spice[] = [
       {
         lang: "ar",
         value: "زَعْتَر",
-        romanised: "za'tar",
+        romanized: "za'tar",
       },
       {
         lang: "nl",
@@ -1399,3 +1399,14 @@ export const languages: Language[] = [
   "zh-CN",
   "zh-TW",
 ];
+
+export const languagesWithRomanized: Language[] = [
+  "ar",
+  "fa",
+  "hi",
+  "ja",
+  "ko",
+  "th",
+  "zh-CN",
+  "zh-TW"
+]

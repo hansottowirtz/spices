@@ -9,7 +9,12 @@ import {
   CSSProperties,
 } from "react";
 import { cuisineLanguages, Spice } from "@/lib/spices";
-import { FontSettings, getFallbackLanguages, LabelStyle, Language } from "./label-settings-provider";
+import {
+  FontSettings,
+  getFallbackLanguages,
+  LabelStyle,
+  Language,
+} from "./label-settings-provider";
 import { cn } from "@/lib/utils";
 
 const SIZE = 600;
@@ -202,13 +207,23 @@ const strokeStyles: React.CSSProperties[] = [
 ];
 
 const findName = (
-  names: Array<{ lang: Language; value: string }>,
-  language: string,
+  names: Array<{ lang: Language; value: string; romanized?: string }>,
+  language: string
 ) => {
   const name = names.find((x) => x.lang === language);
   if (name) return name;
-  const fallbacks = getFallbackLanguages(language as Language, names.map((x) => x.lang));
+  const fallbacks = getFallbackLanguages(
+    language as Language,
+    names.map((x) => x.lang)
+  );
   return names.find((x) => fallbacks.includes(x.lang));
+};
+
+function formatFontFamily(fontFamily: string) {
+  if (fontFamily[0] !== fontFamily[0].toLowerCase()) {
+    return `'${fontFamily}'`;
+  }
+  return fontFamily;
 }
 
 function fontSettingsToStyleAndPortal(font: FontSettings, baseSize = 1) {
@@ -228,7 +243,7 @@ function fontSettingsToStyleAndPortal(font: FontSettings, baseSize = 1) {
     );
     return { style, portal };
   }
-  style.fontFamily = font.family;
+  style.fontFamily = formatFontFamily(font.family);
   style.fontWeight = font.weight;
   style.fontStyle = font.style;
   return { style };
@@ -258,9 +273,11 @@ export function getSpiceNames(spice: Spice, style: LabelStyle) {
       })()
     : undefined;
   const chemicalName = spice.eCode;
-  const secondaryName = style.secondaryLanguage
+  let secondaryName = style.secondaryLanguage
     ? findName(spice.names, style.secondaryLanguage)
     : undefined;
+  secondaryName =
+    secondaryName?.value !== title?.value ? secondaryName : undefined;
 
   return {
     title,
@@ -293,6 +310,7 @@ function TextLayerSvg({
   const bottomTexts: {
     lang: Language;
     value: string;
+    romanized?: string;
     type: "local" | "chemical";
   }[] = [];
   if (etymologicalOriginName) {
@@ -306,6 +324,7 @@ function TextLayerSvg({
     bottomTexts.push({
       lang: cuisineName.lang,
       value: cuisineName.value,
+      romanized: cuisineName.romanized,
       type: "local",
     });
   }
@@ -339,7 +358,10 @@ function TextLayerSvg({
   const titleFontLanguage =
     (title ? style.languageFonts[title?.lang] : null) ??
     style.languageFonts.default;
-  const titleFont = titleFontLanguage.heading ?? style.languageFonts.default.heading ?? titleFontLanguage.default;
+  const titleFont =
+    titleFontLanguage.heading ??
+    style.languageFonts.default.heading ??
+    titleFontLanguage.default;
 
   const chemicalFont = style.chemicalFont;
   const binomialFont = style.binomialFont;
@@ -349,7 +371,10 @@ function TextLayerSvg({
     binomialFont,
     1.3
   );
-  const bottomSeparatorStyleAndPortal = fontSettingsToStyleAndPortal(style.bottomSeparatorFont, 2);
+  const bottomSeparatorStyleAndPortal = fontSettingsToStyleAndPortal(
+    style.bottomSeparatorFont,
+    2
+  );
 
   return (
     <svg className={className} viewBox={`0 0 ${SIZE} ${SIZE}`}>
@@ -392,13 +417,20 @@ function TextLayerSvg({
       >
         {bottomSeparatorStyleAndPortal.portal}
         {bottom.map((x, i) => {
+          const getLangStyle = (lang: Language) =>
+            accessKeyOrDefault(style.languageFonts, lang);
           const fontCssAndPortal =
             x.type === "chemical"
               ? fontSettingsToStyleAndPortal(chemicalFont, 2.5)
-              : fontSettingsToStyleAndPortal(
-                  accessKeyOrDefault(style.languageFonts, x.lang).default,
-                  2.5
-                );
+              : fontSettingsToStyleAndPortal(getLangStyle(x.lang).default, 2.5);
+          const romanizedFontCssAndPortal =
+            x.type === "local" && x.romanized
+              ? fontSettingsToStyleAndPortal(
+                  getLangStyle(x.lang).romanized ??
+                    getLangStyle(x.lang).default,
+                  1.5
+                )
+              : undefined;
           return (
             <Fragment key={i}>
               {fontCssAndPortal.portal}
@@ -409,9 +441,26 @@ function TextLayerSvg({
               >
                 {x.value}
               </tspan>
+              {"romanized" in x &&
+                x.romanized &&
+                getLangStyle(x.lang).showRomanized && (
+                  <>
+                    {romanizedFontCssAndPortal!.portal}
+                    <tspan
+                      style={romanizedFontCssAndPortal!.style}
+                      dx={10}
+                      alignmentBaseline="middle"
+                    >
+                      {x.romanized}
+                    </tspan>
+                  </>
+                )}
               {i < bottom.length - 1 && (
                 <tspan
-                  style={{ padding: "0 12px", ...bottomSeparatorStyleAndPortal.style }}
+                  style={{
+                    padding: "0 12px",
+                    ...bottomSeparatorStyleAndPortal.style,
+                  }}
                   dx={10}
                   alignmentBaseline="middle"
                 >

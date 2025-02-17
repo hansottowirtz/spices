@@ -8,6 +8,7 @@ import { ModeToggle } from "@/components/mode-toggle";
 import Link from "next/link";
 import { QueryClientProvider } from "@/components/query-client-provider";
 import { Github } from "lucide-react";
+import { ConfigureLanguages } from "@/components/configure-languages";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,7 +31,50 @@ export const metadata: Metadata = {
   description: "Spices labels generator",
 };
 
-console.log(geistSans.variable);
+const googleFonts = [
+  {
+    family: "Courier Prime",
+    styles: ["ital", "wght@0,400;0,700;1,400;1,700"],
+  },
+  {
+    family: "Glegoo",
+    styles: ["wght@400;700"],
+  },
+  {
+    family: "Laila",
+    styles: ["wght@300;400;500;600;700"],
+  },
+  {
+    family: "Noto Sans Arabic",
+    styles: ["wght@100..900"],
+  },
+  {
+    family: "Noto Sans Syriac",
+    styles: ["wght@100..900"],
+  },
+  {
+    family: "Petit Formal Script",
+  },
+  {
+    family: "Barlow Semi Condensed",
+    styles: ["wght@400"],
+  },
+  {
+    family: "M PLUS Rounded 1c",
+    styles: ["wght@300;400"],
+  },
+  {
+    family: "El Messiri",
+  }
+];
+
+const googleFontsUrl = new URL(
+  "https://fonts.googleapis.com/css2"
+);
+for (const font of googleFonts) {
+  const styles = font.styles?.join(",");
+  googleFontsUrl.searchParams.append("family", styles ? `${font.family}:${styles}` : font.family);
+}
 
 export default function RootLayout({
   children,
@@ -46,14 +90,12 @@ export default function RootLayout({
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400;1,700&family=Glegoo:wght@400;700&family=Laila:wght@300;400;500;600;700&family=Noto+Sans+Arabic:wght@100..900&family=Noto+Sans+Syriac:wght@100..900&family=Petit+Formal+Script&family=Barlow+Semi+Condensed:wght@400&display=swap"
-          rel="stylesheet"
-        />
+        <link href={googleFontsUrl.toString()} rel="stylesheet" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${glegooBold.variable} antialiased font-sans`}
       >
+        <ConfigureLanguages />
         <QueryClientProvider>
           <ThemeProvider
             attribute="class"
