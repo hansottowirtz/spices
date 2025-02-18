@@ -751,7 +751,9 @@ function FontFamilySelect({
     "Noto Sans Syriac",
     "Petit Formal Script",
     "Courier Prime",
-    "M PLUS Rounded 1c"
+    "M PLUS Rounded 1c",
+    "Laila",
+    "El Messiri",
   ];
 
   const uniqueLocalFontFamilies = [
