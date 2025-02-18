@@ -9,6 +9,8 @@ import Link from "next/link";
 import { QueryClientProvider } from "@/components/query-client-provider";
 import { Github } from "lucide-react";
 import { ConfigureLanguages } from "@/components/configure-languages";
+import { GlobalFontsProvider } from "@/components/global-fonts-provider";
+import { GlobalFontsLink } from "@/components/global-fonts-link";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -65,16 +67,8 @@ const googleFonts = [
   },
   {
     family: "El Messiri",
-  }
+  },
 ];
-
-const googleFontsUrl = new URL(
-  "https://fonts.googleapis.com/css2"
-);
-for (const font of googleFonts) {
-  const styles = font.styles?.join(",");
-  googleFontsUrl.searchParams.append("family", styles ? `${font.family}:${styles}` : font.family);
-}
 
 export default function RootLayout({
   children,
@@ -90,44 +84,46 @@ export default function RootLayout({
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
-        <link href={googleFontsUrl.toString()} rel="stylesheet" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${glegooBold.variable} antialiased font-sans`}
       >
-        <ConfigureLanguages />
-        <QueryClientProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <SidebarProvider defaultOpen={false}>
-              <AppSidebar />
-              <main className="min-w-0 w-full">
-                <div>
-                  <header className="flex items-center justify-between p-4 border-b-2 border-black dark:border-white">
-                    <SidebarTrigger />
-                    <Link
-                      href="/"
-                      className="text-2xl font-bold text-gray-800 dark:text-gray-100 font-header"
-                    >
-                      Spices
-                    </Link>
-                    <div className="flex flex-row gap-4 items-center">
-                      <Link href="https://github.com/hansottowirtz/spices">
-                        <Github className="h-6 w-6 text-gray-800 dark:text-gray-100" />
+        <GlobalFontsProvider googleFonts={googleFonts}>
+          <ConfigureLanguages />
+          <QueryClientProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <SidebarProvider defaultOpen={false}>
+                <AppSidebar />
+                <main className="min-w-0 w-full">
+                  <div>
+                    <header className="flex items-center justify-between p-4 border-b-2 border-black dark:border-white">
+                      <SidebarTrigger />
+                      <Link
+                        href="/"
+                        className="text-2xl font-bold text-gray-800 dark:text-gray-100 font-header"
+                      >
+                        Spices
                       </Link>
-                      <ModeToggle />
-                    </div>
-                  </header>
-                  {children}
-                </div>
-              </main>
-            </SidebarProvider>
-          </ThemeProvider>
-        </QueryClientProvider>
+                      <div className="flex flex-row gap-4 items-center">
+                        <Link href="https://github.com/hansottowirtz/spices">
+                          <Github className="h-6 w-6 text-gray-800 dark:text-gray-100" />
+                        </Link>
+                        <ModeToggle />
+                      </div>
+                    </header>
+                    {children}
+                  </div>
+                </main>
+              </SidebarProvider>
+            </ThemeProvider>
+          </QueryClientProvider>
+          <GlobalFontsLink />
+        </GlobalFontsProvider>
       </body>
     </html>
   );

@@ -7,7 +7,7 @@ export type Spice = {
   imageId?: string;
   type: "natural" | "chemical";
   cuisines?: string[];
-  etymologicalOrigin?: string;
+  etymologicalOrigin?: Language;
   names: {
     lang: Language;
     value: string;
@@ -590,7 +590,7 @@ export const spices: Spice[] = [
     id: "gochugaru",
     type: "natural",
     cuisines: ["Korean"],
-    etymologicalOrigin: "Korean",
+    etymologicalOrigin: "ko",
     names: [
       {
         lang: "en",
@@ -983,7 +983,7 @@ export const spices: Spice[] = [
     id: "ras-el-hanout",
     type: "natural",
     cuisines: ["Tunisian", "Algerian", "Moroccan"],
-    etymologicalOrigin: "Arabic",
+    etymologicalOrigin: "ar",
     names: [
       {
         lang: "en",
@@ -1072,7 +1072,7 @@ export const spices: Spice[] = [
     id: "saffron",
     type: "natural",
     cuisines: ["Indian"],
-    etymologicalOrigin: "Persian",
+    etymologicalOrigin: "fa",
     names: [
       {
         lang: "en",
@@ -1357,7 +1357,7 @@ export const spices: Spice[] = [
     id: "za'atar",
     type: "natural",
     cuisines: ["Levantine"],
-    etymologicalOrigin: "Arabic",
+    etymologicalOrigin: "ar",
     names: [
       {
         lang: "en",

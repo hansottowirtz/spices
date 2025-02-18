@@ -39,13 +39,18 @@ import {
 import { FontData, useLocalFontsQuery } from "@/hooks/use-local-fonts-query";
 import { useQuery } from "@tanstack/react-query";
 import { getSpiceNames } from "./LabelRenderer";
+import { appLangDisplayNames } from "@/lib/app-lang-display-names";
+import { useCanRenderTspanConnectedGlyphs } from "@/lib/use-can-render-tspan-connected-glyphs";
+import { graphemeSplit } from "@/lib/grapheme-split";
+import { useCanRenderTspanRtlText } from "@/lib/use-can-render-tspan-rtl-text";
+import { getTextDirection } from "@/lib/text-direction";
 
 export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
   const labelStyleSnapshot = useSnapshot(labelStyleState);
 
   const [hideUnused, setHideUnused] = useState(true);
 
-  const usedLanguages = new Set<string>();
+  const usedLanguages = new Set<Language>();
   const names = getSpiceNames(spice, labelStyleSnapshot);
   for (const [, value] of Object.entries(names)) {
     if (!value || typeof value === "string") continue;
@@ -73,11 +78,61 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
   ] as const;
 
   const languageFonts = Object.entries(labelStyleSnapshot.languageFonts).filter(
-    ([lang]) => lang === "default" || !hideUnused || usedLanguages.has(lang)
+    ([lang]) =>
+      lang === "default" || !hideUnused || usedLanguages.has(lang as Language)
   );
+
+  const canRenderTspanConnectedGlyphs = useCanRenderTspanConnectedGlyphs();
+  const canRenderTspanRtlText = useCanRenderTspanRtlText();
+
+  const textsWithRenderingIssues = new Set<{
+    lang: Language;
+    value: string;
+    issueType: "connectedGlyphs" | "rtl";
+  }>();
+  for (const lang of usedLanguages) {
+    const value = spice.names.find((name) => name.lang === lang)?.value;
+    if (value) {
+      if (canRenderTspanConnectedGlyphs === false) {
+        if (graphemeSplit(value, lang).length !== value.length) {
+          textsWithRenderingIssues.add({
+            lang,
+            value,
+            issueType: "connectedGlyphs",
+          });
+        }
+      }
+      if (canRenderTspanRtlText === false) {
+        if (getTextDirection(value) === "rtl") {
+          textsWithRenderingIssues.add({ lang, value, issueType: "rtl" });
+        }
+      }
+    }
+  }
+
+  const hasRenderingIssue = textsWithRenderingIssues.size > 0;
 
   return (
     <div>
+      {hasRenderingIssue && (
+        <>
+          <Section>
+            <div className="mb-2">
+              Your browser cannot properly render all texts used in this spice
+              label, for the final export please use a Chromium-based browser.
+            </div>
+            <div>
+              Affected texts:{" "}
+              {Array.from(textsWithRenderingIssues)
+                .map((v) => {
+                  return `${v.value} (${appLangDisplayNames.of(v.lang)})`;
+                })
+                .join(", ")}
+            </div>
+          </Section>
+          <Separator />
+        </>
+      )}
       <Section>
         <div>
           <label className="font-bold mb-2 flex flex-row items-center space-x-2">
@@ -205,7 +260,9 @@ function LanguageFontsEditor({
   const snap = useSnapshot(languageFontSettings);
   return (
     <div className="border-t py-4 first-of-type:border-0 first-of-type:pt-0">
-      <div className="font-bold mb-2 underline">{enDisplayNames.of(lang)}</div>
+      <div className="font-bold mb-2 underline">
+        {appLangDisplayNames.of(lang)}
+      </div>
       <div className="font-bold mb-2">Default</div>
       <FontEditor
         value={languageFontSettings.default}
@@ -531,8 +588,6 @@ function FontEditor({
   );
 }
 
-const enDisplayNames = new Intl.DisplayNames(["en"], { type: "language" });
-
 function LanguageSelect({
   value,
   onValueChange,
@@ -552,7 +607,7 @@ function LanguageSelect({
             <SelectLabel>Language</SelectLabel>
             {languages.map((language) => (
               <SelectItem key={language} value={language}>
-                {enDisplayNames.of(language)}
+                {appLangDisplayNames.of(language)}
               </SelectItem>
             ))}
           </SelectGroup>
@@ -560,7 +615,8 @@ function LanguageSelect({
       </Select>
       {fallback.length > 0 && (
         <div className="text-xs text-gray-500">
-          Fallback: {fallback.map((lang) => enDisplayNames.of(lang)).join(", ")}
+          Fallback:{" "}
+          {fallback.map((lang) => appLangDisplayNames.of(lang)).join(", ")}
         </div>
       )}
     </>

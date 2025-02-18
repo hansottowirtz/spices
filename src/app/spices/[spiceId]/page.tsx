@@ -1,6 +1,7 @@
 import { ExportLabelButton } from "@/components/export-label-button";
 import { LabelRendererOnPage } from "@/components/label-renderer-on-page";
 import { LabelStyleConfigurator } from "@/components/label-style-configurator";
+import { appLangDisplayNames } from "@/lib/app-lang-display-names";
 import { appLanguage, spices } from "@/lib/spices";
 import { notFound } from "next/navigation";
 
@@ -55,7 +56,7 @@ export default async function Page({
           <ul className="list-disc pl-4">
             {spice.names.map((name) => (
               <li key={name.lang}>
-                {name.lang}: {name.value}
+                {appLangDisplayNames.of(name.lang)}: {name.value}
               </li>
             ))}
           </ul>

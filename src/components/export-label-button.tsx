@@ -1,11 +1,13 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { Button } from "./ui/button";
 import { LabelRenderer } from "@/components/LabelRenderer";
 import { Spice } from "@/lib/spices";
 import { useSnapshot } from "valtio";
 import { labelStyleState } from "./label-settings-provider";
+import { inlineFontsCssFile } from "@/lib/inlined-fonts-css-files-query";
+import { GlobalFontsContext } from "./global-fonts-provider";
 
 function delay(ms: number) {
   return new Promise((resolve) => {
@@ -20,6 +22,8 @@ export function ExportLabelButton({ spice }: { spice: Spice }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const style = useSnapshot(labelStyleState);
+
+  const fontUrls = useContext(GlobalFontsContext).fontUrls;
 
   return (
     <div>
@@ -37,11 +41,20 @@ export function ExportLabelButton({ spice }: { spice: Spice }) {
               await inlineElement(child);
             }
           }
+          let inlinedFontsCss = "";
+          for (const fontUrl of fontUrls) {
+            inlinedFontsCss += await inlineFontsCssFile(fontUrl);
+          }
           const labelRendererInlined = new XMLSerializer().serializeToString(
             stuffRef.current!
           );
           const SCALE = 8;
           const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600" viewBox="0 0 600 600" fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <defs>
+              <style>
+                ${inlinedFontsCss}
+              </style>
+            </defs>
             <foreignObject width="100%" height="100%">
               ${labelRendererInlined}
             </foreignObject>
@@ -83,9 +96,6 @@ export function ExportLabelButton({ spice }: { spice: Spice }) {
       <div className="hidden">
         {loaded && <LabelRenderer spice={spice} style={style} ref={labelRendererRef} />}
       </div>
-      {/* {svg && (
-        <div className="relative" dangerouslySetInnerHTML={{ __html: svg }} />
-      )} */}
       <div className="hidden" ref={stuffRef} />
       <canvas className="hidden" ref={canvasRef} />
     </div>

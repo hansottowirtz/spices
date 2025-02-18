@@ -16,6 +16,10 @@ import {
   Language,
 } from "./label-settings-provider";
 import { cn } from "@/lib/utils";
+import { useCanRenderTspanConnectedGlyphs } from "@/lib/use-can-render-tspan-connected-glyphs";
+import { graphemeSplit } from "@/lib/grapheme-split";
+import { getTextDirection } from "@/lib/text-direction";
+import { useCanRenderTspanRtlText } from "@/lib/use-can-render-tspan-rtl-text";
 
 const SIZE = 600;
 const REM = 16;
@@ -434,25 +438,27 @@ function TextLayerSvg({
           return (
             <Fragment key={i}>
               {fontCssAndPortal.portal}
-              <tspan
+              <FixedTspan
+                language={x.type === "local" ? x.lang : "en"}
                 style={fontCssAndPortal.style}
                 dx={i > 0 ? 10 : 0}
                 alignmentBaseline="middle"
               >
                 {x.value}
-              </tspan>
+              </FixedTspan>
               {"romanized" in x &&
                 x.romanized &&
                 getLangStyle(x.lang).showRomanized && (
                   <>
                     {romanizedFontCssAndPortal!.portal}
-                    <tspan
+                    <FixedTspan
+                      language={x.lang}
                       style={romanizedFontCssAndPortal!.style}
                       dx={10}
                       alignmentBaseline="middle"
                     >
                       {x.romanized}
-                    </tspan>
+                    </FixedTspan>
                   </>
                 )}
               {i < bottom.length - 1 && (
@@ -473,6 +479,43 @@ function TextLayerSvg({
       </CircularTextPath>
     </svg>
   );
+}
+
+function FixedTspan(
+  {
+    children,
+    language,
+    ...props
+  }: React.SVGProps<SVGTSpanElement> & {
+    language: string
+    children: string
+  }
+) {
+  const canRenderTspanConnectedGlyphs = useCanRenderTspanConnectedGlyphs();
+  const canRenderTspanRtlText = useCanRenderTspanRtlText();
+
+  if (canRenderTspanConnectedGlyphs !== false && canRenderTspanRtlText !== false) {
+    return <tspan {...props}>{children}</tspan>;
+  }
+
+  const graphemes = graphemeSplit(children as string, language);
+  const hasGraphemeConnectionIssue = graphemes.length !== children.length;
+
+  let usedGraphemes = graphemes;
+  if (hasGraphemeConnectionIssue) {
+    usedGraphemes = usedGraphemes.map(grapheme => grapheme[0]);
+  }
+
+  if (canRenderTspanRtlText === false) {
+    const textDirection = getTextDirection(children);
+    if (textDirection === "rtl") {
+      usedGraphemes = usedGraphemes.reverse();
+    }
+  }
+
+  return <tspan {...props}>
+    {usedGraphemes.join("")}
+  </tspan>;
 }
 
 function accessKeyOrDefault<
