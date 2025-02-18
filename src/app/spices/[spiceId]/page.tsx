@@ -62,7 +62,12 @@ export default async function Page({
           </ul>
         </div>
         <div>
-          <div>Etymological origin: {spice.etymologicalOrigin || "not relevant"}</div>
+          <div>
+            Etymological origin:{" "}
+            {spice.etymologicalOrigin
+              ? appLangDisplayNames.of(spice.etymologicalOrigin)
+              : "not relevant"}
+          </div>
         </div>
         <div>
           <div>Cuisines</div>

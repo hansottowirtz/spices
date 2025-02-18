@@ -3,7 +3,7 @@
 import { useSnapshot } from "valtio";
 import { labelStyleState } from "./label-settings-provider";
 import { Spice } from "@/lib/spices";
-import { useRef } from "react";
+import { ComponentProps, useRef } from "react";
 import { useScrollMeasures } from "@/hooks/use-scroll-measures";
 import { cn } from "@/lib/utils";
 import { LabelRenderer } from "./LabelRenderer";
@@ -39,9 +39,14 @@ export function LabelRendererOnPage({ spice }: { spice: Spice }) {
         style={size ? { height: size } : {}}
       >
         <div className="h-full flex justify-around">
-          <LabelRenderer scaleToFit spice={spice} outline style={settings} ImageComponent={Image} />
+          <LabelRenderer scaleToFit spice={spice} outline style={settings} ImageComponent={ImageWithPriority} />
         </div>
       </div>
     </div>
   );
+}
+
+function ImageWithPriority(props: ComponentProps<typeof Image>) {
+  // eslint-disable-next-line jsx-a11y/alt-text
+  return <Image priority {...props} />;
 }

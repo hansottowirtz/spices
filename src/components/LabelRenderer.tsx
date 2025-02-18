@@ -4,7 +4,6 @@ import {
   Fragment,
   Ref,
   useId,
-  createElement,
   ReactNode,
   CSSProperties,
 } from "react";
@@ -123,6 +122,8 @@ export function LabelRenderer({
   style: settings,
   scaleToFit,
   deferRender,
+  noBrowserDetection,
+  expectedImageSize,
   ImageComponent,
 }: {
   spice: Spice;
@@ -131,10 +132,15 @@ export function LabelRenderer({
   ref?: Ref<HTMLDivElement>;
   scaleToFit?: boolean;
   deferRender?: boolean;
+  noBrowserDetection?: boolean;
+  expectedImageSize?: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ImageComponent?: (props: any) => ReactNode;
 }) {
   const imageId = spice.imageId ?? spice.id;
+
+  const UsedImageComponent = ImageComponent ?? "img";
+  const imageSize = expectedImageSize ?? SIZE;
 
   return (
     <div
@@ -162,18 +168,19 @@ export function LabelRenderer({
         <>
           <BackgroundLayerSvg className="absolute top-0 left-0" />
           <div className="absolute top-0 left-0 w-full h-full">
-            {createElement((ImageComponent ?? "img") as "img", {
-              alt: `Image for ${spice.id}`,
-              src: `/spices/${imageId}.png`,
-              width: SIZE,
-              height: SIZE,
-              className: "size-full",
-            })}
+            <UsedImageComponent
+              alt={`Image for ${spice.id}`}
+              src={`/spices/${imageId}.png`}
+              width={imageSize}
+              height={imageSize}
+              className="size-full"
+            />
           </div>
           <TextLayerSvg
             className="absolute top-0 left-0"
             spice={spice}
             style={settings}
+            noBrowserDetection={noBrowserDetection}
           />
         </>
       )}
@@ -297,10 +304,12 @@ function TextLayerSvg({
   className,
   spice,
   style,
+  noBrowserDetection,
 }: {
   className: string;
   spice: Spice;
   style: LabelStyle;
+  noBrowserDetection?: boolean;
 }) {
   const {
     title,
@@ -380,35 +389,50 @@ function TextLayerSvg({
     2
   );
 
+  const Tspan = noBrowserDetection ? "tspan" : FixedTspan;
+
   return (
     <svg className={className} viewBox={`0 0 ${SIZE} ${SIZE}`}>
-      <CircularTextPath
-        radius={(SIZE / 2) * style.textOffsets.title.margin * (1 - style.bleed)}
-        startAngle={Math.PI * (-3 / 8)}
-        endAngle={Math.PI * (11 / 8)}
-        strokeStyles={strokeStyles}
-        wireframe={style.wireframe}
-      >
-        <tspan style={titleStyleAndPortal.style} alignmentBaseline="middle">
-          {title?.value}
-        </tspan>
-        {titleStyleAndPortal.portal}
-      </CircularTextPath>
-      <CircularTextPath
-        radius={
-          (SIZE / 2) * style.textOffsets.binomial.margin * (1 - style.bleed)
-        }
-        startAngle={Math.PI * (5 / 8)}
-        endAngle={Math.PI * (3 / 8)}
-        invert
-        strokeStyles={strokeStyles}
-        wireframe={style.wireframe}
-      >
-        <tspan style={binomialStyleAndPortal.style} alignmentBaseline="middle">
-          {binomial}
-        </tspan>
-        {binomialStyleAndPortal.portal}
-      </CircularTextPath>
+      {title && (
+        <CircularTextPath
+          radius={
+            (SIZE / 2) * style.textOffsets.title.margin * (1 - style.bleed)
+          }
+          startAngle={Math.PI * (-3 / 8)}
+          endAngle={Math.PI * (11 / 8)}
+          strokeStyles={strokeStyles}
+          wireframe={style.wireframe}
+        >
+          <Tspan
+            language={title.lang}
+            style={titleStyleAndPortal.style}
+            alignmentBaseline="middle"
+          >
+            {title.value}
+          </Tspan>
+          {titleStyleAndPortal.portal}
+        </CircularTextPath>
+      )}
+      {binomial && (
+        <CircularTextPath
+          radius={
+            (SIZE / 2) * style.textOffsets.binomial.margin * (1 - style.bleed)
+          }
+          startAngle={Math.PI * (5 / 8)}
+          endAngle={Math.PI * (3 / 8)}
+          invert
+          strokeStyles={strokeStyles}
+          wireframe={style.wireframe}
+        >
+          <tspan
+            style={binomialStyleAndPortal.style}
+            alignmentBaseline="middle"
+          >
+            {binomial}
+          </tspan>
+          {binomialStyleAndPortal.portal}
+        </CircularTextPath>
+      )}
       <CircularTextPath
         radius={
           (SIZE / 2) * style.textOffsets.bottom.margin * (1 - style.bleed)
@@ -438,27 +462,27 @@ function TextLayerSvg({
           return (
             <Fragment key={i}>
               {fontCssAndPortal.portal}
-              <FixedTspan
+              <Tspan
                 language={x.type === "local" ? x.lang : "en"}
                 style={fontCssAndPortal.style}
                 dx={i > 0 ? 10 : 0}
                 alignmentBaseline="middle"
               >
                 {x.value}
-              </FixedTspan>
+              </Tspan>
               {"romanized" in x &&
                 x.romanized &&
                 getLangStyle(x.lang).showRomanized && (
                   <>
                     {romanizedFontCssAndPortal!.portal}
-                    <FixedTspan
+                    <Tspan
                       language={x.lang}
                       style={romanizedFontCssAndPortal!.style}
                       dx={10}
                       alignmentBaseline="middle"
                     >
                       {x.romanized}
-                    </FixedTspan>
+                    </Tspan>
                   </>
                 )}
               {i < bottom.length - 1 && (
@@ -481,20 +505,21 @@ function TextLayerSvg({
   );
 }
 
-function FixedTspan(
-  {
-    children,
-    language,
-    ...props
-  }: React.SVGProps<SVGTSpanElement> & {
-    language: string
-    children: string
-  }
-) {
+function FixedTspan({
+  children,
+  language,
+  ...props
+}: React.SVGProps<SVGTSpanElement> & {
+  language: string;
+  children: string;
+}) {
   const canRenderTspanConnectedGlyphs = useCanRenderTspanConnectedGlyphs();
   const canRenderTspanRtlText = useCanRenderTspanRtlText();
 
-  if (canRenderTspanConnectedGlyphs !== false && canRenderTspanRtlText !== false) {
+  if (
+    canRenderTspanConnectedGlyphs !== false &&
+    canRenderTspanRtlText !== false
+  ) {
     return <tspan {...props}>{children}</tspan>;
   }
 
@@ -503,19 +528,17 @@ function FixedTspan(
 
   let usedGraphemes = graphemes;
   if (hasGraphemeConnectionIssue) {
-    usedGraphemes = usedGraphemes.map(grapheme => grapheme[0]);
+    usedGraphemes = usedGraphemes.map((grapheme) => grapheme[0]);
   }
 
   if (canRenderTspanRtlText === false) {
     const textDirection = getTextDirection(children);
     if (textDirection === "rtl") {
-      usedGraphemes = usedGraphemes.reverse();
+      usedGraphemes = [...usedGraphemes].reverse();
     }
   }
 
-  return <tspan {...props}>
-    {usedGraphemes.join("")}
-  </tspan>;
+  return <tspan {...props}>{usedGraphemes.join("")}</tspan>;
 }
 
 function accessKeyOrDefault<
