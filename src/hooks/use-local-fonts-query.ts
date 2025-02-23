@@ -21,7 +21,6 @@ export function useLocalFontsQuery({ enabled }: { enabled: boolean }) {
     queryKey: ["localFonts"],
     queryFn: async () => {
       const result = await window.queryLocalFonts();
-      console.log(result)
       return result;
     },
     enabled: runQuery,

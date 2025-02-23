@@ -50,6 +50,7 @@ function Label(
           deferRender={!inView}
           ImageComponent={ImageWithPriority}
           expectedImageSize={250}
+          qualitySettings={{ strokes: 1 }}
           {...props}
         />
       </div>

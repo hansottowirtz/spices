@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  Fragment,
-  Ref,
-  useId,
-  ReactNode,
-  CSSProperties,
-} from "react";
+import { Fragment, Ref, useId, ReactNode, CSSProperties } from "react";
 import { cuisineLanguages, Spice } from "@/lib/spices";
 import {
   FontSettings,
@@ -115,6 +109,24 @@ function CircularTextPath({
   );
 }
 
+function generateTextShadow(): string {
+  const color = 'white';
+  const sizes = [3,4,5];
+  const blur = 0;
+  const anglesCount = 100;
+  const angles = Array.from({ length: anglesCount }, (_, i) => (360 / anglesCount) * i);
+
+  return angles
+    .flatMap(
+      (angle) => sizes.map((size) => {
+        const x = Math.cos((angle * Math.PI) / 180) * size;
+        const y = Math.sin((angle * Math.PI) / 180) * size;
+        return `${x}px ${y}px ${blur}px ${color}`; 
+      })
+    )
+    .join(", ");
+}
+
 export function LabelRenderer({
   spice,
   outline,
@@ -122,9 +134,11 @@ export function LabelRenderer({
   style: settings,
   scaleToFit,
   deferRender,
+  hideSkeleton,
   noBrowserDetection,
   expectedImageSize,
   ImageComponent,
+  qualitySettings
 }: {
   spice: Spice;
   outline?: boolean;
@@ -132,10 +146,14 @@ export function LabelRenderer({
   ref?: Ref<HTMLDivElement>;
   scaleToFit?: boolean;
   deferRender?: boolean;
+  hideSkeleton?: boolean;
   noBrowserDetection?: boolean;
   expectedImageSize?: number;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ImageComponent?: (props: any) => ReactNode;
+  qualitySettings?: {
+    strokes: number;
+  }
 }) {
   const imageId = spice.imageId ?? spice.id;
 
@@ -153,17 +171,19 @@ export function LabelRenderer({
       }}
       ref={ref}
     >
-      <div className="size-full relative aspect-square">
-        <div
-          className={
-            "outline " +
-            cn(
-              "absolute inset-0 rounded-full bg-white",
-              outline && "outline-2 outline-black dark:outline-none"
-            )
-          }
-        />
-      </div>
+      {!hideSkeleton && (
+        <div className="size-full relative aspect-square">
+          <div
+            className={
+              "outline " +
+              cn(
+                "absolute inset-0 rounded-full bg-white",
+                outline && "outline-2 outline-black dark:outline-none"
+              )
+            }
+          />
+        </div>
+      )}
       {!deferRender && (
         <>
           <BackgroundLayerSvg className="absolute top-0 left-0" />
@@ -181,6 +201,11 @@ export function LabelRenderer({
             spice={spice}
             style={settings}
             noBrowserDetection={noBrowserDetection}
+            strokeStyles={
+              qualitySettings?.strokes
+                ? strokeStyles.slice(0, qualitySettings.strokes)
+                : strokeStyles
+            }
           />
         </>
       )}
@@ -197,6 +222,9 @@ function BackgroundLayerSvg({ className }: { className: string }) {
 }
 
 const strokeStyles: React.CSSProperties[] = [
+  // {
+  //   textShadow: generateTextShadow(),
+  // }
   {
     // opacity: 0.85,
     paintOrder: "stroke",
@@ -305,11 +333,13 @@ function TextLayerSvg({
   spice,
   style,
   noBrowserDetection,
+  strokeStyles
 }: {
   className: string;
   spice: Spice;
   style: LabelStyle;
   noBrowserDetection?: boolean;
+  strokeStyles?: React.CSSProperties[];
 }) {
   const {
     title,
