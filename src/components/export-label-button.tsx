@@ -9,9 +9,9 @@ import { labelStyleState } from "./label-settings-provider";
 // import { inlineFontsCssFile } from "@/lib/inlined-fonts-css-files-query";
 import { GlobalFontsContext } from "./global-fonts-provider";
 // import { useMutation } from "@tanstack/react-query";
-import { Loader2Icon } from "lucide-react";
+import { DownloadIcon, Loader2Icon } from "lucide-react";
 import { Slider } from "./ui/slider";
-import { useExportMutation } from "@/lib/use-export-mutation";
+import { useExportAndDownloadMutation } from "@/lib/use-export-mutation";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "./ui/dialog";
 
 export function ExportLabelButton({ spice }: { spice: Spice }) {
@@ -21,12 +21,15 @@ export function ExportLabelButton({ spice }: { spice: Spice }) {
 
   const [scale, setScale] = useState(4);
 
-  const exportMutation = useExportMutation({ spice, fontUrls });
+  const exportMutation = useExportAndDownloadMutation({ spice, fontUrls });
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button>Export</Button>
+        <Button>
+          Download label
+          <DownloadIcon className="size-4" />
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -57,7 +60,8 @@ export function ExportLabelButton({ spice }: { spice: Spice }) {
             </div>
           )}
           <Button disabled={exportMutation.isPending} type="submit">
-            Export
+            Download as PNG
+            <DownloadIcon className="size-4" />
             {exportMutation.isPending && (
               <Loader2Icon className="animate-spin" />
             )}

@@ -1,18 +1,19 @@
 "use client";
 
-import { useSnapshot } from "valtio";
-import { labelStyleState } from "./label-settings-provider";
 import { Spice } from "@/lib/spices";
 import { ComponentProps, useEffect, useRef, useState } from "react";
 import { useScrollMeasures } from "@/hooks/use-scroll-measures";
 import { cn } from "@/lib/utils";
 import { LabelRenderer } from "./LabelRenderer";
 import Image from "next/image";
+import { useSpiceStyleProxy } from "@/lib/use-spice-style-proxy";
+import { useSnapshot } from "valtio";
 
 const HEADER_HEIGHT = 70;
 
 export function LabelRendererOnPage({ spice }: { spice: Spice }) {
-  const settings = useSnapshot(labelStyleState);
+  const { style } = useSpiceStyleProxy(spice);
+  const styleSnap = useSnapshot(style);
 
   const measures = useScrollMeasures();
 
@@ -54,7 +55,7 @@ export function LabelRendererOnPage({ spice }: { spice: Spice }) {
             scaleToFit
             spice={spice}
             outline
-            style={settings}
+            style={styleSnap}
             ImageComponent={ImageWithPriority}
           />
         </div>

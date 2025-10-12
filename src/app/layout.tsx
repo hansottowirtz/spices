@@ -89,43 +89,47 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
       </head>
-      <body>
-        <GlobalFontsProvider googleFonts={googleFonts}>
-          <ConfigureLanguages />
-          <QueryClientProvider>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-            >
-              <SidebarProvider defaultOpen={false}>
-                <AppSidebar />
-                <main className="min-w-0 w-full">
-                  <div>
-                    <header className="flex items-center justify-between p-4 border-b-2 border-black dark:border-white">
-                      <SidebarTrigger />
-                      <Link
-                        href="/"
-                        className="text-2xl font-bold text-gray-800 dark:text-gray-100 font-header"
-                      >
-                        Spices
-                      </Link>
-                      <div className="flex flex-row gap-4 items-center">
-                        <Link href="https://github.com/hansottowirtz/spices">
-                          <Github className="h-6 w-6 text-gray-800 dark:text-gray-100" />
+      <body className="print:bg-white print:text-black">
+        <div className="printable-page:print:hidden">
+          <GlobalFontsProvider googleFonts={googleFonts}>
+            <ConfigureLanguages />
+            <QueryClientProvider>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+                disableTransitionOnChange
+              >
+                <SidebarProvider defaultOpen={false}>
+                  <AppSidebar />
+                  <main className="min-w-0 w-full">
+                    <div>
+                      <header className="flex items-center justify-between p-4 border-b-2 border-black dark:border-white">
+                        <SidebarTrigger />
+                        <Link
+                          href="/"
+                          className="text-2xl font-bold text-gray-800 dark:text-gray-100 font-header"
+                        >
+                          Spices
+                          <span className="text-sm text-gray-500 dark:text-gray-400 font-light">.</span>
+                          <span className="text-sm text-gray-500 dark:text-gray-400 font-mono font-light">app</span>
                         </Link>
-                        <ModeToggle />
-                      </div>
-                    </header>
-                    {children}
-                  </div>
-                </main>
-              </SidebarProvider>
-            </ThemeProvider>
-          </QueryClientProvider>
-          <GlobalFontsLink />
-        </GlobalFontsProvider>
+                        <div className="flex flex-row gap-4 items-center">
+                          <Link href="https://github.com/hansottowirtz/spices">
+                            <Github className="h-6 w-6 text-gray-800 dark:text-gray-100" />
+                          </Link>
+                          <ModeToggle />
+                        </div>
+                      </header>
+                      {children}
+                    </div>
+                  </main>
+                </SidebarProvider>
+              </ThemeProvider>
+            </QueryClientProvider>
+            <GlobalFontsLink />
+          </GlobalFontsProvider>
+        </div>
       </body>
     </html>
   );

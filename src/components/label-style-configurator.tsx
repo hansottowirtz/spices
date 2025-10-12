@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { useSnapshot } from "valtio";
+import { proxy, useSnapshot } from "valtio";
 import { Checkbox } from "./ui/checkbox";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -44,6 +44,9 @@ import { useCanRenderTspanConnectedGlyphs } from "@/lib/use-can-render-tspan-con
 import { graphemeSplit } from "@/lib/grapheme-split";
 import { useCanRenderTspanRtlText } from "@/lib/use-can-render-tspan-rtl-text";
 import { getTextDirection } from "@/lib/text-direction";
+import { deepClone } from "valtio/utils";
+import { collectionState } from "./collection-provider";
+import { useSpiceStyleProxy } from "@/lib/use-spice-style-proxy";
 
 export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
   const labelStyleSnapshot = useSnapshot(labelStyleState);
@@ -85,7 +88,9 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
 
   const languageFonts = Object.entries(labelStyleSnapshot.languageFonts).filter(
     ([lang]) =>
-      lang === "default" || !hideUnusedStyles || usedLanguages.has(lang as Language)
+      lang === "default" ||
+      !hideUnusedStyles ||
+      usedLanguages.has(lang as Language)
   );
 
   const canRenderTspanConnectedGlyphs = useCanRenderTspanConnectedGlyphs();
@@ -118,8 +123,47 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
 
   const hasRenderingIssue = textsWithRenderingIssues.size > 0;
 
+  const collectionItemProxy = collectionState.items.find(
+    (item) => item.spice.id === spice.id
+  );
+
+  const { style: styleProxy, isGlobalStyle, hasCollectionItem } = useSpiceStyleProxy(spice);
+  const styleSnap = useSnapshot(styleProxy);
+
   return (
     <div>
+      <Section>
+        {!hasCollectionItem ? (
+          <div>Editing global style</div>
+        ) : isGlobalStyle ? (
+          <div>
+            Editing global style
+            <div>
+              <Button
+                onClick={() => {
+                  collectionItemProxy!.style = proxy(deepClone(labelStyleSnapshot));
+                }}
+              >
+                Use spice-specific style
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div>
+            Editing spice-specific style in collection
+            <div>
+              <Button
+                onClick={() => {
+                  collectionItemProxy!.style = "global";
+                }}
+              >
+                Use global style
+              </Button>
+            </div>
+          </div>
+        )}
+      </Section>
+      <Separator />
       {hasRenderingIssue && (
         <>
           <Section>
@@ -144,8 +188,8 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
           <label className="font-bold mb-2 flex flex-row items-center space-x-2">
             <span>Wireframe</span>
             <Checkbox
-              checked={labelStyleSnapshot.wireframe}
-              onCheckedChange={(v) => (labelStyleState.wireframe = !!v)}
+              checked={styleSnap.wireframe}
+              onCheckedChange={(v) => (styleProxy.wireframe = !!v)}
             />
           </label>
         </div>
@@ -172,17 +216,21 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
       <Section>
         <div className="font-bold my-2">Primary Language</div>
         <LanguageSelect
-          value={labelStyleSnapshot.primaryLanguage}
-          onValueChange={(v: Language) => (labelStyleState.primaryLanguage = v)}
-          languages={hideUnusedLanguages ? Array.from(allLanguagesOfSpice) : languages}
+          value={styleSnap.primaryLanguage}
+          onValueChange={(v: Language) => (styleProxy.primaryLanguage = v)}
+          languages={
+            hideUnusedLanguages ? Array.from(allLanguagesOfSpice) : languages
+          }
         />
         <div className="font-bold my-2">Secondary Language</div>
         <LanguageSelect
-          value={labelStyleSnapshot.secondaryLanguage}
+          value={styleSnap.secondaryLanguage}
           onValueChange={(v: Language) =>
-            (labelStyleState.secondaryLanguage = v)
+            (styleProxy.secondaryLanguage = v)
           }
-          languages={hideUnusedLanguages ? Array.from(allLanguagesOfSpice) : languages}
+          languages={
+            hideUnusedLanguages ? Array.from(allLanguagesOfSpice) : languages
+          }
         />
       </Section>
       <Separator />
@@ -193,7 +241,7 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
             label="Bleed"
             min={0}
             max={0.5}
-            object={labelStyleState}
+            object={styleProxy}
             objectKey="bleed"
             step={0.001}
             isPercentage
@@ -204,7 +252,7 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
         {offsetSettingsArr
           .filter(({ unused }) => !unused || !hideUnusedStyles)
           .map(({ key, label }) => {
-            const setting = labelStyleState.textOffsets[key];
+            const setting = styleProxy.textOffsets[key];
             return (
               <div className="my-1" key={key}>
                 <LabeledSliderManaged
@@ -226,7 +274,7 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
         <div className="font-bold mb-2">Language fonts</div>
         <div>
           {languageFonts.map(([lang]) => {
-            const font = labelStyleState.languageFonts[lang as Language]!;
+            const font = styleProxy.languageFonts[lang as Language]!;
             return (
               <LanguageFontsEditor
                 key={lang}
@@ -244,9 +292,9 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
             <div className="font-bold mb-2">Chemical font</div>
             <FontEditor
               value={
-                labelStyleSnapshot.chemicalFont && labelStyleState.chemicalFont
+                styleSnap.chemicalFont && styleProxy.chemicalFont
               }
-              onChange={(v) => (labelStyleState.chemicalFont = v)}
+              onChange={(v) => (styleProxy.chemicalFont = v)}
             />
           </Section>
           <Separator />
@@ -257,9 +305,9 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
           <div className="font-bold mb-2">Binomial font</div>
           <FontEditor
             value={
-              labelStyleSnapshot.binomialFont && labelStyleState.binomialFont
+              styleSnap.binomialFont && styleProxy.binomialFont
             }
-            onChange={(v) => (labelStyleState.binomialFont = v)}
+            onChange={(v) => (styleProxy.binomialFont = v)}
           />
         </Section>
       )}

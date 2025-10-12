@@ -4,6 +4,8 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@custom-variant printable-page (&:is(.printable-page *));
+
 @theme {
   --font-*: initial;
   --font-sans: var(--font-geist-sans);
