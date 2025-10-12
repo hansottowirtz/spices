@@ -48,7 +48,13 @@ import { getTextDirection } from "@/lib/text-direction";
 export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
   const labelStyleSnapshot = useSnapshot(labelStyleState);
 
-  const [hideUnused, setHideUnused] = useState(true);
+  const [hideUnusedStyles, setHideUnusedStyles] = useState(true);
+  const [hideUnusedLanguages, setHideUnusedLanguages] = useState(true);
+
+  const allLanguagesOfSpice = new Set<Language>();
+  for (const name of spice.names) {
+    allLanguagesOfSpice.add(name.lang);
+  }
 
   const usedLanguages = new Set<Language>();
   const names = getSpiceNames(spice, labelStyleSnapshot);
@@ -79,7 +85,7 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
 
   const languageFonts = Object.entries(labelStyleSnapshot.languageFonts).filter(
     ([lang]) =>
-      lang === "default" || !hideUnused || usedLanguages.has(lang as Language)
+      lang === "default" || !hideUnusedStyles || usedLanguages.has(lang as Language)
   );
 
   const canRenderTspanConnectedGlyphs = useCanRenderTspanConnectedGlyphs();
@@ -147,8 +153,17 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
           <label className="font-bold mb-2 flex flex-row items-center space-x-2">
             <span>Hide unused styles</span>
             <Checkbox
-              checked={hideUnused}
-              onCheckedChange={(v) => setHideUnused(!!v)}
+              checked={hideUnusedStyles}
+              onCheckedChange={(v) => setHideUnusedStyles(!!v)}
+            />
+          </label>
+        </div>
+        <div>
+          <label className="font-bold mb-2 flex flex-row items-center space-x-2">
+            <span>Hide unused languages</span>
+            <Checkbox
+              checked={hideUnusedLanguages}
+              onCheckedChange={(v) => setHideUnusedLanguages(!!v)}
             />
           </label>
         </div>
@@ -159,6 +174,7 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
         <LanguageSelect
           value={labelStyleSnapshot.primaryLanguage}
           onValueChange={(v: Language) => (labelStyleState.primaryLanguage = v)}
+          languages={hideUnusedLanguages ? Array.from(allLanguagesOfSpice) : languages}
         />
         <div className="font-bold my-2">Secondary Language</div>
         <LanguageSelect
@@ -166,6 +182,7 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
           onValueChange={(v: Language) =>
             (labelStyleState.secondaryLanguage = v)
           }
+          languages={hideUnusedLanguages ? Array.from(allLanguagesOfSpice) : languages}
         />
       </Section>
       <Separator />
@@ -185,7 +202,7 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
         </div>
         <div className="font-bold mb-2">Offsets</div>
         {offsetSettingsArr
-          .filter(({ unused }) => !unused || !hideUnused)
+          .filter(({ unused }) => !unused || !hideUnusedStyles)
           .map(({ key, label }) => {
             const setting = labelStyleState.textOffsets[key];
             return (
@@ -221,7 +238,7 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
         </div>
       </Section>
       <Separator />
-      {(spice.eCode || !hideUnused) && (
+      {(spice.eCode || !hideUnusedStyles) && (
         <>
           <Section>
             <div className="font-bold mb-2">Chemical font</div>
@@ -235,7 +252,7 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
           <Separator />
         </>
       )}
-      {(spice.binomialName || !hideUnused) && (
+      {(spice.binomialName || !hideUnusedStyles) && (
         <Section>
           <div className="font-bold mb-2">Binomial font</div>
           <FontEditor
@@ -591,11 +608,13 @@ function FontEditor({
 function LanguageSelect({
   value,
   onValueChange,
+  languages: languagesProp = languages,
 }: {
   value: Language;
   onValueChange: (v: Language) => void;
+  languages?: Language[];
 }) {
-  const fallback = getFallbackLanguages(value, languages);
+  const fallback = getFallbackLanguages(value, languagesProp);
   return (
     <>
       <Select value={value} onValueChange={onValueChange}>
@@ -605,7 +624,7 @@ function LanguageSelect({
         <SelectContent>
           <SelectGroup>
             <SelectLabel>Language</SelectLabel>
-            {languages.map((language) => (
+            {languagesProp.map((language) => (
               <SelectItem key={language} value={language}>
                 {appLangDisplayNames.of(language)}
               </SelectItem>

@@ -38,7 +38,7 @@ export default async function Page({
 
   return (
     <div className="flex flex-col md:flex-row md:items-start gap-2">
-      <div className="md:flex-1 sticky top-0 w-screen z-10 pointer-events-none md:p-2 lg:p-8">
+      <div className="md:flex-1 sticky top-[10px] w-screen z-10 pointer-events-none md:p-2 lg:p-8">
         <LabelRendererOnPage spice={spice} />
       </div>
       <div className="flex-1 p-2 lg:p-8">

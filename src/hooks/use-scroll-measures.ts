@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 
 type ScrollMeasures = {
   scrollY: number;
@@ -13,9 +13,22 @@ export function useScrollMeasures() {
     innerWidth: 0,
     loaded: false
   });
+
+  const [measureDiv, setMeasureDiv] = useState<HTMLDivElement | null>(null);
+  useLayoutEffect(() => {
+    const div = document.createElement("div");
+    div.style.height = "100svh";
+    div.style.pointerEvents = "none";
+    document.body.appendChild(div);
+    setMeasureDiv(div);
+    return () => {
+      document.body.removeChild(div);
+    };
+  }, []);
   
   useEffect(() => {
-    let svh = calculateSvh();
+    if (!measureDiv) return;
+    let svh = measureDiv.clientHeight;
     const fn = () => {
       setMeasures({
         scrollY: window.scrollY,
@@ -25,7 +38,7 @@ export function useScrollMeasures() {
       });
     };
     const resizeFn = () => {
-      svh = calculateSvh();
+      svh = measureDiv.clientHeight;
       fn();
     };
     fn();
@@ -35,17 +48,7 @@ export function useScrollMeasures() {
       window.removeEventListener("scroll", fn);
       window.removeEventListener("resize", resizeFn);
     };
-  }, []);
+  }, [measureDiv]);
 
   return measures;
-}
-
-function calculateSvh() {
-  const div = document.createElement("div");
-  div.style.height = "100svh";
-  div.style.pointerEvents = "none";
-  document.body.appendChild(div);
-  const height = div.clientHeight;
-  document.body.removeChild(div);
-  return height;
 }

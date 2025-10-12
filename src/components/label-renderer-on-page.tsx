@@ -3,7 +3,7 @@
 import { useSnapshot } from "valtio";
 import { labelStyleState } from "./label-settings-provider";
 import { Spice } from "@/lib/spices";
-import { ComponentProps, useRef } from "react";
+import { ComponentProps, useEffect, useRef, useState } from "react";
 import { useScrollMeasures } from "@/hooks/use-scroll-measures";
 import { cn } from "@/lib/utils";
 import { LabelRenderer } from "./LabelRenderer";
@@ -29,17 +29,34 @@ export function LabelRendererOnPage({ spice }: { spice: Spice }) {
 
   const ref = useRef<HTMLDivElement>(null);
 
+  const [hasLoadedLongEnough, setHasLoadedLongEnough] = useState(false);
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setHasLoadedLongEnough(true);
+    }, 1000);
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, []);
+
   return (
     <div className="w-full aspect-square flex" ref={ref}>
       <div
         className={cn(
-          "w-full p-2 md:p-0 border-b border-b-transparent md:pb-0 md:border-0 backdrop-blur md:backdrop-blur-none",
-          distance > 0 ? "border-b-gray-200 dark:border-b-gray-800" : ""
+          "w-full p-2 md:p-0 border-b border-t border-b-transparent md:pb-0 md:border-0 backdrop-blur md:backdrop-blur-none",
+          distance > 0 && "border-gray-200 dark:border-gray-800",
+          !hasLoadedLongEnough && "transition-[height] ease-in-out"
         )}
         style={size ? { height: size } : {}}
       >
         <div className="h-full flex justify-around">
-          <LabelRenderer scaleToFit spice={spice} outline style={settings} ImageComponent={ImageWithPriority} />
+          <LabelRenderer
+            scaleToFit
+            spice={spice}
+            outline
+            style={settings}
+            ImageComponent={ImageWithPriority}
+          />
         </div>
       </div>
     </div>

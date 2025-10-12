@@ -62,7 +62,7 @@ export function ExportLabelButton({ spice }: { spice: Spice }) {
             ${labelRendererInlined}
           </foreignObject>
         </svg>`;
-      const blob = new Blob([svg], { type: "image/svg+xml" });
+      // const blob = new Blob([svg], { type: "image/svg+xml" });
       // downloadBlob(blob, `${spice.id}.svg`);
 
       // setSvg(svg);
