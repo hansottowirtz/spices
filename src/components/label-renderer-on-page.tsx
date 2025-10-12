@@ -43,7 +43,7 @@ export function LabelRendererOnPage({ spice }: { spice: Spice }) {
     <div className="w-full aspect-square flex" ref={ref}>
       <div
         className={cn(
-          "w-full p-2 md:p-0 border-b border-t border-b-transparent md:pb-0 md:border-0 backdrop-blur md:backdrop-blur-none",
+          "w-full p-2 md:p-0 border-b border-t border-b-transparent md:pb-0 md:border-0 backdrop-blur-sm md:backdrop-blur-none",
           distance > 0 && "border-gray-200 dark:border-gray-800",
           !hasLoadedLongEnough && "transition-[height] ease-in-out"
         )}

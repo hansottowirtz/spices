@@ -1,6 +1,5 @@
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 import { Geist, Geist_Mono, Glegoo } from "next/font/google";
-import "./globals.css";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -11,6 +10,7 @@ import { Github } from "lucide-react";
 import { ConfigureLanguages } from "@/components/configure-languages";
 import { GlobalFontsProvider } from "@/components/global-fonts-provider";
 import { GlobalFontsLink } from "@/components/global-fonts-link";
+import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -76,7 +76,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${geistSans.variable} ${geistMono.variable} ${glegooBold.variable} antialiased font-sans`}
+    >
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -85,9 +89,7 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${glegooBold.variable} antialiased font-sans`}
-      >
+      <body>
         <GlobalFontsProvider googleFonts={googleFonts}>
           <ConfigureLanguages />
           <QueryClientProvider>

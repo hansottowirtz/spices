@@ -175,10 +175,10 @@ export function LabelRenderer({
         <div className="size-full relative aspect-square">
           <div
             className={
-              "outline " +
+              "outline-solid " +
               cn(
                 "absolute inset-0 rounded-full bg-white",
-                outline && "outline-2 outline-black dark:outline-none"
+                outline && "outline-2 outline-black dark:outline-hidden"
               )
             }
           />
