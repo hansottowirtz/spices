@@ -1186,7 +1186,6 @@ export const spices: Spice[] = [
     id: "table-sugar",
     type: "chemical",
     chemicalFormula: "C12H22O11",
-    eCode: "E621",
     names: [
       {
         lang: "en",
