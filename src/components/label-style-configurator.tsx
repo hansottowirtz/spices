@@ -737,7 +737,7 @@ function LabeledSliderManaged<
   );
 }
 
-function LabeledSlider({
+export function LabeledSlider({
   label,
   value,
   onValueChange,
@@ -806,7 +806,7 @@ function LabeledSlider({
           onChange={handleInput}
           className="h-full"
           style={{
-            width: totalNumbers * 4 + (unit ? unit.length * 8 + 70 : 0),
+            width: 29 + totalNumbers * 8 + (unit ? unit.length * 8 + 40 : 0),
           }}
           onFocus={() => {
             setIsFocused(true);
