@@ -72,6 +72,10 @@ const googleFonts = [
     styles: ["wght@300;400"],
   },
   {
+    family: "Merienda",
+    styles: ["wght@300"],
+  },
+  {
     family: "El Messiri",
   },
 ];

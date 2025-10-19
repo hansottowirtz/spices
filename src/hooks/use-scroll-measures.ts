@@ -17,6 +17,10 @@ export function useScrollMeasures() {
   const [measureDiv, setMeasureDiv] = useState<HTMLDivElement | null>(null);
   useLayoutEffect(() => {
     const div = document.createElement("div");
+    div.style.position = "absolute";
+    div.style.top = "-10000px";
+    div.style.left = "-10000px";
+    div.style.zIndex = "-1";
     div.style.height = "100svh";
     div.style.pointerEvents = "none";
     document.body.appendChild(div);

@@ -38,7 +38,7 @@ import {
 } from "./ui/command";
 import { FontData, useLocalFontsQuery } from "@/hooks/use-local-fonts-query";
 import { useQuery } from "@tanstack/react-query";
-import { getSpiceNames } from "./LabelRenderer";
+import { FontSource, getSpiceNames, getTextLayerStyles } from "./LabelRenderer";
 import { appLangDisplayNames } from "@/lib/app-lang-display-names";
 import { useCanRenderTspanConnectedGlyphs } from "@/lib/use-can-render-tspan-connected-glyphs";
 import { graphemeSplit } from "@/lib/grapheme-split";
@@ -127,7 +127,11 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
     (item) => item.spice.id === spice.id
   );
 
-  const { style: styleProxy, isGlobalStyle, hasCollectionItem } = useSpiceStyleProxy(spice);
+  const {
+    style: styleProxy,
+    isGlobalStyle,
+    hasCollectionItem,
+  } = useSpiceStyleProxy(spice);
   const styleSnap = useSnapshot(styleProxy);
 
   return (
@@ -141,7 +145,9 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
             <div>
               <Button
                 onClick={() => {
-                  collectionItemProxy!.style = proxy(deepClone(labelStyleSnapshot));
+                  collectionItemProxy!.style = proxy(
+                    deepClone(labelStyleSnapshot)
+                  );
                 }}
               >
                 Use spice-specific style
@@ -225,9 +231,7 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
         <div className="font-bold my-2">Secondary Language</div>
         <LanguageSelect
           value={styleSnap.secondaryLanguage}
-          onValueChange={(v: Language) =>
-            (styleProxy.secondaryLanguage = v)
-          }
+          onValueChange={(v: Language) => (styleProxy.secondaryLanguage = v)}
           languages={
             hideUnusedLanguages ? Array.from(allLanguagesOfSpice) : languages
           }
@@ -280,6 +284,9 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
                 key={lang}
                 language={lang as Language}
                 languageFontSettings={font}
+                hideUnusedStyles={hideUnusedStyles}
+                spice={spice}
+                labelStyleSnapshot={labelStyleSnapshot}
               />
             );
           })}
@@ -291,9 +298,7 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
           <Section>
             <div className="font-bold mb-2">Chemical font</div>
             <FontEditor
-              value={
-                styleSnap.chemicalFont && styleProxy.chemicalFont
-              }
+              value={styleSnap.chemicalFont && styleProxy.chemicalFont}
               onChange={(v) => (styleProxy.chemicalFont = v)}
             />
           </Section>
@@ -304,9 +309,7 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
         <Section>
           <div className="font-bold mb-2">Binomial font</div>
           <FontEditor
-            value={
-              styleSnap.binomialFont && styleProxy.binomialFont
-            }
+            value={styleSnap.binomialFont && styleProxy.binomialFont}
             onChange={(v) => (styleProxy.binomialFont = v)}
           />
         </Section>
@@ -318,47 +321,79 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
 function LanguageFontsEditor({
   language: lang,
   languageFontSettings,
+  hideUnusedStyles,
+  spice,
+  labelStyleSnapshot,
 }: {
-  language: Language;
+  language: Language | "default";
   languageFontSettings: LabelStyle["languageFonts"][Language] & object;
+  hideUnusedStyles: boolean;
+  spice: Spice;
+  labelStyleSnapshot: LabelStyle;
 }) {
   const snap = useSnapshot(languageFontSettings);
+
+  const { fonts, bottomWithFonts } = getTextLayerStyles(
+    spice,
+    labelStyleSnapshot
+  );
+
+  const allFontSources = [
+    fonts.title?.source,
+    bottomWithFonts.map((x) => x.fontSettingsAndSource.source),
+  ].flat().filter((x): x is FontSource => x !== undefined);
+
+  function isFontSourceVisible(source: FontSource) {
+    if (!hideUnusedStyles) return true;
+    return !!allFontSources.find((x) => JSON.stringify(x) === JSON.stringify(source));
+  }
+
   return (
     <div className="border-t py-4 first-of-type:border-0 first-of-type:pt-0">
       <div className="font-bold mb-2 underline">
         {appLangDisplayNames.of(lang)}
       </div>
-      <div className="font-bold mb-2">Default</div>
-      <FontEditor
-        value={languageFontSettings.default}
-        onChange={(v) => (languageFontSettings.default = v)}
-      />
-      <div className="font-bold mb-2 flex flex-row items-center space-x-2">
-        <div className="flex-1">Heading</div>
-        {snap.heading && (
-          <Button
-            className="size-8"
-            onClick={() => (languageFontSettings.heading = undefined)}
-          >
-            <X />
-          </Button>
-        )}
-      </div>
-      {snap.heading ? (
-        <FontEditor
-          value={languageFontSettings.heading!}
-          onChange={(v) => (languageFontSettings.heading = v)}
-        />
-      ) : (
-        <div className="my-2">
-          <Button
-            onClick={() => (languageFontSettings.heading = { ...snap.default })}
-          >
-            Add Heading style
-          </Button>
-        </div>
+      {isFontSourceVisible({ type: "language", lang, key: "default" }) && (
+        <>
+          <div className="font-bold mb-2">Default</div>
+          <FontEditor
+            value={languageFontSettings.default}
+            onChange={(v) => (languageFontSettings.default = v)}
+          />
+        </>
       )}
-      {languagesWithRomanized.includes(lang) && (
+      {isFontSourceVisible({ type: "language", lang, key: "heading" }) && (
+        <>
+          <div className="font-bold mb-2 flex flex-row items-center space-x-2">
+            <div className="flex-1">Heading</div>
+            {snap.heading && (
+              <Button
+                className="size-8"
+                onClick={() => (languageFontSettings.heading = undefined)}
+              >
+                <X />
+              </Button>
+            )}
+          </div>
+          {snap.heading ? (
+            <FontEditor
+              value={languageFontSettings.heading!}
+              onChange={(v) => (languageFontSettings.heading = v)}
+            />
+          ) : (
+            <div className="my-2">
+              <Button
+                onClick={() =>
+                  (languageFontSettings.heading = { ...snap.default })
+                }
+              >
+                Add Heading style
+              </Button>
+            </div>
+          )}
+        </>
+      )}
+      {languagesWithRomanized.includes(lang as Language) && (
         <>
           <div className="font-bold mb-2 flex flex-row items-center space-x-2">
             <div className="flex-1">Romanized</div>
@@ -877,6 +912,7 @@ function FontFamilySelect({
     "M PLUS Rounded 1c",
     "Laila",
     "El Messiri",
+    "Merienda",
   ];
 
   const uniqueLocalFontFamilies = [

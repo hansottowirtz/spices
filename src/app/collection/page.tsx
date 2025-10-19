@@ -312,21 +312,21 @@ function Page({
       }}
     >
       <div className="absolute top-2 left-2 right-2 font-header text-center font-bold text-black">
-        <div className="font-bold text-gray-800 dark:text-gray-100 font-header">
+        <div className="font-bold text-black font-header">
           <span>Spices</span>
-          <span className="text-[0.6em] text-gray-500 dark:text-gray-400 font-light">
+          <span className="text-[0.6em] text-gray-500 font-light">
             .
           </span>
-          <span className="text-[0.6em] text-gray-500 dark:text-gray-400 font-mono font-light">
+          <span className="text-[0.6em] text-gray-500 font-mono font-light">
             app
           </span>
         </div>
       </div>
       {[...page.items, ...page.paddingItems].map((item, index) => {
-        const totalIndex = pageIndex * labelsPerPage + index;
+        // const totalIndex = pageIndex * labelsPerPage + index;
         const blobUrl = item ? collectionBlobUrls.find(([spice]) => spice.spice.id === item.spice.id)?.[1] : undefined;
         return (
-          <Fragment key={item?.spice.id ?? index}>
+          <Fragment key={index}>
             {item && (
               <div
                 key={index}

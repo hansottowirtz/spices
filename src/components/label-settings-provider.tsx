@@ -58,6 +58,13 @@ export type TextOffsets = {
   };
 };
 
+type LanguageFonts = {
+  heading?: FontSettings;
+  default: FontSettings;
+  romanized?: FontSettings;
+  showRomanized?: boolean;
+};
+
 export type LabelStyle = {
   wireframe?: boolean;
   primaryLanguage: Language;
@@ -67,12 +74,7 @@ export type LabelStyle = {
   languageFonts: PartialExceptDefault<
     Record<
       Language | "default",
-      {
-        heading?: FontSettings;
-        default: FontSettings;
-        romanized?: FontSettings;
-        showRomanized?: boolean;
-      }
+      LanguageFonts
     >
   >;
   chemicalFont: FontSettings;
@@ -162,7 +164,7 @@ export const labelStyleState = proxy<LabelStyle>({
     },
     hi: {
       default: { type: "builtin", family: "Laila" },
-      romanized: { type: "builtin", family: "Khmer MN" },
+      romanized: { type: "builtin", family: "Merienda", weight: "300", size: 0.7 },
     },
     ja: {
       default: { type: "builtin", family: "M PLUS Rounded 1c", weight: "300" },
