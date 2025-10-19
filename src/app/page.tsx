@@ -51,6 +51,11 @@ function Label(
 
   const { style: usedStyle, hasCollectionItem } = useSpiceStyleProxy(spice);
 
+  const collectionSnap = useSnapshot(collectionState);
+  const itemQuantity =
+    collectionSnap.items.find((item) => item.spice.id === spice.id)?.quantity ??
+    0;
+
   return (
     <div className="relative size-[50%] aspect-square sm:size-[200px] group/label-container">
       <Link
@@ -85,8 +90,21 @@ function Label(
             >
               <XIcon className="size-4" />
             </LabelButton>
-            <LabelButton disabled>
-              <CheckIcon className="size-4" />
+            <LabelButton
+              onClick={() => {
+                collectionState.items = collectionState.items.map((item) => {
+                  if (item.spice.id === spice.id) {
+                    return { ...item, quantity: item.quantity + 1 };
+                  }
+                  return item;
+                });
+              }}
+            >
+              {itemQuantity > 1 ? (
+                <div className="text-xs size-4">{itemQuantity}</div>
+              ) : (
+                <CheckIcon className="size-4" />
+              )}
             </LabelButton>
           </>
         ) : (
@@ -96,6 +114,7 @@ function Label(
                 collectionState.items.push({
                   spice,
                   style: "global",
+                  quantity: 1,
                 });
               }}
             >
@@ -108,15 +127,18 @@ function Label(
   );
 }
 
-function LabelButton(props: ComponentProps<typeof Button> & {
-  variant?: "default" | "destructive";
-}) {
+function LabelButton(
+  props: ComponentProps<typeof Button> & {
+    variant?: "default" | "destructive";
+  }
+) {
   const buttonVariants = cva(
     "rounded-full p-2 border-2 border-black dark:border-white cursor-pointer disabled:cursor-auto",
     {
       variants: {
         variant: {
-          default: "bg-background text-foreground hover:bg-secondary/90 disabled:hover:bg-background",
+          default:
+            "bg-background text-foreground hover:bg-secondary/90 disabled:hover:bg-background",
           destructive:
             "bg-destructive text-destructive-foreground hover:bg-destructive/90 disabled:hover:bg-destructive",
         },

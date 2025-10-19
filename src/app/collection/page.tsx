@@ -2,10 +2,10 @@
 
 import { collectionState } from "@/components/collection-provider";
 import { proxy, useSnapshot } from "valtio";
-import { Fragment, useContext, useEffect, useState } from "react";
+import { Fragment, useContext, useEffect, useMemo, useState } from "react";
 import { getSpiceStyle } from "@/lib/use-spice-style-proxy";
 import { Button } from "@/components/ui/button";
-import { Loader2Icon, PrinterIcon } from "lucide-react";
+import { Link, Loader2Icon, PrinterIcon } from "lucide-react";
 import { createPortal } from "react-dom";
 import { skipToken, useQuery } from "@tanstack/react-query";
 import { exportLabel } from "@/lib/use-export-mutation";
@@ -56,9 +56,25 @@ const pageLayoutSettings = proxy<PageLayoutSettings>({
 });
 
 type Page = {
-  items: (typeof collectionState.items)[number][];
+  items: SpiceWithoutQuantity[];
   paddingItems: null[];
 };
+
+type SpiceWithoutQuantity = Omit<
+  (typeof collectionState.items)[number],
+  "quantity"
+>;
+
+function expandItems(
+  items: typeof collectionState.items
+): SpiceWithoutQuantity[] {
+  return items.flatMap((item) =>
+    Array.from({ length: item.quantity }, () => ({
+      spice: item.spice,
+      style: item.style,
+    }))
+  );
+}
 
 export default function CollectionPage() {
   const collection = useSnapshot(collectionState) as typeof collectionState;
@@ -67,12 +83,14 @@ export default function CollectionPage() {
 
   const labelsPerPage = settingsSnap.columns * settingsSnap.rows;
 
-  const pages = Math.ceil(collection.items.length / labelsPerPage);
+  const expandedItems = expandItems(collection.items);
+
+  const pages = Math.ceil(expandedItems.length / labelsPerPage);
 
   const pagesArr = Array.from({ length: pages }, (_, i) => {
     const start = i * labelsPerPage;
     const end = start + labelsPerPage;
-    const items = collection.items.slice(start, end);
+    const items = expandedItems.slice(start, end);
     const paddingItems = Array.from(
       { length: labelsPerPage - items.length },
       () => null
@@ -92,25 +110,25 @@ export default function CollectionPage() {
   }, []);
 
   const labelStyle = useSnapshot(labelStyleState);
+
+  const labelWidthInches = settingsSnap.labelSize / 25.4;
+  const totalDots = labelWidthInches * settingsSnap.dpi;
+  const scale = totalDots / 600;
+
   const allLabelsRenderedQuery = useQuery({
-    queryKey: ["allLabelsRendered", 2, collection, labelStyle, fontUrls],
+    queryKey: ["allLabelsRendered", 2, collection, labelStyle, fontUrls, scale],
     queryFn:
       collection.items.length === 0
         ? skipToken
         : streamedQuery({
             streamFn: async function* generate() {
-              const labelWidthInches = settingsSnap.labelSize / 25.4;
-              const totalDots = labelWidthInches * settingsSnap.dpi;
-              const scale = totalDots / 600;
-              for (const page of pagesArr) {
-                for (const item of page.items) {
-                  const style = getSpiceStyle(
-                    item.spice,
-                    collection,
-                    labelStyle
-                  );
-                  yield await exportLabel(item.spice, scale, style, fontUrls);
-                }
+              for (const item of collection.items) {
+                const style = getSpiceStyle(
+                  item.spice,
+                  collection,
+                  labelStyle
+                );
+                yield [item, await exportLabel(item.spice, scale, style, fontUrls)] as const;
               }
             },
           }),
@@ -120,15 +138,15 @@ export default function CollectionPage() {
     refetchOnReconnect: false,
   });
 
-  const [blobUrls, setBlobUrls] = useState<string[]>([]);
+  const [collectionBlobUrls, setCollectionBlobUrls] = useState<[SpiceWithoutQuantity, string][]>([]);
   useEffect(() => {
     if (!allLabelsRenderedQuery.data) return;
     const blobUrls =
-      allLabelsRenderedQuery.data.map((blob) => URL.createObjectURL(blob)) ??
+      allLabelsRenderedQuery.data.map(([item, blob]) => [item, URL.createObjectURL(blob)] as [SpiceWithoutQuantity, string]) ??
       [];
-    setBlobUrls(blobUrls);
+    setCollectionBlobUrls(blobUrls);
     return () => {
-      blobUrls.forEach((url) => URL.revokeObjectURL(url));
+      blobUrls.forEach(([, url]) => URL.revokeObjectURL(url));
     };
   }, [allLabelsRenderedQuery.data]);
 
@@ -172,7 +190,7 @@ export default function CollectionPage() {
                 settings={settingsSnap}
                 pageIndex={i}
                 labelsPerPage={labelsPerPage}
-                blobUrls={blobUrls}
+                collectionBlobUrls={collectionBlobUrls}
                 isPreview
                 showOutlines
               />
@@ -181,7 +199,7 @@ export default function CollectionPage() {
         </div>
       </div>
       {typeof window !== "undefined" &&
-        blobUrls.length > 0 &&
+        collectionBlobUrls.length > 0 &&
         createPortal(
           <div className="hidden print:block">
             {allLabelsRenderedQuery.isPending &&
@@ -203,7 +221,7 @@ export default function CollectionPage() {
                   settings={settingsSnap}
                   pageIndex={i}
                   labelsPerPage={labelsPerPage}
-                  blobUrls={blobUrls}
+                  collectionBlobUrls={collectionBlobUrls}
                   showOutlines={false}
                 />
               ))
@@ -269,7 +287,7 @@ function Page({
   settings,
   pageIndex,
   labelsPerPage,
-  blobUrls,
+  collectionBlobUrls,
   showOutlines = false,
   isPreview = false,
 }: {
@@ -277,7 +295,7 @@ function Page({
   settings: PageLayoutSettings;
   pageIndex: number;
   labelsPerPage: number;
-  blobUrls: string[];
+  collectionBlobUrls: [SpiceWithoutQuantity, string][];
   showOutlines?: boolean;
   isPreview?: boolean;
 }) {
@@ -294,15 +312,24 @@ function Page({
       }}
     >
       <div className="absolute top-2 left-2 right-2 font-header text-center font-bold text-black">
-        Spices.app
+        <div className="font-bold text-gray-800 dark:text-gray-100 font-header">
+          <span>Spices</span>
+          <span className="text-[0.6em] text-gray-500 dark:text-gray-400 font-light">
+            .
+          </span>
+          <span className="text-[0.6em] text-gray-500 dark:text-gray-400 font-mono font-light">
+            app
+          </span>
+        </div>
       </div>
       {[...page.items, ...page.paddingItems].map((item, index) => {
         const totalIndex = pageIndex * labelsPerPage + index;
+        const blobUrl = item ? collectionBlobUrls.find(([spice]) => spice.spice.id === item.spice.id)?.[1] : undefined;
         return (
           <Fragment key={item?.spice.id ?? index}>
             {item && (
               <div
-                key={item.spice.id}
+                key={index}
                 className="rounded-full text-black flex items-center justify-center"
                 style={{
                   width: settings.labelSize + settings.bleed * 2 + "mm",
@@ -311,10 +338,10 @@ function Page({
                   ...calculateLabelPosition(index, settings),
                 }}
               >
-                {blobUrls[totalIndex] ? (
+                {blobUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={blobUrls[totalIndex]!}
+                    src={blobUrl}
                     alt={item.spice.id}
                     className="size-full"
                   />

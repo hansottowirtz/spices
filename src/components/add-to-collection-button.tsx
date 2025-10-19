@@ -34,6 +34,7 @@ export function AddToCollectionButton({ spice }: { spice: Spice }) {
         collectionState.items.push({
           spice,
           style: "global",
+          quantity: 1,
         });
       }}
       disabled={isInCollection}

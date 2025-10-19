@@ -6,6 +6,7 @@ export type Collection = {
   items: {
     spice: Spice;
     style: LabelStyle | "global";
+    quantity: number;
   }[];
 };
 

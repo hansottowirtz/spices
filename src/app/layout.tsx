@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Glegoo } from "next/font/google";
+import { Courier_Prime, Geist, Geist_Mono, Glegoo } from "next/font/google";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -25,6 +25,12 @@ const geistMono = Geist_Mono({
 const glegooBold = Glegoo({
   variable: "--font-glegoo-bold",
   weight: "700",
+  subsets: ["latin"],
+});
+
+const courierPrime = Courier_Prime({
+  variable: "--font-courier-prime",
+  weight: "400",
   subsets: ["latin"],
 });
 
@@ -79,7 +85,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${glegooBold.variable} antialiased font-sans`}
+      className={`${geistSans.variable} ${geistMono.variable} ${glegooBold.variable} ${courierPrime.variable} antialiased font-sans`}
     >
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -110,9 +116,9 @@ export default function RootLayout({
                           href="/"
                           className="text-2xl font-bold text-gray-800 dark:text-gray-100 font-header"
                         >
-                          Spices
-                          <span className="text-sm text-gray-500 dark:text-gray-400 font-light">.</span>
-                          <span className="text-sm text-gray-500 dark:text-gray-400 font-mono font-light">app</span>
+                          <span>Spices</span>
+                          <span className="text-[0.6em] text-gray-500 dark:text-gray-400 font-light">.</span>
+                          <span className="text-[0.6em] text-gray-500 dark:text-gray-400 font-mono font-light">app</span>
                         </Link>
                         <div className="flex flex-row gap-4 items-center">
                           <Link href="https://github.com/hansottowirtz/spices">

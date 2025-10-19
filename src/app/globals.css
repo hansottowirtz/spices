@@ -9,7 +9,7 @@
 @theme {
   --font-*: initial;
   --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-mono: var(--font-courier-prime);
   --font-header: var(--font-glegoo-bold);
 
   --color-background: hsl(var(--background));
