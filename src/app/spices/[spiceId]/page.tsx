@@ -46,7 +46,7 @@ export default async function Page({
     spice.names.find((name) => name.lang === appLanguage)?.value ?? spice.id;
 
   const labelFooter = (
-    <div className="border border-gray-200 dark:border-gray-800 rounded-lg p-4 flex flex-row gap-2">
+    <div className="border border-gray-200 dark:border-gray-800 rounded-lg p-4 flex flex-row gap-2 flex-wrap">
       <ExportLabelButton spice={spice} />
       <AddToCollectionButton spice={spice} />
     </div>
@@ -54,7 +54,7 @@ export default async function Page({
 
   return (
     <div className="flex flex-col md:flex-row md:items-start gap-2 max-w-[1500px] mx-auto">
-      <div className="md:flex-1 sticky top-[10px] w-screen z-10 md:p-2 lg:p-8 flex flex-col gap-4">
+      <div className="md:flex-1 sticky top-0 w-screen z-10 md:p-2 lg:p-8 flex flex-col gap-4 pointer-events-none md:pointer-events-auto">
         <div className="pointer-events-none">
           <LabelRendererOnPage spice={spice} />
         </div>
@@ -75,7 +75,7 @@ export default async function Page({
           </code>
         </div>
         <div className="my-4">
-          <div>Name in other languages:</div>
+          <div>Names in other languages</div>
           <Table className="max-w-[500px]">
             <TableHeader>
               <TableRow>
@@ -104,11 +104,20 @@ export default async function Page({
         {spice.cuisines && (
           <div>
             <div>Cuisines</div>
-            <ul className="list-disc pl-4">
-              {spice.cuisines?.map((cuisine) => (
-                <li key={cuisine}>{cuisine}</li>
-              ))}
-            </ul>
+            <Table className="max-w-[500px]">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Cuisine</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {spice.cuisines?.map((cuisine) => (
+                  <TableRow key={cuisine}>
+                    <TableCell>{cuisine}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
         )}
         <h2 className="text-2xl font-medium text-gray-800 dark:text-gray-100 my-4">

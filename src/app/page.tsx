@@ -4,7 +4,10 @@ import { spices } from "@/lib/spices";
 import Link from "next/link";
 import { useSnapshot } from "valtio";
 import { useInView } from "react-intersection-observer";
-import { ComponentProps, useCallback } from "react";
+import {
+  ComponentProps,
+  useCallback,
+} from "react";
 import { LabelRenderer } from "@/components/LabelRenderer";
 import Image from "next/image";
 import { collectionState } from "@/components/collection-provider";
@@ -13,6 +16,7 @@ import { CheckIcon, PlusIcon, PrinterIcon, XIcon } from "lucide-react";
 import { useSpiceStyleProxy } from "@/lib/use-spice-style-proxy";
 import { cn } from "@/lib/utils";
 import { cva } from "class-variance-authority";
+import { useDebounce } from "use-debounce";
 
 export default function Home() {
   const collection = useSnapshot(collectionState);
@@ -37,9 +41,14 @@ export default function Home() {
 function Label(
   props: Omit<ComponentProps<typeof LabelRenderer>, "style"> & { index: number }
 ) {
-  const { inView, ref } = useInView();
-
   const { spice } = props;
+
+  const { inView: inViewOrig, ref } = useInView({
+    initialInView: props.index < 5,
+  });
+
+  // debouncing is needed to prevent weird iOS Safari behavior
+  const inView = useDebounce(inViewOrig, 100);
 
   const ImageWithPriority = useCallback(
     (imageProps: ComponentProps<typeof Image>) => (
@@ -167,7 +176,7 @@ function CollectionFooter() {
   const hasItems = collection.items.length > 0;
   if (!hasItems) return null;
   return (
-    <div className="flex flex-row gap-2 justify-between items-center fixed bottom-0 left-0 right-0 p-4 bg-white dark:bg-black border-t-2 border-black dark:border-white">
+    <div className="flex flex-row gap-2 justify-between items-center fixed bottom-0 left-0 right-0 p-4 bg-white dark:bg-black border-y-2 mb-[-2px] border-black dark:border-white">
       <div>
         {`${collection.items.length} ${
           collection.items.length === 1 ? "spice" : "spices"

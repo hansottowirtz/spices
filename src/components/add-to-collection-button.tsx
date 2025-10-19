@@ -14,17 +14,39 @@ export function AddToCollectionButton({ spice }: { spice: Spice }) {
 
   if (isInCollection) {
     return (
-      <Button
-        variant="destructive"
-        onClick={() => {
-          collectionState.items = collectionState.items.filter(
-            (item) => item.spice.id !== spice.id
-          );
-        }}
-      >
-        Remove from collection
-        <XIcon className="size-4" />
-      </Button>
+      <>
+        <Button
+          variant="destructive"
+          onClick={() => {
+            collectionState.items = collectionState.items.filter(
+              (item) => item.spice.id !== spice.id
+            );
+          }}
+        >
+          Remove from collection
+          <XIcon className="size-4" />
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => {
+            collectionState.items = collectionState.items.map((item) => {
+              if (item.spice.id === spice.id) {
+                return { ...item, quantity: item.quantity + 1 };
+              }
+              return item;
+            });
+          }}
+        >
+          Add another
+          <PlusIcon className="size-4" />
+        </Button>
+        <div className="rounded-full dark:border-white border-black border-2 size-9 text-sm flex items-center justify-center gap-2">
+          {
+            collection.items.find((item) => item.spice.id === spice.id)
+              ?.quantity
+          }
+        </div>
+      </>
     );
   }
 

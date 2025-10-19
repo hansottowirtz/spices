@@ -46,8 +46,8 @@ export function useScrollMeasures() {
       fn();
     };
     fn();
-    window.addEventListener("scroll", fn);
-    window.addEventListener("resize", resizeFn);
+    window.addEventListener("scroll", fn, { passive: true });
+    window.addEventListener("resize", resizeFn, { passive: true });
     return () => {
       window.removeEventListener("scroll", fn);
       window.removeEventListener("resize", resizeFn);
