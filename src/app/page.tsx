@@ -4,10 +4,7 @@ import { spices } from "@/lib/spices";
 import Link from "next/link";
 import { useSnapshot } from "valtio";
 import { useInView } from "react-intersection-observer";
-import {
-  ComponentProps,
-  useCallback,
-} from "react";
+import { ComponentProps, useCallback } from "react";
 import { LabelRenderer } from "@/components/LabelRenderer";
 import Image from "next/image";
 import { collectionState } from "@/components/collection-provider";
@@ -23,6 +20,7 @@ export default function Home() {
   const hasItems = collection.items.length > 0;
   return (
     <>
+      <IntroductionHeader />
       <div
         className={cn(
           "flex flex-wrap justify-center py-4",
@@ -188,6 +186,72 @@ function CollectionFooter() {
           <PrinterIcon className="size-4" />
         </Link>
       </Button>
+    </div>
+  );
+}
+
+function IntroductionHeader() {
+  return (
+    <div className="max-w-[600px] mx-auto px-2 mt-4 border-b border-foreground pb-4">
+      <p>Hi, welcome to Spices.app!</p>
+      <p>
+        This is an open source project where I created spice labels based on old
+        botanical books that are now in the public domain.
+      </p>
+      <p>
+        The source is available on{" "}
+        <a
+          className="underline underline-offset-4"
+          href="https://github.com/hansottowirtz/spices/tree/v2"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          GitHub
+        </a>
+        , contributions are welcome!
+      </p>
+      <p>
+        This site is under development, but you can already generate labels for
+        your spices.
+      </p>
+      <p>
+        Want to help, are you interested, do you have questions or feedback, or
+        do you want to order labels? Please reach out to me at{" "}
+        <a
+          className="underline underline-offset-4"
+          href="mailto:hansottowirtz@gmail.com"
+        >
+          hansottowirtz@gmail.com
+        </a>
+        , on Reddit {" "}
+        <a
+          className="underline underline-offset-4"
+          href="https://www.reddit.com/user/hansottowirtz"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          u/hansottowirtz
+        </a>
+        , on Bluesky {" "}
+        <a
+          className="underline underline-offset-4"
+          href="https://bsky.app/profile/hansottowirtz.bsky.social"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          @hansottowirtz.bsky.social
+        </a>{" "}
+        or on X{" "}
+        <a
+          className="underline underline-offset-4"
+          href="https://x.com/hansottowirtz"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          @hansottowirtz
+        </a>
+        .
+      </p>
     </div>
   );
 }
