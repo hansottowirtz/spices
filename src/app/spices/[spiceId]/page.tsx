@@ -75,7 +75,7 @@ export default async function Page({
           </code>
         </div>
         <div className="my-4">
-          <div>Names in other languages</div>
+          <div className="font-bold">Names in other languages</div>
           <Table className="max-w-[500px]">
             <TableHeader>
               <TableRow>
@@ -94,33 +94,49 @@ export default async function Page({
           </Table>
         </div>
         {spice.etymologicalOrigin && (
-          <div>
+          <div className="my-4">
             <div>
-              Etymological origin:{" "}
+              <div className="font-bold">Etymological origin</div>
               {appLangDisplayNames.of(spice.etymologicalOrigin)}
             </div>
           </div>
         )}
-        {spice.cuisines && (
-          <div>
-            <div>Cuisines</div>
-            <Table className="max-w-[500px]">
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Cuisine</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {spice.cuisines?.map((cuisine) => (
-                  <TableRow key={cuisine}>
-                    <TableCell>{cuisine}</TableCell>
+        {spice.binomialName && <div className="my-4">
+          <div className="font-bold">Binomial name</div>
+          <div>{spice.binomialName}</div>
+        </div>}
+        {spice.chemicalFormula && <div className="my-4">
+          <div className="font-bold">Chemical formula</div>
+          <div>{spice.chemicalFormula}</div>
+        </div>}
+        {spice.eCode && <div className="my-4">
+          <div className="font-bold">E-code</div>
+          <div>{spice.eCode}</div>
+        </div>}
+        <div className="my-4">
+          <div className="font-bold">Cuisines</div>
+          {spice.cuisines && spice.cuisines.length > 0 ? (
+            <div>
+              <Table className="max-w-[500px]">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Cuisine</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        )}
-        <h2 className="text-2xl font-medium text-gray-800 dark:text-gray-100 my-4">
+                </TableHeader>
+                <TableBody>
+                  {spice.cuisines?.map((cuisine) => (
+                    <TableRow key={cuisine}>
+                      <TableCell>{cuisine}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          ) : (
+            <div className="text-muted-foreground">No cuisines</div>
+          )}
+        </div>
+        <h2 className="text-2xl font-medium text-foreground my-4">
           Style editor
         </h2>
         <div className="my-4">
