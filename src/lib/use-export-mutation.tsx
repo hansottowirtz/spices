@@ -36,7 +36,8 @@ export async function exportLabel(
   spice: Spice,
   scale: number,
   style: LabelStyle,
-  fontUrls: string[]
+  fontUrls: string[],
+  signal?: AbortSignal
 ): Promise<Blob> {
   const container = document.createElement("div");
   // container.style.position = "absolute";
@@ -85,6 +86,8 @@ export async function exportLabel(
 
   containerRoot.unmount();
   container.remove();
+
+  signal?.throwIfAborted();
 
   const canvas = document.createElement("canvas");
   canvas.width = 600 * scale;
