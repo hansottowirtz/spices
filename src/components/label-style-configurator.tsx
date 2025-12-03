@@ -809,7 +809,8 @@ export function LabeledSlider({
     setInputState(inputValue);
     const isValidNumber = /^[0-9]*\.?[0-9]*$/.test(inputValue);
     if (!isValidNumber) return;
-    const value = Number(inputValue) / 100;
+    const inputValueNumber = Number(inputValue);
+    const value = isPercentage ? inputValueNumber / 100 : inputValueNumber;
     const clampedValue = Math.min(max, Math.max(min, value));
     onValueChange(clampedValue);
   };
