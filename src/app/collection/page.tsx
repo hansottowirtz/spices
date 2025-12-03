@@ -31,6 +31,14 @@ const paperSizes = {
     width: 148,
     height: 210,
   },
+  '10x15': {
+    width: 100,
+    height: 150,
+  },
+  '100mmx148mm': {
+    width: 100,
+    height: 148,
+  },
 };
 
 type PageLayoutSettings = {
@@ -121,14 +129,15 @@ export default function CollectionPage() {
       collection.items.length === 0
         ? skipToken
         : streamedQuery({
-            streamFn: async function* generate() {
+            streamFn: async function* generate({ signal }) {
               for (const item of collection.items) {
+                signal.throwIfAborted();
                 const style = getSpiceStyle(
                   item.spice,
                   collection,
                   labelStyle
                 );
-                yield [item, await exportLabel(item.spice, scale, style, fontUrls)] as const;
+                yield [item, await exportLabel(item.spice, scale, style, fontUrls, signal)] as const;
               }
             },
           }),
