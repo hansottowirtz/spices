@@ -180,6 +180,15 @@ function CollectionFooter() {
           collection.items.length === 1 ? "spice" : "spices"
         } added`}
       </div>
+      <Button onClick={() => {
+        collectionState.items = spices.map((spice) => ({
+          spice,
+          style: "global",
+          quantity: 1,
+        }));
+      }}>
+        Add all 
+      </Button>
       <Button asChild>
         <Link href="/collection">
           Order or print
