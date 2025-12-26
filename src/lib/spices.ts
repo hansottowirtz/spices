@@ -29,6 +29,10 @@ export const spices: Spice[] = [
         value: "Agar-agar",
       },
       {
+        lang: "es",
+        value: "Agar-agar",
+      },
+      {
         lang: "ja",
         value: "寒天",
         romanized: "kanten",
@@ -74,6 +78,10 @@ export const spices: Spice[] = [
         value: "Amchoor",
       },
       {
+        lang: "es",
+        value: "Polvo de mango",
+      },
+      {
         lang: "hi",
         value: "अमचूर",
         romanized: "amchur",
@@ -93,6 +101,10 @@ export const spices: Spice[] = [
       {
         lang: "en",
         value: "Anardana powder",
+      },
+      {
+        lang: "es",
+        value: "Polvo de granada",
       },
       {
         lang: "hi",
@@ -202,6 +214,10 @@ export const spices: Spice[] = [
         value: "Black mustard seeds",
       },
       {
+        lang: "es",
+        value: "Semillas de mostaza negra",
+      },
+      {
         lang: "nl",
         value: "Zwart mosterdzaad"
       }
@@ -216,6 +232,14 @@ export const spices: Spice[] = [
       {
         lang: "en",
         value: "Black sesame seeds",
+      },
+      {
+        lang: "es",
+        value: "Semillas de sésamo negro",
+      },
+      {
+        lang: "es-MX",
+        value: "Ajonjolí negro",
       },
       {
         lang: "nl",
@@ -233,6 +257,10 @@ export const spices: Spice[] = [
         value: "Brown mustard seeds",
       },
       {
+        lang: "es",
+        value: "Semillas de mostaza parda",
+      },
+      {
         lang: "nl",
         value: "Bruin mosterdzaad"
       }
@@ -246,6 +274,10 @@ export const spices: Spice[] = [
       {
         lang: "en",
         value: "Cassia cinnamon",
+      },
+      {
+        lang: "es",
+        value: "Canela cassia",
       },
       {
         lang: "nl",
@@ -263,6 +295,10 @@ export const spices: Spice[] = [
         value: "Cayenne pepper",
       },
       {
+        lang: "es",
+        value: "Pimienta de cayena",
+      },
+      {
         lang: "nl",
         value: "Cayennepeper"
       }
@@ -276,6 +312,10 @@ export const spices: Spice[] = [
       {
         lang: "en",
         value: "Ceylon cinnamon",
+      },
+      {
+        lang: "es",
+        value: "Canela de Ceilán",
       },
       {
         lang: "nl",
@@ -292,6 +332,10 @@ export const spices: Spice[] = [
       {
         lang: "en",
         value: "Chinese five spice",
+      },
+      {
+        lang: "es",
+        value: "Cinco especias chinas",
       },
       {
         lang: "zh-CN",
@@ -317,6 +361,10 @@ export const spices: Spice[] = [
       {
         lang: "en",
         value: "Chives",
+      },
+      {
+        lang: "es",
+        value: "Cebollino",
       },
       {
         lang: "nl",
@@ -359,6 +407,10 @@ export const spices: Spice[] = [
         value: "Clavos de olor",
       },
       {
+        lang: "es-MX",
+        value: "Clavo de olor",
+      },
+      {
         lang: "nl",
         value: "Kruidnagels"
       }
@@ -373,6 +425,14 @@ export const spices: Spice[] = [
       {
         lang: "en",
         value: "Coriander leaves",
+      },
+      {
+        lang: "es",
+        value: "Hojas de cilantro",
+      },
+      {
+        lang: "es-MX",
+        value: "Cilantro",
       },
       {
         lang: "hi",
@@ -452,6 +512,10 @@ export const spices: Spice[] = [
         value: "Dill seeds",
       },
       {
+        lang: "es",
+        value: "Semillas de eneldo",
+      },
+      {
         lang: "nl",
         value: "Dillezaad"
       }
@@ -466,6 +530,10 @@ export const spices: Spice[] = [
       {
         lang: "en",
         value: "Fennel seeds",
+      },
+      {
+        lang: "es",
+        value: "Semillas de hinojo",
       },
       {
         lang: "hi",
@@ -489,6 +557,10 @@ export const spices: Spice[] = [
         value: "Fenugreek leaves",
       },
       {
+        lang: "es",
+        value: "Hojas de alholva",
+      },
+      {
         lang: "hi",
         value: "कसूरी मेथी",
         romanized: "kasūrī methī",
@@ -507,6 +579,10 @@ export const spices: Spice[] = [
       {
         lang: "en",
         value: "Fenugreek seeds",
+      },
+      {
+        lang: "es",
+        value: "Semillas de alholva",
       },
       {
         lang: "hi",
@@ -530,6 +606,10 @@ export const spices: Spice[] = [
         value: "Galangal powder",
       },
       {
+        lang: "es",
+        value: "Polvo de galanga",
+      },
+      {
         lang: "nl",
         value: "Galangalpoeder"
       }
@@ -543,6 +623,10 @@ export const spices: Spice[] = [
     names: [
       {
         lang: "en",
+        value: "Garam masala",
+      },
+      {
+        lang: "es",
         value: "Garam masala",
       },
       {
@@ -565,6 +649,10 @@ export const spices: Spice[] = [
         value: "Garlic powder",
       },
       {
+        lang: "es",
+        value: "Ajo en polvo",
+      },
+      {
         lang: "nl",
         value: "Knoflookpoeder"
       }
@@ -578,6 +666,10 @@ export const spices: Spice[] = [
       {
         lang: "en",
         value: "Ginger powder",
+      },
+      {
+        lang: "es",
+        value: "Jengibre en polvo",
       },
       {
         lang: "nl",
@@ -594,6 +686,10 @@ export const spices: Spice[] = [
     names: [
       {
         lang: "en",
+        value: "Gochugaru",
+      },
+      {
+        lang: "es",
         value: "Gochugaru",
       },
       {
@@ -638,6 +734,10 @@ export const spices: Spice[] = [
         value: "Green Sichuan pepper",
       },
       {
+        lang: "es",
+        value: "Pimienta de Sichuan verde",
+      },
+      {
         lang: "zh-CN",
         value: "青花椒",
         romanized: "qīng huājiāo",
@@ -663,6 +763,10 @@ export const spices: Spice[] = [
         value: "Ground cassia cinnamon",
       },
       {
+        lang: "es",
+        value: "Canela cassia molida",
+      },
+      {
         lang: "nl",
         value: "Gemalen cassia kaneel"
       }
@@ -676,6 +780,10 @@ export const spices: Spice[] = [
       {
         lang: "en",
         value: "Ground ceylon cinnamon",
+      },
+      {
+        lang: "es",
+        value: "Canela de Ceilán molida",
       },
       {
         lang: "nl",
@@ -692,6 +800,14 @@ export const spices: Spice[] = [
       {
         lang: "en",
         value: "Ground coriander seeds",
+      },
+      {
+        lang: "es",
+        value: "Semillas de cilantro molidas",
+      },
+      {
+        lang: "es-MX",
+        value: "Cilantro molido",
       },
       {
         lang: "hi",
@@ -715,6 +831,10 @@ export const spices: Spice[] = [
         value: "Ground cumin seeds",
       },
       {
+        lang: "es",
+        value: "Comino molido",
+      },
+      {
         lang: "hi",
         value: "जीरा पाउडर",
         romanized: "jeera pāudar",
@@ -734,6 +854,10 @@ export const spices: Spice[] = [
       {
         lang: "en",
         value: "Ground fennel seeds",
+      },
+      {
+        lang: "es",
+        value: "Semillas de hinojo molidas",
       },
       {
         lang: "hi",
@@ -756,6 +880,10 @@ export const spices: Spice[] = [
         value: "Ground mace",
       },
       {
+        lang: "es",
+        value: "Macis molido",
+      },
+      {
         lang: "nl",
         value: "Gemalen foelie"
       }
@@ -769,6 +897,10 @@ export const spices: Spice[] = [
       {
         lang: "en",
         value: "Ground nutmeg",
+      },
+      {
+        lang: "es",
+        value: "Nuez moscada molida",
       },
       {
         lang: "nl",
@@ -786,6 +918,10 @@ export const spices: Spice[] = [
         value: "Hyssop",
       },
       {
+        lang: "es",
+        value: "Hisopo",
+      },
+      {
         lang: "nl",
         value: "Hyssop"
       }
@@ -799,6 +935,10 @@ export const spices: Spice[] = [
       {
         lang: "en",
         value: "Juniper berries",
+      },
+      {
+        lang: "es",
+        value: "Bayas de enebro",
       },
       {
         lang: "nl",
@@ -890,6 +1030,10 @@ export const spices: Spice[] = [
       {
         lang: "en",
         value: "Nigella seeds",
+      },
+      {
+        lang: "es",
+        value: "Semillas de nigella",
       },
       {
         lang: "hi",
@@ -1012,6 +1156,10 @@ export const spices: Spice[] = [
       {
         lang: "en",
         value: "Red Sichuan pepper",
+      },
+      {
+        lang: "es",
+        value: "Pimienta de Sichuan roja",
       },
       {
         lang: "zh-CN",
@@ -1311,6 +1459,14 @@ export const spices: Spice[] = [
         value: "White sesame seeds",
       },
       {
+        lang: "es",
+        value: "Semillas de sésamo blanco",
+      },
+      {
+        lang: "es-MX",
+        value: "Ajonjolí blanco",
+      },
+      {
         lang: "nl",
         value: "Wit sesamzaad"
       }
@@ -1346,6 +1502,10 @@ export const spices: Spice[] = [
         value: "Yellow mustard seeds",
       },
       {
+        lang: "es",
+        value: "Semillas de mostaza amarilla",
+      },
+      {
         lang: "nl",
         value: "Geel mosterdzaad"
       }
@@ -1360,6 +1520,10 @@ export const spices: Spice[] = [
     names: [
       {
         lang: "en",
+        value: "Za'atar",
+      },
+      {
+        lang: "es",
         value: "Za'atar",
       },
       {
