@@ -136,14 +136,14 @@ export default async function Page({
             <div className="text-muted-foreground">No cuisines</div>
           )}
         </div>
-        <h2 className="text-2xl font-medium text-foreground my-4">
+        {/* <h2 className="text-2xl font-medium text-foreground my-4">
           Style editor
         </h2>
         <div className="my-4">
           <div className="border border-gray-200 dark:border-gray-800 rounded-md max-w-[400px]">
             <LabelStyleConfigurator spice={spice} />
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

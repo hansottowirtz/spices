@@ -1,16 +1,15 @@
 import type { Metadata } from "next";
 import { Courier_Prime, Geist, Geist_Mono, Glegoo } from "next/font/google";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ModeToggle } from "@/components/mode-toggle";
 import Link from "next/link";
 import { QueryClientProvider } from "@/components/query-client-provider";
-import { Github } from "lucide-react";
 import { ConfigureLanguages } from "@/components/configure-languages";
 import { GlobalFontsProvider } from "@/components/global-fonts-provider";
 import { GlobalFontsLink } from "@/components/global-fonts-link";
 import "./globals.css";
+import Image from "next/image";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,8 +34,8 @@ const courierPrime = Courier_Prime({
 });
 
 export const metadata: Metadata = {
-  title: "Spices",
-  description: "Spices labels generator",
+  title: "Spices.app",
+  description: "Spice label generator",
 };
 
 const googleFonts = [
@@ -98,6 +97,12 @@ export default function RootLayout({
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
+        <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+        <meta name="apple-mobile-web-app-title" content="Spices.app" />
+        <link rel="manifest" href="/site.webmanifest" />
       </head>
       <body className="print:bg-white print:text-black">
         <div className="printable-page:print:hidden">
@@ -110,12 +115,13 @@ export default function RootLayout({
                 enableSystem
                 disableTransitionOnChange
               >
-                <SidebarProvider defaultOpen={false}>
-                  <AppSidebar />
                   <main className="min-w-0 w-full">
                     <div>
                       <header className="flex items-center justify-between p-4 border-b-2 border-black dark:border-white">
-                        <SidebarTrigger />
+                        <div className="grow basis-1/3">
+                        <AppSidebar />
+                        </div>
+                        <div className="grow basis-1/3 flex justify-center">
                         <Link
                           href="/"
                           className="text-2xl font-bold text-gray-800 dark:text-gray-100 font-header"
@@ -124,9 +130,10 @@ export default function RootLayout({
                           <span className="text-[0.6em] text-gray-500 dark:text-gray-400 font-light">.</span>
                           <span className="text-[0.6em] text-gray-500 dark:text-gray-400 font-mono font-light">app</span>
                         </Link>
-                        <div className="flex flex-row gap-4 items-center">
+                        </div>
+                        <div className="grow basis-1/3 justify-end flex gap-4 items-center text-white">
                           <Link href="https://github.com/hansottowirtz/spices">
-                            <Github className="h-6 w-6 text-gray-800 dark:text-gray-100" />
+                            <Image src="/octicon.svg" alt="GitHub icon" width={24} height={24} />
                           </Link>
                           <ModeToggle />
                         </div>
@@ -134,7 +141,6 @@ export default function RootLayout({
                       {children}
                     </div>
                   </main>
-                </SidebarProvider>
               </ThemeProvider>
             </QueryClientProvider>
             <GlobalFontsLink />

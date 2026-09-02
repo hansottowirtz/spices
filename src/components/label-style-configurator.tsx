@@ -5,7 +5,9 @@ import { Slider } from "./ui/slider";
 import {
   BuiltinFontSettings,
   FontSettings,
+  getDefaultSecondaryLanguage,
   getFallbackLanguages,
+  getNavigatorLanguages,
   LabelStyle,
   labelStyleState,
   Language,
@@ -24,7 +26,7 @@ import { proxy, useSnapshot } from "valtio";
 import { Checkbox } from "./ui/checkbox";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronsUpDown, X } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import {
@@ -47,6 +49,41 @@ import { getTextDirection } from "@/lib/text-direction";
 import { deepClone } from "valtio/utils";
 import { collectionState } from "./collection-provider";
 import { useSpiceStyleProxy } from "@/lib/use-spice-style-proxy";
+
+function useTextsWithRenderingIssues(
+  spice: Spice,
+  usedLanguages: Set<Language>,
+) {
+  const canRenderTspanConnectedGlyphs = useCanRenderTspanConnectedGlyphs();
+  const canRenderTspanRtlText = useCanRenderTspanRtlText();
+
+  const textsWithRenderingIssues = new Set<{
+    lang: Language;
+    value: string;
+    issueType: "connectedGlyphs" | "rtl";
+  }>();
+  for (const lang of usedLanguages) {
+    const value = spice.names.find((name) => name.lang === lang)?.value;
+    if (value) {
+      if (canRenderTspanConnectedGlyphs === false) {
+        if (graphemeSplit(value, lang).length !== value.length) {
+          textsWithRenderingIssues.add({
+            lang,
+            value,
+            issueType: "connectedGlyphs",
+          });
+        }
+      }
+      if (canRenderTspanRtlText === false) {
+        if (getTextDirection(value) === "rtl") {
+          textsWithRenderingIssues.add({ lang, value, issueType: "rtl" });
+        }
+      }
+    }
+  }
+
+  return textsWithRenderingIssues;
+}
 
 export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
   const labelStyleSnapshot = useSnapshot(labelStyleState);
@@ -86,45 +123,15 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
     },
   ] as const;
 
-  const languageFonts = Object.entries(labelStyleSnapshot.languageFonts).filter(
-    ([lang]) =>
-      lang === "default" ||
-      !hideUnusedStyles ||
-      usedLanguages.has(lang as Language)
+  const textsWithRenderingIssues = useTextsWithRenderingIssues(
+    spice,
+    usedLanguages,
   );
-
-  const canRenderTspanConnectedGlyphs = useCanRenderTspanConnectedGlyphs();
-  const canRenderTspanRtlText = useCanRenderTspanRtlText();
-
-  const textsWithRenderingIssues = new Set<{
-    lang: Language;
-    value: string;
-    issueType: "connectedGlyphs" | "rtl";
-  }>();
-  for (const lang of usedLanguages) {
-    const value = spice.names.find((name) => name.lang === lang)?.value;
-    if (value) {
-      if (canRenderTspanConnectedGlyphs === false) {
-        if (graphemeSplit(value, lang).length !== value.length) {
-          textsWithRenderingIssues.add({
-            lang,
-            value,
-            issueType: "connectedGlyphs",
-          });
-        }
-      }
-      if (canRenderTspanRtlText === false) {
-        if (getTextDirection(value) === "rtl") {
-          textsWithRenderingIssues.add({ lang, value, issueType: "rtl" });
-        }
-      }
-    }
-  }
 
   const hasRenderingIssue = textsWithRenderingIssues.size > 0;
 
   const collectionItemProxy = collectionState.items.find(
-    (item) => item.spice.id === spice.id
+    (item) => item.spice.id === spice.id,
   );
 
   const {
@@ -133,6 +140,11 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
     hasCollectionItem,
   } = useSpiceStyleProxy(spice);
   const styleSnap = useSnapshot(styleProxy);
+
+  const languagesToShow = useMemo(
+    () => (hideUnusedLanguages ? Array.from(allLanguagesOfSpice) : languages),
+    [hideUnusedLanguages, allLanguagesOfSpice],
+  );
 
   return (
     <div>
@@ -146,7 +158,7 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
               <Button
                 onClick={() => {
                   collectionItemProxy!.style = proxy(
-                    deepClone(labelStyleSnapshot)
+                    deepClone(labelStyleSnapshot),
                   );
                 }}
               >
@@ -219,24 +231,9 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
         </div>
       </Section>
       <Separator />
-      <Section>
-        <div className="font-bold my-2">Primary Language</div>
-        <LanguageSelect
-          value={styleSnap.primaryLanguage}
-          onValueChange={(v: Language) => (styleProxy.primaryLanguage = v)}
-          languages={
-            hideUnusedLanguages ? Array.from(allLanguagesOfSpice) : languages
-          }
-        />
-        <div className="font-bold my-2">Secondary Language</div>
-        <LanguageSelect
-          value={styleSnap.secondaryLanguage}
-          onValueChange={(v: Language) => (styleProxy.secondaryLanguage = v)}
-          languages={
-            hideUnusedLanguages ? Array.from(allLanguagesOfSpice) : languages
-          }
-        />
-      </Section>
+      <LanguagesSections styleProxy={styleProxy} languages={languagesToShow} />
+      <Separator />
+      <ElementsSections styleProxy={styleProxy} />
       <Separator />
       <Section>
         <div className="font-bold mb-2">Bleed</div>
@@ -274,6 +271,119 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
           })}
       </Section>
       <Separator />
+      <FontsSections
+        spice={spice}
+        labelStyleSnapshot={labelStyleSnapshot}
+        styleProxy={styleProxy}
+        hideUnusedStyles={hideUnusedStyles}
+        usedLanguages={usedLanguages}
+      />
+    </div>
+  );
+}
+
+export function LanguagesSections({
+  styleProxy,
+  // hideUnusedLanguages,
+  // allLanguagesOfSpice,
+  languages,
+}: {
+  styleProxy: LabelStyle;
+  languages: Language[];
+  // hideUnusedLanguages: boolean;
+  // allLanguagesOfSpice: Set<Language>;
+}) {
+  const styleSnap = useSnapshot(styleProxy);
+  return (
+    <>
+      <Section>
+        <div className="font-bold my-2">Primary Language</div>
+        <LanguageSelect
+          value={styleSnap.primaryLanguage}
+          onValueChange={(v: Language) => (styleProxy.primaryLanguage = v)}
+          languages={languages}
+        />
+        <div className="font-bold my-2">Secondary Language</div>
+        {styleSnap.secondaryLanguage !== null && (
+          <LanguageSelect
+            value={styleSnap.secondaryLanguage}
+            onValueChange={(v: Language) => (styleProxy.secondaryLanguage = v)}
+            languages={languages}
+          />
+        )}
+        <label className="flex flex-row items-center space-x-2 mt-2">
+          <Checkbox
+            checked={styleSnap.secondaryLanguage === null}
+            onCheckedChange={(v) => {
+              styleProxy.secondaryLanguage = v
+                ? null
+                : getDefaultSecondaryLanguage(getNavigatorLanguages());
+            }}
+          />
+          <span>No secondary language</span>
+        </label>
+      </Section>
+    </>
+  );
+}
+
+export function ElementsSections({ styleProxy }: { styleProxy: LabelStyle }) {
+  const styleSnap = useSnapshot(styleProxy);
+
+  return (
+    <Section>
+      <div className="font-bold mb-2">Visible elements</div>
+      <div className="flex flex-col gap-2">
+        <label className="flex flex-row items-center space-x-2">
+          <Checkbox
+            checked={!styleSnap.hideBinomialName}
+            onCheckedChange={(v) => (styleProxy.hideBinomialName = !v)}
+          />
+          <span>Show binomial (Latin) name</span>
+        </label>
+        <label className="flex flex-row items-center space-x-2">
+          <Checkbox
+            checked={!styleSnap.hideLocalCuisineName}
+            onCheckedChange={(v) => (styleProxy.hideLocalCuisineName = !v)}
+          />
+          <span>Show local cuisine name</span>
+        </label>
+        <label className="flex flex-row items-center space-x-2">
+          <Checkbox
+            checked={!styleSnap.hideChemicalName}
+            onCheckedChange={(v) => (styleProxy.hideChemicalName = !v)}
+          />
+          <span>Show chemical name / E-code</span>
+        </label>
+      </div>
+    </Section>
+  );
+}
+
+export function FontsSections({
+  spice,
+  labelStyleSnapshot,
+  styleProxy,
+  hideUnusedStyles,
+  usedLanguages,
+}: {
+  spice: Spice;
+  labelStyleSnapshot: LabelStyle;
+  styleProxy: LabelStyle;
+  hideUnusedStyles: boolean;
+  usedLanguages: Set<Language>;
+}) {
+  const styleSnap = useSnapshot(styleProxy);
+
+  const languageFonts = Object.entries(labelStyleSnapshot.languageFonts).filter(
+    ([lang]) =>
+      lang === "default" ||
+      !hideUnusedStyles ||
+      usedLanguages.has(lang as Language),
+  );
+
+  return (
+    <>
       <Section>
         <div className="font-bold mb-2">Language fonts</div>
         <div>
@@ -298,7 +408,7 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
           <Section>
             <div className="font-bold mb-2">Chemical font</div>
             <FontEditor
-              value={styleSnap.chemicalFont && styleProxy.chemicalFont}
+              valueProxy={styleSnap.chemicalFont && styleProxy.chemicalFont}
               onChange={(v) => (styleProxy.chemicalFont = v)}
             />
           </Section>
@@ -309,12 +419,12 @@ export function LabelStyleConfigurator({ spice }: { spice: Spice }) {
         <Section>
           <div className="font-bold mb-2">Binomial font</div>
           <FontEditor
-            value={styleSnap.binomialFont && styleProxy.binomialFont}
+            valueProxy={styleSnap.binomialFont && styleProxy.binomialFont}
             onChange={(v) => (styleProxy.binomialFont = v)}
           />
         </Section>
       )}
-    </div>
+    </>
   );
 }
 
@@ -335,17 +445,21 @@ function LanguageFontsEditor({
 
   const { fonts, bottomWithFonts } = getTextLayerStyles(
     spice,
-    labelStyleSnapshot
+    labelStyleSnapshot,
   );
 
   const allFontSources = [
     fonts.title?.source,
     bottomWithFonts.map((x) => x.fontSettingsAndSource.source),
-  ].flat().filter((x): x is FontSource => x !== undefined);
+  ]
+    .flat()
+    .filter((x): x is FontSource => x !== undefined);
 
   function isFontSourceVisible(source: FontSource) {
     if (!hideUnusedStyles) return true;
-    return !!allFontSources.find((x) => JSON.stringify(x) === JSON.stringify(source));
+    return !!allFontSources.find(
+      (x) => JSON.stringify(x) === JSON.stringify(source),
+    );
   }
 
   return (
@@ -356,8 +470,13 @@ function LanguageFontsEditor({
       {isFontSourceVisible({ type: "language", lang, key: "default" }) && (
         <>
           <div className="font-bold mb-2">Default</div>
+          {/* we need to access .default from the snapshot
+          to make sure the full object assignment works
+          if not we have rendering issues
+          see https://github.com/pmndrs/valtio/discussions/1149 */}
+          {void snap.default}
           <FontEditor
-            value={languageFontSettings.default}
+            valueProxy={languageFontSettings.default}
             onChange={(v) => (languageFontSettings.default = v)}
           />
         </>
@@ -377,7 +496,7 @@ function LanguageFontsEditor({
           </div>
           {snap.heading ? (
             <FontEditor
-              value={languageFontSettings.heading!}
+              valueProxy={languageFontSettings.heading!}
               onChange={(v) => (languageFontSettings.heading = v)}
             />
           ) : (
@@ -419,7 +538,7 @@ function LanguageFontsEditor({
             <>
               {snap.romanized ? (
                 <FontEditor
-                  value={languageFontSettings.romanized!}
+                  valueProxy={languageFontSettings.romanized!}
                   onChange={(v) => (languageFontSettings.romanized = v)}
                 />
               ) : (
@@ -479,7 +598,7 @@ function parseFontFullNameToVariation(font: FontData) {
 }
 
 function fontSettingsToFontFamilySelectValue(
-  settings: FontSettings
+  settings: FontSettings,
 ): FontFamilySelectValue {
   if (settings.type === "builtin") {
     return { type: "builtin", familyName: settings.family };
@@ -494,13 +613,13 @@ function fontSettingsToFontFamilySelectValue(
 }
 
 function FontEditor({
-  value,
+  valueProxy,
   onChange,
 }: {
-  value: FontSettings;
+  valueProxy: FontSettings;
   onChange: (v: FontSettings) => void;
 }) {
-  const snap = useSnapshot(value, { sync: true });
+  const snap = useSnapshot(valueProxy, { sync: true });
   const selectedFamily = fontSettingsToFontFamilySelectValue(snap);
 
   const localFonts = useLocalFontsQuery({
@@ -513,7 +632,7 @@ function FontEditor({
     snap.type === "builtin"
       ? snap.family
       : localFonts.query.data?.find(
-          (f) => f.postscriptName === snapPostscriptName
+          (f) => f.postscriptName === snapPostscriptName,
         )?.family;
 
   const fontAccessApi = useFontAccessAPI();
@@ -565,7 +684,7 @@ function FontEditor({
               value={snap.familyPostscriptName}
               onValueChange={(v) => {
                 const font = localFonts.query.data!.find(
-                  (f) => f.postscriptName === v
+                  (f) => f.postscriptName === v,
                 )!;
                 onChange({
                   ...snap,
@@ -603,7 +722,7 @@ function FontEditor({
             <Select
               value={snap.weight}
               onValueChange={(v) =>
-                ((value as BuiltinFontSettings).weight =
+                ((valueProxy as BuiltinFontSettings).weight =
                   v as BuiltinFontSettings["weight"])
               }
               disabled={uniqueWeights.length <= 1}
@@ -627,7 +746,7 @@ function FontEditor({
             <div className="min-w-16">Style</div>
             <Select
               value={snap.style}
-              onValueChange={(v) => ((value as BuiltinFontSettings).style = v)}
+              onValueChange={(v) => ((valueProxy as BuiltinFontSettings).style = v)}
               disabled={uniqueStyles.length <= 1}
             >
               <SelectTrigger className="w-[180px]">
@@ -650,24 +769,24 @@ function FontEditor({
       {snap.size === undefined ? (
         <div className="my-2 flex flex-row space-x-2">
           <div className="min-w-16">Size</div>
-          <Button onClick={() => (value.size = 1)}>Add Size</Button>
+          <Button onClick={() => (valueProxy.size = 1)}>Add Size</Button>
         </div>
       ) : (
         <LabeledSliderManaged
           label="Size"
           min={0}
           max={4}
-          object={value as Record<"size", number>}
+          object={valueProxy as Record<"size", number>}
           objectKey="size"
           step={0.01}
           unit="em"
         />
       )}
       <div className="my-2 flex flex-row space-x-2">
-        {value.spacing === undefined ? (
+        {valueProxy.spacing === undefined ? (
           <>
             <div className="min-w-16">Spacing</div>
-            <Button onClick={() => (value.spacing = 0)}>Add Spacing</Button>
+            <Button onClick={() => (valueProxy.spacing = 0)}>Add Spacing</Button>
           </>
         ) : (
           <div className="flex-1">
@@ -675,7 +794,7 @@ function FontEditor({
               label="Spacing"
               min={-0.2}
               max={0.2}
-              object={value}
+              object={valueProxy}
               objectKey="spacing"
               step={0.0001}
               unit="em"
@@ -731,7 +850,7 @@ type NumberProperties<T> = {
 
 function LabeledSliderManaged<
   TObj extends object,
-  TKey extends keyof NumberProperties<TObj>
+  TKey extends keyof NumberProperties<TObj>,
 >({
   label,
   object,
@@ -800,7 +919,7 @@ export function LabeledSlider({
       }
       return `${v.toFixed(decimalPlaces ?? 2)}`;
     },
-    [decimalPlaces, isPercentage]
+    [decimalPlaces, isPercentage],
   );
   const [inputState, setInputState] = useState(valueToInput(value));
   const [isFocused, setIsFocused] = useState(false);
@@ -954,7 +1073,7 @@ function FontFamilySelect({
             if (type === "local") {
               const fontData = findDefaultVariation(
                 localFonts.query.data!,
-                fontFamily
+                fontFamily,
               )!;
               onValueChange({
                 type: "local",

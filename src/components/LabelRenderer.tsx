@@ -302,14 +302,16 @@ export type FontSource =
 
 export function getSpiceNames(spice: Spice, style: LabelStyle) {
   const title = findName(spice.names, style.primaryLanguage);
-  const binomial = spice.binomialName;
+  const binomial = style.hideBinomialName ? undefined : spice.binomialName;
 
   const secondaryLanguage = style.secondaryLanguage;
 
-  const etymologicalOriginName = spice.etymologicalOrigin
+  const etymologicalOriginName = style.hideLocalCuisineName
+    ? undefined
+    : spice.etymologicalOrigin
     ? findName(spice.names, spice.etymologicalOrigin!)
     : undefined;
-  const mainCuisine = spice.cuisines?.[0];
+  const mainCuisine = style.hideLocalCuisineName ? undefined : spice.cuisines?.[0];
   const cuisineName = mainCuisine
     ? (() => {
         const cuisineLangs = cuisineLanguages[mainCuisine];
@@ -323,7 +325,7 @@ export function getSpiceNames(spice: Spice, style: LabelStyle) {
         return findName(spice.names, cuisineLangs[0]);
       })()
     : undefined;
-  const chemicalName = spice.eCode;
+  const chemicalName = style.hideChemicalName ? undefined : spice.eCode;
   let secondaryName = style.secondaryLanguage
     ? findName(spice.names, style.secondaryLanguage)
     : undefined;

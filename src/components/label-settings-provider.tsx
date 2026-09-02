@@ -68,7 +68,7 @@ type LanguageFonts = {
 export type LabelStyle = {
   wireframe?: boolean;
   primaryLanguage: Language;
-  secondaryLanguage: Language;
+  secondaryLanguage: Language | null;
   bleed: number;
   textOffsets: TextOffsets;
   languageFonts: PartialExceptDefault<
@@ -81,6 +81,9 @@ export type LabelStyle = {
   binomialFont: FontSettings;
   bottomSeparator: string;
   bottomSeparatorFont: FontSettings;
+  hideChemicalName?: boolean;
+  hideBinomialName?: boolean;
+  hideLocalCuisineName?: boolean;
 };
 
 export function getDefaultPrimaryLanguage(): Language {

@@ -9,7 +9,7 @@ import { LabelRenderer } from "@/components/LabelRenderer";
 import Image from "next/image";
 import { collectionState } from "@/components/collection-provider";
 import { Button } from "@/components/ui/button";
-import { CheckIcon, PlusIcon, PrinterIcon, XIcon } from "lucide-react";
+import { CheckIcon, ChevronRightIcon, PlusIcon, XIcon } from "lucide-react";
 import { useSpiceStyleProxy } from "@/lib/use-spice-style-proxy";
 import { cn } from "@/lib/utils";
 import { cva } from "class-variance-authority";
@@ -20,7 +20,15 @@ export default function Home() {
   const hasItems = collection.items.length > 0;
   return (
     <>
-      <IntroductionHeader />
+      {/* <IntroductionHeader /> */}
+      <div className="flex flex-row gap-2 justify-center px-4 mt-4">
+        <Button asChild>
+          <Link href="/create">
+            Create your own collection
+            <ChevronRightIcon className="size-4" />
+          </Link>
+        </Button>
+      </div>
       <div
         className={cn(
           "flex flex-wrap justify-center py-4",
@@ -180,19 +188,10 @@ function CollectionFooter() {
           collection.items.length === 1 ? "spice" : "spices"
         } added`}
       </div>
-      <Button onClick={() => {
-        collectionState.items = spices.map((spice) => ({
-          spice,
-          style: "global",
-          quantity: 1,
-        }));
-      }}>
-        Add all 
-      </Button>
       <Button asChild>
-        <Link href="/collection">
-          Order or print
-          <PrinterIcon className="size-4" />
+        <Link href="/create">
+          Configure
+          <ChevronRightIcon className="size-4" />
         </Link>
       </Button>
     </div>

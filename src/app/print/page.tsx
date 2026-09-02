@@ -2,10 +2,10 @@
 
 import { collectionState } from "@/components/collection-provider";
 import { proxy, useSnapshot } from "valtio";
-import { Fragment, useContext, useEffect, useMemo, useState } from "react";
+import { Fragment, useContext, useEffect, useState } from "react";
 import { getSpiceStyle } from "@/lib/use-spice-style-proxy";
 import { Button } from "@/components/ui/button";
-import { Link, Loader2Icon, PrinterIcon } from "lucide-react";
+import { Loader2Icon, PrinterIcon } from "lucide-react";
 import { createPortal } from "react-dom";
 import { skipToken, useQuery } from "@tanstack/react-query";
 import { exportLabel } from "@/lib/use-export-mutation";
@@ -40,6 +40,21 @@ const paperSizes = {
     height: 148,
   },
 };
+
+const presets: { name: string; settings: PageLayoutSettings }[] = [
+  {
+    name: "OnlineLabels EU30095WJ",
+    settings: {
+      columns: 4,
+      rows: 5,
+      spacing: 5,
+      paperSize: "A4",
+      labelSize: 45,
+      dpi: 1440,
+      bleed: 1.5,
+    },
+  }
+]
 
 type PageLayoutSettings = {
   columns: number;
@@ -163,7 +178,7 @@ export default function CollectionPage() {
     <>
       <div className="max-w-[1500px] mx-auto px-2">
         <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-100 my-4">
-          Collection
+          Print
         </h1>
         {allLabelsRenderedQuery.isPending &&
           allLabelsRenderedQuery.isEnabled && (
@@ -386,6 +401,30 @@ function SettingsEditor({
 
   return (
     <div className="flex flex-col gap-2 max-w-[400px]">
+      <div>
+        <div className="my-1 flex flex-row space-x-4">
+          <div className="min-w-16">Preset</div>
+          <Select
+            value=""
+            onValueChange={(v) => {
+              const preset = presets[Number(v)];
+              if (!preset) return;
+              Object.assign(settingsProxy, preset.settings);
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Load a preset..." />
+            </SelectTrigger>
+            <SelectContent>
+              {presets.map((preset, i) => (
+                <SelectItem key={i} value={String(i)}>
+                  {preset.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
       <div>
         <div className="my-1 flex flex-row space-x-4">
           <div className="min-w-16">Paper size</div>
