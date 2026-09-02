@@ -9,7 +9,7 @@ import { ConfigureLanguages } from "@/components/configure-languages";
 import { GlobalFontsProvider } from "@/components/global-fonts-provider";
 import { GlobalFontsLink } from "@/components/global-fonts-link";
 import "./globals.css";
-import Image from "next/image";
+import OcticonSvg from "@/assets/octicon.svg";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -131,9 +131,9 @@ export default function RootLayout({
                           <span className="text-[0.6em] text-gray-500 dark:text-gray-400 font-mono font-light">app</span>
                         </Link>
                         </div>
-                        <div className="grow basis-1/3 justify-end flex gap-4 items-center text-white">
+                        <div className="grow basis-1/3 justify-end flex gap-4 items-center text-gray-800 dark:text-white">
                           <Link href="https://github.com/hansottowirtz/spices">
-                            <Image src="/octicon.svg" alt="GitHub icon" width={24} height={24} />
+                            <OcticonSvg className="w-6 h-6" />
                           </Link>
                           <ModeToggle />
                         </div>

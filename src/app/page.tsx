@@ -7,7 +7,10 @@ import { useInView } from "react-intersection-observer";
 import { ComponentProps, useCallback } from "react";
 import { LabelRenderer } from "@/components/LabelRenderer";
 import Image from "next/image";
-import { collectionState } from "@/components/collection-provider";
+import {
+  collectionState,
+  insertAfterLastOccurrence,
+} from "@/components/collection-provider";
 import { Button } from "@/components/ui/button";
 import { CheckIcon, ChevronRightIcon, PlusIcon, XIcon } from "lucide-react";
 import { useSpiceStyleProxy } from "@/lib/use-spice-style-proxy";
@@ -67,9 +70,9 @@ function Label(
   const { style: usedStyle, hasCollectionItem } = useSpiceStyleProxy(spice);
 
   const collectionSnap = useSnapshot(collectionState);
-  const itemQuantity =
-    collectionSnap.items.find((item) => item.spice.id === spice.id)?.quantity ??
-    0;
+  const itemCount = collectionSnap.items.filter(
+    (item) => item.spice.id === spice.id,
+  ).length;
 
   return (
     <div className="relative size-[50%] aspect-square sm:size-[200px] group/label-container">
@@ -107,16 +110,11 @@ function Label(
             </LabelButton>
             <LabelButton
               onClick={() => {
-                collectionState.items = collectionState.items.map((item) => {
-                  if (item.spice.id === spice.id) {
-                    return { ...item, quantity: item.quantity + 1 };
-                  }
-                  return item;
-                });
+                insertAfterLastOccurrence(spice);
               }}
             >
-              {itemQuantity > 1 ? (
-                <div className="text-xs size-4">{itemQuantity}</div>
+              {itemCount > 1 ? (
+                <div className="text-xs size-4">{itemCount}</div>
               ) : (
                 <CheckIcon className="size-4" />
               )}
@@ -125,13 +123,7 @@ function Label(
         ) : (
           <div className="opacity-0 group-hover/label-container:opacity-100 transition-opacity duration-300">
             <LabelButton
-              onClick={() => {
-                collectionState.items.push({
-                  spice,
-                  style: "global",
-                  quantity: 1,
-                });
-              }}
+              onClick={() => insertAfterLastOccurrence(spice)}
             >
               <PlusIcon className="size-4" />
             </LabelButton>

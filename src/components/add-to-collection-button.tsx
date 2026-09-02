@@ -1,16 +1,17 @@
 "use client";
 
 import { PlusIcon, XIcon } from "lucide-react";
-import { collectionState } from "./collection-provider";
+import { collectionState, insertAfterLastOccurrence } from "./collection-provider";
 import { Button } from "./ui/button";
 import { useSnapshot } from "valtio";
 import { Spice } from "@/lib/spices";
 
 export function AddToCollectionButton({ spice }: { spice: Spice }) {
   const collection = useSnapshot(collectionState);
-  const isInCollection = collection.items.some(
+  const itemCount = collection.items.filter(
     (item) => item.spice.id === spice.id
-  );
+  ).length;
+  const isInCollection = itemCount > 0;
 
   if (isInCollection) {
     return (
@@ -28,23 +29,13 @@ export function AddToCollectionButton({ spice }: { spice: Spice }) {
         </Button>
         <Button
           variant="outline"
-          onClick={() => {
-            collectionState.items = collectionState.items.map((item) => {
-              if (item.spice.id === spice.id) {
-                return { ...item, quantity: item.quantity + 1 };
-              }
-              return item;
-            });
-          }}
+          onClick={() => insertAfterLastOccurrence(spice)}
         >
           Add another
           <PlusIcon className="size-4" />
         </Button>
         <div className="rounded-full dark:border-white border-black border-2 size-9 text-sm flex items-center justify-center gap-2">
-          {
-            collection.items.find((item) => item.spice.id === spice.id)
-              ?.quantity
-          }
+          {itemCount}
         </div>
       </>
     );
@@ -52,13 +43,7 @@ export function AddToCollectionButton({ spice }: { spice: Spice }) {
 
   return (
     <Button
-      onClick={() => {
-        collectionState.items.push({
-          spice,
-          style: "global",
-          quantity: 1,
-        });
-      }}
+      onClick={() => insertAfterLastOccurrence(spice)}
       disabled={isInCollection}
     >
       Add to collection

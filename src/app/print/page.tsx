@@ -1,9 +1,9 @@
 "use client";
 
-import { collectionState } from "@/components/collection-provider";
+import { CollectionItem, collectionState } from "@/components/collection-provider";
 import { proxy, useSnapshot } from "valtio";
 import { Fragment, useContext, useEffect, useState } from "react";
-import { getSpiceStyle } from "@/lib/use-spice-style-proxy";
+
 import { Button } from "@/components/ui/button";
 import { Loader2Icon, PrinterIcon } from "lucide-react";
 import { createPortal } from "react-dom";
@@ -79,25 +79,10 @@ const pageLayoutSettings = proxy<PageLayoutSettings>({
 });
 
 type Page = {
-  items: SpiceWithoutQuantity[];
+  items: CollectionItem[];
   paddingItems: null[];
 };
 
-type SpiceWithoutQuantity = Omit<
-  (typeof collectionState.items)[number],
-  "quantity"
->;
-
-function expandItems(
-  items: typeof collectionState.items
-): SpiceWithoutQuantity[] {
-  return items.flatMap((item) =>
-    Array.from({ length: item.quantity }, () => ({
-      spice: item.spice,
-      style: item.style,
-    }))
-  );
-}
 
 export default function CollectionPage() {
   const collection = useSnapshot(collectionState) as typeof collectionState;
@@ -106,7 +91,7 @@ export default function CollectionPage() {
 
   const labelsPerPage = settingsSnap.columns * settingsSnap.rows;
 
-  const expandedItems = expandItems(collection.items);
+  const expandedItems = collection.items;
 
   const pages = Math.ceil(expandedItems.length / labelsPerPage);
 
@@ -147,11 +132,7 @@ export default function CollectionPage() {
             streamFn: async function* generate({ signal }) {
               for (const item of collection.items) {
                 signal.throwIfAborted();
-                const style = getSpiceStyle(
-                  item.spice,
-                  collection,
-                  labelStyle
-                );
+                const style = item.style === "global" ? labelStyle : item.style;
                 yield [item, await exportLabel(item.spice, scale, style, fontUrls, signal)] as const;
               }
             },
@@ -162,11 +143,11 @@ export default function CollectionPage() {
     refetchOnReconnect: false,
   });
 
-  const [collectionBlobUrls, setCollectionBlobUrls] = useState<[SpiceWithoutQuantity, string][]>([]);
+  const [collectionBlobUrls, setCollectionBlobUrls] = useState<[CollectionItem, string][]>([]);
   useEffect(() => {
     if (!allLabelsRenderedQuery.data) return;
     const blobUrls =
-      allLabelsRenderedQuery.data.map(([item, blob]) => [item, URL.createObjectURL(blob)] as [SpiceWithoutQuantity, string]) ??
+      allLabelsRenderedQuery.data.map(([item, blob]) => [item, URL.createObjectURL(blob)] as [CollectionItem, string]) ??
       [];
     setCollectionBlobUrls(blobUrls);
     return () => {
@@ -176,49 +157,70 @@ export default function CollectionPage() {
 
   return (
     <>
-      <div className="max-w-[1500px] mx-auto px-2">
-        <h1 className="text-4xl font-bold text-gray-800 dark:text-gray-100 my-4">
-          Print
-        </h1>
-        {allLabelsRenderedQuery.isPending &&
-          allLabelsRenderedQuery.isEnabled && (
-            <div className="text-gray-500 dark:text-gray-400 my-4 flex flex-row gap-2 items-center">
-              <Loader2Icon className="animate-spin" />
-              Rendering labels...
+      <div className="flex flex-col md:flex-row md:h-[calc(100vh-var(--header-height,0px))] print:hidden">
+        {/* Left panel: settings */}
+        <div className="w-full md:w-[380px] shrink-0 border-b md:border-b-0 md:border-r border-gray-200 dark:border-gray-800 md:overflow-y-auto p-4 flex flex-col gap-4">
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+            Print
+          </h1>
+          {allLabelsRenderedQuery.isPending &&
+            allLabelsRenderedQuery.isEnabled && (
+              <div className="text-gray-500 dark:text-gray-400 flex flex-row gap-2 items-center text-sm">
+                <Loader2Icon className="animate-spin size-4" />
+                Rendering labels...
+              </div>
+            )}
+          {collection.items.length === 0 && (
+            <div className="text-gray-500 dark:text-gray-400 text-sm">
+              No items in collection
             </div>
           )}
-        {collection.items.length === 0 && (
-          <div className="text-gray-500 dark:text-gray-400 my-4">
-            No items in collection
-          </div>
-        )}
-        {/* eslint-disable-next-line valtio/state-snapshot-rule */}
-        <SettingsEditor settingsProxy={pageLayoutSettings} />
-        <div className="my-4">
+          {/* eslint-disable-next-line valtio/state-snapshot-rule */}
+          <SettingsEditor settingsProxy={pageLayoutSettings} />
           <Button
             onClick={() => window.print()}
             disabled={
               !allLabelsRenderedQuery.isSuccess ||
               allLabelsRenderedQuery.fetchStatus === "fetching"
             }
+            className="w-full"
           >
             Print <PrinterIcon className="size-4" />
           </Button>
         </div>
-        <div className="overflow-x-auto">
-          <div className="flex flex-row gap-4 mb-4">
-            {pagesArr.map((page, i) => (
-              <Page
-                key={i}
-                page={page}
-                settings={settingsSnap}
-                pageIndex={i}
-                labelsPerPage={labelsPerPage}
-                collectionBlobUrls={collectionBlobUrls}
-                isPreview
-                showOutlines
-              />
-            ))}
+
+        {/* Right panel: page previews */}
+        <div className="flex-1 overflow-x-auto overflow-y-auto bg-gray-100 dark:bg-gray-900 pr-8">
+          <div className="flex flex-row gap-8 p-8 items-start min-h-full">
+            {pagesArr.map((page, i) => {
+              const paperSize = paperSizes[settingsSnap.paperSize];
+              const H = 500;
+              return (
+                <div
+                  key={i}
+                  className="shrink-0 rounded-sm bg-white shadow-lg"
+                  style={{
+                    height: H,
+                    width: (paperSize.width / paperSize.height) * H,
+                  }}
+                >
+                  <div style={{
+                    transformOrigin: "top left",
+                    transform: `scale(${H / (paperSize.height * (96 / 25.4))})`,
+                  }}>
+                    <Page
+                      page={page}
+                      settings={settingsSnap}
+                      pageIndex={i}
+                      labelsPerPage={labelsPerPage}
+                      collectionBlobUrls={collectionBlobUrls}
+                      isPreview
+                      showOutlines
+                    />
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -319,7 +321,7 @@ function Page({
   settings: PageLayoutSettings;
   pageIndex: number;
   labelsPerPage: number;
-  collectionBlobUrls: [SpiceWithoutQuantity, string][];
+  collectionBlobUrls: [CollectionItem, string][];
   showOutlines?: boolean;
   isPreview?: boolean;
 }) {
@@ -348,7 +350,7 @@ function Page({
       </div>
       {[...page.items, ...page.paddingItems].map((item, index) => {
         // const totalIndex = pageIndex * labelsPerPage + index;
-        const blobUrl = item ? collectionBlobUrls.find(([spice]) => spice.spice.id === item.spice.id)?.[1] : undefined;
+        const blobUrl = item ? collectionBlobUrls.find(([ci]) => ci.key === item.key)?.[1] : undefined;
         return (
           <Fragment key={index}>
             {item && (
@@ -400,7 +402,7 @@ function SettingsEditor({
   const snapshot = useSnapshot(settingsProxy, { sync: true });
 
   return (
-    <div className="flex flex-col gap-2 max-w-[400px]">
+    <div className="flex flex-col gap-2">
       <div>
         <div className="my-1 flex flex-row space-x-4">
           <div className="min-w-16">Preset</div>

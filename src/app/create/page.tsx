@@ -2,21 +2,37 @@
 
 import { useState, useMemo } from "react";
 import { spices, Spice, languages } from "@/lib/spices";
-import { collectionState } from "@/components/collection-provider";
+import {
+  collectionState,
+  CollectionItem,
+  createCollectionItem,
+  insertAfterLastOccurrence,
+} from "@/components/collection-provider";
 import { useSnapshot } from "valtio";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   CheckIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  CopyPlusIcon,
   PaletteIcon,
+  PencilIcon,
   PrinterIcon,
   SearchIcon,
   SlidersHorizontalIcon,
   SparklesIcon,
+  TrashIcon,
 } from "lucide-react";
 import {
   Select,
@@ -36,7 +52,10 @@ import {
   labelStyleState,
   Language,
 } from "@/components/label-settings-provider";
+import { appLangDisplayNames } from "@/lib/app-lang-display-names";
 import { Separator } from "@/components/ui/separator";
+import { proxy } from "valtio";
+import { deepClone } from "valtio/utils";
 import Link from "next/link";
 
 type Step = {
@@ -116,6 +135,7 @@ const steps: Step[] = [
         (s) => s.names.length > 2,
       ]),
   },
+  { id: "customize", label: "Customize labels", icon: PencilIcon },
   { id: "order", label: "Order or print", icon: PrinterIcon },
 ];
 
@@ -206,6 +226,7 @@ export default function CreatePage() {
             pickPreferredSpices={currentStepDef.pickPreferredSpices}
           />
         )}
+        {currentStepDef.id === "customize" && <CustomizeLabelsStep />}
         {currentStepDef.id === "order" && <OrderStep />}
       </div>
     </div>
@@ -292,11 +313,13 @@ function SelectSpicesStep() {
   const collection = useSnapshot(collectionState);
   const [search, setSearch] = useState("");
 
-  const selectedMap = useMemo(
-    () =>
-      new Map(collection.items.map((item) => [item.spice.id, item.quantity])),
-    [collection.items],
-  );
+  const selectedMap = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const item of collection.items) {
+      map.set(item.spice.id, (map.get(item.spice.id) ?? 0) + 1);
+    }
+    return map;
+  }, [collection.items]);
 
   const filteredSpices = useMemo(() => {
     if (!search.trim()) return spices;
@@ -314,27 +337,31 @@ function SelectSpicesStep() {
         (item) => item.spice.id !== spice.id,
       );
     } else {
-      collectionState.items.push({
-        spice,
-        style: "global",
-        quantity: 1,
-      });
+      insertAfterLastOccurrence(spice);
     }
   }
 
-  function setQuantity(spiceId: string, quantity: number) {
-    collectionState.items = collectionState.items.map((item) => {
-      if (item.spice.id === spiceId) {
-        return { ...item, quantity };
+  function setCount(spice: Spice, newCount: number) {
+    const currentCount = selectedMap.get(spice.id) ?? 0;
+    if (newCount > currentCount) {
+      for (let i = 0; i < newCount - currentCount; i++) {
+        insertAfterLastOccurrence(spice);
       }
-      return item;
-    });
+    } else if (newCount < currentCount) {
+      let toRemove = currentCount - newCount;
+      for (let i = collectionState.items.length - 1; i >= 0 && toRemove > 0; i--) {
+        if (collectionState.items[i].spice.id === spice.id) {
+          collectionState.items.splice(i, 1);
+          toRemove--;
+        }
+      }
+    }
   }
 
   function selectAll() {
     const unselected = filteredSpices.filter((s) => !selectedMap.has(s.id));
     for (const spice of unselected) {
-      collectionState.items.push({ spice, style: "global", quantity: 1 });
+      collectionState.items.push(createCollectionItem(spice));
     }
   }
 
@@ -377,8 +404,8 @@ function SelectSpicesStep() {
 
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2">
         {filteredSpices.map((spice) => {
-          const checked = selectedMap.has(spice.id);
-          const quantity = selectedMap.get(spice.id) ?? 1;
+          const count = selectedMap.get(spice.id) ?? 0;
+          const checked = count > 0;
           const primaryName =
             spice.names.find((n) => n.lang === "en")?.value ??
             spice.names[0]?.value ??
@@ -429,8 +456,8 @@ function SelectSpicesStep() {
                   onClick={(e) => e.stopPropagation()}
                 >
                   <Select
-                    value={String(quantity)}
-                    onValueChange={(v) => setQuantity(spice.id, Number(v))}
+                    value={String(count)}
+                    onValueChange={(v) => setCount(spice, Number(v))}
                   >
                     <SelectTrigger className="h-6 w-12 text-[10px] bg-background/80 border-0 shadow-sm px-1.5">
                       <SelectValue />
@@ -624,6 +651,277 @@ function PreviewLabel({
         qualitySettings={{ strokes: 1 }}
         expectedImageSize={250}
       />
+    </div>
+  );
+}
+
+function CustomizeLabelsStep() {
+  const collection = useSnapshot(collectionState);
+  const labelStyle = useSnapshot(labelStyleState);
+
+  const relevantLangs = useMemo(() => {
+    const langs: Language[] = [labelStyle.primaryLanguage];
+    if (labelStyle.secondaryLanguage) langs.push(labelStyle.secondaryLanguage);
+    return langs;
+  }, [labelStyle.primaryLanguage, labelStyle.secondaryLanguage]);
+
+  if (collection.items.length === 0) {
+    return (
+      <div className="text-center py-16">
+        <p className="text-sm text-muted-foreground">
+          No spices selected. Go back and select some spices first.
+        </p>
+      </div>
+    );
+  }
+
+  const numbering = useMemo(() => {
+    const counts = new Map<string, number>();
+    const numbers: number[] = [];
+    for (const item of collection.items) {
+      const count = (counts.get(item.spice.id) ?? 0) + 1;
+      counts.set(item.spice.id, count);
+      numbers.push(count);
+    }
+    const totals = new Map(counts);
+    return { numbers, totals };
+  }, [collection.items]);
+
+  return (
+    <div>
+      <p className="text-sm text-muted-foreground mb-4">
+        Optionally customize the text on individual labels. Click
+        &ldquo;Customize&rdquo; to edit a label&rsquo;s texts.
+      </p>
+      <div className="flex flex-col gap-3">
+        {collection.items.map((item, index) => (
+          <CustomizeLabelRow
+            key={index}
+            index={index}
+            item={item as CollectionItem}
+            relevantLangs={relevantLangs}
+            number={numbering.numbers[index]}
+            total={numbering.totals.get(item.spice.id) ?? 1}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CustomizeLabelRow({
+  index,
+  item,
+  relevantLangs,
+  number,
+  total,
+}: {
+  index: number;
+  item: CollectionItem;
+  relevantLangs: Language[];
+  number: number;
+  total: number;
+}) {
+  const [open, setOpen] = useState(false);
+  const globalStyle = useSnapshot(labelStyleState) as typeof labelStyleState;
+  const itemProxy = collectionState.items[index];
+
+  const itemStyleProxy = useMemo(() => {
+    if (itemProxy.style !== "global") return itemProxy.style;
+    return labelStyleState;
+  }, [itemProxy.style]);
+  const itemStyle = useSnapshot(itemStyleProxy) as typeof labelStyleState;
+
+  const primaryName =
+    item.spice.names.find((n) => n.lang === "en")?.value ??
+    item.spice.names[0]?.value ??
+    item.spice.id;
+
+  const originalSpice = spices.find((s) => s.id === item.spice.id);
+  const originalPrimaryName =
+    originalSpice?.names.find((n) => n.lang === "en")?.value ??
+    originalSpice?.names[0]?.value;
+  const isRenamed =
+    originalPrimaryName !== undefined && primaryName !== originalPrimaryName;
+
+  function ensurePerItemStyle() {
+    if (itemProxy.style === "global") {
+      itemProxy.style = proxy(deepClone(globalStyle));
+    }
+  }
+
+  const displayName = total > 1 ? `${primaryName} #${number}` : primaryName;
+
+  return (
+    <div className="border rounded-lg overflow-hidden">
+      <div className="flex items-center gap-3 p-3">
+        <div className="size-16 shrink-0">
+          <LabelRenderer
+            spice={item.spice}
+            style={itemStyle}
+            scaleToFit
+            outline
+            qualitySettings={{ strokes: 1 }}
+            expectedImageSize={100}
+          />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-medium truncate">{displayName}</div>
+          {isRenamed && (
+            <div className="text-xs text-muted-foreground truncate">
+              based on {originalPrimaryName}
+            </div>
+          )}
+          {!isRenamed && item.spice.binomialName && (
+            <div className="text-xs text-muted-foreground italic truncate">
+              {item.spice.binomialName}
+            </div>
+          )}
+        </div>
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              const clone = createCollectionItem(item.spice);
+              clone.spice = JSON.parse(JSON.stringify(item.spice));
+              collectionState.items.splice(index + 1, 0, clone);
+            }}
+            title="Duplicate"
+          >
+            <CopyPlusIcon className="size-3.5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              collectionState.items.splice(index, 1);
+            }}
+            title="Remove"
+          >
+            <TrashIcon className="size-3.5" />
+          </Button>
+        </div>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="sm">
+              <PencilIcon className="size-3.5" />
+              Customize
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Customize &ldquo;{displayName}&rdquo;</DialogTitle>
+              <DialogDescription>
+                Edit the texts and style for this label.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col gap-4">
+              <div className="mx-auto w-64">
+                <LabelRenderer
+                  spice={item.spice}
+                  style={itemStyle}
+                  scaleToFit
+                  outline
+                  qualitySettings={{ strokes: 1 }}
+                  expectedImageSize={400}
+                />
+              </div>
+              <Separator />
+              <div className="flex flex-col gap-2">
+                <h4 className="text-sm font-medium">Texts</h4>
+                {relevantLangs.map((lang) => {
+                  const nameEntry = item.spice.names.find(
+                    (n) => n.lang === lang,
+                  );
+                  if (!nameEntry) return null;
+                  const nameIndex = item.spice.names.indexOf(nameEntry);
+                  return (
+                    <div key={lang} className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground w-20 shrink-0">
+                        {appLangDisplayNames.of(lang)}
+                      </span>
+                      <Input
+                        value={nameEntry.value}
+                        onChange={(e) => {
+                          itemProxy.spice.names[nameIndex].value =
+                            e.target.value;
+                        }}
+                        className="h-8 text-sm"
+                      />
+                    </div>
+                  );
+                })}
+                {item.spice.binomialName !== undefined && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground w-20 shrink-0">
+                      Binomial
+                    </span>
+                    <Input
+                      value={item.spice.binomialName}
+                      onChange={(e) => {
+                        itemProxy.spice.binomialName = e.target.value;
+                      }}
+                      className="h-8 text-sm"
+                    />
+                  </div>
+                )}
+              </div>
+              <Separator />
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-sm font-medium">Label style</h4>
+                  {item.style === "global" && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={ensurePerItemStyle}
+                    >
+                      Override global style
+                    </Button>
+                  )}
+                </div>
+                {item.style !== "global" ? (
+                  <div>
+                    <LanguagesSections
+                      styleProxy={itemProxy.style as typeof labelStyleState}
+                      languages={relevantLangs}
+                    />
+                    <ElementsSections
+                      styleProxy={itemProxy.style as typeof labelStyleState}
+                    />
+                    <FontsSections
+                      spice={item.spice}
+                      labelStyleSnapshot={itemStyle}
+                      styleProxy={itemProxy.style as typeof labelStyleState}
+                      hideUnusedStyles={false}
+                      usedLanguages={
+                        new Set(relevantLangs)
+                      }
+                    />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="mt-2"
+                      onClick={() => {
+                        itemProxy.style = "global";
+                      }}
+                    >
+                      Reset to global style
+                    </Button>
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    Using the global style. Click &ldquo;Override global
+                    style&rdquo; to customize this label&rsquo;s style
+                    independently.
+                  </p>
+                )}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 }

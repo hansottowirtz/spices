@@ -165,7 +165,7 @@ export function LabelRenderer({
 
   return (
     <div
-      className="relative"
+      className="relative select-none"
       style={{
         fontSynthesis: "none",
         ...(scaleToFit

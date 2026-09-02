@@ -41,6 +41,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",
     "@next/eslint-plugin-next": "^15.5.9",
+    "@svgr/webpack": "^8.1.0",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/css-tree": "^2.3.11",
     "@types/node": "^20.19.27",

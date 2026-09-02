@@ -40,11 +40,17 @@ export async function exportLabel(
   signal?: AbortSignal
 ): Promise<Blob> {
   const container = document.createElement("div");
-  // container.style.position = "absolute";
-  // container.style.top = "-10000px";
-  // container.style.left = "-10000px";
+  const placer = document.createElement("div");
+  placer.style.position = "absolute";
+  placer.style.bottom = "16px";
+  placer.style.right = "16px";
+  placer.style.transform = "scale(0.1)";
+  placer.style.transformOrigin = "bottom right";
 
-  document.body.appendChild(container); // needs to be in body, otherwise styles are not applied
+
+  placer.appendChild(container);
+  document.body.appendChild(placer); // needs to be in body, otherwise styles are not applied
+
   const containerRoot = ReactDOM.createRoot(container);
   containerRoot.render(
     <LabelRenderer
