@@ -165,6 +165,27 @@ export const spices: Spice[] = [
     ],
   },
   {
+    id: "basil",
+    imageId: "basil",
+    type: "natural",
+    cuisines: ["Italian", "Thai"],
+    names: [
+      {
+        lang: "en",
+        value: "Basil",
+      },
+      {
+        lang: "es",
+        value: "Albahaca",
+      },
+      {
+        lang: "nl",
+        value: "Basilicum",
+      }
+    ],
+    binomialName: "Ocimum basilicum",
+  },
+  {
     id: "bay-leaf",
     type: "natural",
     cuisines: [],
